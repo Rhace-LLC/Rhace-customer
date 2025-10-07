@@ -1,5 +1,6 @@
-import Footer from "@/components/footer";
-import Header from "@/components/header";
+import { BottomNavigation } from "@/components/layout/BottomNavigation";
+import { Header } from "@/components/layout/Header";
+import { Sidebar } from "@/components/layout/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import NotFound from "@/pages/404";
 import ForgotPassword from "@/pages/auth/forgotpassword";
@@ -7,8 +8,14 @@ import Login from "@/pages/auth/login";
 import ResetPassword from "@/pages/auth/resetpassword";
 import Signup from "@/pages/auth/signup";
 import OtpVerification from "@/pages/auth/verifyaccount";
-import HomePage from "@/pages/home";
-import React, { useEffect } from "react";
+import { HomePage } from "@/pages/home";
+import { MenuPage } from "@/pages/menu";
+import { NotificationsPage } from "@/pages/notifications";
+import { OrdersPage } from "@/pages/orders";
+import { PaymentsPage } from "@/pages/payments";
+import { ProfilePage } from "@/pages/profile";
+import { ReservationsPage } from "@/pages/reservations";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -45,6 +52,30 @@ function NavigationContent() {
   let auth = useAuth();
   let navigate = useNavigate();
   const location = useLocation();
+  const [activeTab, setActiveTab] = useState("home");
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case "home":
+        return "Home";
+      case "menu":
+        return "Menu";
+      case "orders":
+        return "Orders";
+      case "reservations":
+        return "Reservations";
+      case "payments":
+        return "Payments";
+      case "notifications":
+        return "Notifications";
+      case "profile":
+        return "Profile";
+      default:
+        return "Bookies";
+    }
+  };
 
   useEffect(() => {
     // This useEffect is now only for general redirection,
@@ -54,13 +85,19 @@ function NavigationContent() {
     }
   }, [auth, location, navigate]);
 
-  if (auth.isAuthenticated && location.pathname === "/") {
-    return null; // Return nothing to prevent the landing page from rendering
-  }
-
   return (
     <div className="min-h-screen">
-      <Header />
+      <Header
+        title={getPageTitle()}
+        onMenuClick={() => setIsSidebarOpen(true)}
+      />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+
       <main className={`flex`}>
         <section id="mainpage" className={`flex-1`}>
           <Routes>
@@ -72,12 +109,20 @@ function NavigationContent() {
             <Route path="/resetpassword" Component={ResetPassword} />
             <Route path="/verify-email" Component={OtpVerification} />
 
+            <Route path="/menu" Component={MenuPage} />
+            <Route path="/orders" Component={OrdersPage} />
+            <Route path="/reservations" Component={ReservationsPage} />
+            <Route path="/payments" Component={PaymentsPage} />
+            <Route path="/notifications" Component={NotificationsPage} />
+            <Route path="/profile" Component={ProfilePage} />
+
             {/* 404 Route - must be last */}
             <Route path="*" Component={NotFound} />
           </Routes>
         </section>
       </main>
-      {<Footer />}
+
+      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 }
