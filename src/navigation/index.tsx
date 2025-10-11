@@ -97,6 +97,9 @@ function NavigationContent() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
+      
+         <div className="py-10" /> 
+      
 
       <main className={`flex`}>
         <section id="mainpage" className={`flex-1`}>

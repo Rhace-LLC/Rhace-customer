@@ -11,7 +11,7 @@ export function BottomNavigation({
   onTabChange,
 }: BottomNavigationProps) {
   const tabs = [
-    { id: "home", label: "Home", icon: Home, path: "/home" },
+    { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Menu, path: "/menu" },
     { id: "orders", label: "Orders", icon: ShoppingBag, path: "/orders" },
     { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },

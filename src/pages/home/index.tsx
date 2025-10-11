@@ -57,7 +57,7 @@ export function HomePage() {
           isOpen={isQRScanOpen}
           onClose={() => setIsQRScanOpen(false)}
         />
-        <div className="rounded-xl bg-white p-6 shadow-sm">
+        <div className="rounded-xl bg-white p-6 shadow-sm text-center">
           <h2 className="mb-2 text-xl">Welcome back!</h2>
           <p className="text-muted-foreground mb-4">
             Ready to order something delicious?
