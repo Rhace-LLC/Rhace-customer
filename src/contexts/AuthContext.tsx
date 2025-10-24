@@ -1,47 +1,47 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
+interface DecodedToken {
+  exp: number;
+  iat?: number;
+  role?: string;
+  [key: string]: any;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: string, email: string, accountType: string) => void;
   logout: () => void;
-  saveProfile: (profile: null) => void;
+  saveProfile: (profile: unknown) => void;
   email: string;
   token: string;
   accountType: string;
   isProvider: boolean;
   isClient: boolean;
+  loading: boolean;
 }
 
-const dummyLogin = (): void => {};
-
-const dummyLogout = (): void => {};
-
-const dummySaveProfile = (): void => {};
+// Default functions to avoid undefined references
+const noop = () => {};
 
 const defaultAuthContext: AuthContextType = {
   isAuthenticated: false,
-  login: dummyLogin,
-  logout: dummyLogout,
-  saveProfile: dummySaveProfile,
+  login: noop,
+  logout: noop,
+  saveProfile: noop,
   email: "",
   token: "",
   accountType: "",
   isProvider: false,
   isClient: false,
+  loading: true,
 };
 
-// Create the context with initial values
+// Create the context
 const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
-// Custom hook to use the auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+// Custom hook for easy context access
+export const useAuth = () => useContext(AuthContext);
 
 interface TokenExpiryInfo {
   expired: boolean;
@@ -52,104 +52,104 @@ interface TokenExpiryInfo {
 const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
   const nowInSeconds = Math.floor(Date.now() / 1000);
   const oneDayInSeconds = 24 * 60 * 60;
-
-  // Treat token as expiring 1 day earlier than actual exp
   const adjustedExp = exp - oneDayInSeconds;
   const diffInSeconds = adjustedExp - nowInSeconds;
 
   if (diffInSeconds <= 0) {
-    return {
-      expired: true,
-      hours: 0,
-      days: 0,
-    };
+    return { expired: true, hours: 0, days: 0 };
   }
-
-  const hours = Math.floor(diffInSeconds / 3600);
-  const days = Math.floor(diffInSeconds / (3600 * 24));
 
   return {
     expired: false,
-    hours,
-    days,
+    hours: Math.floor(diffInSeconds / 3600),
+    days: Math.floor(diffInSeconds / (3600 * 24)),
   };
 };
 
-// AuthProvider component to wrap your app and provide context
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const accessToken = localStorage.getItem("access_token");
-  const email_saved = localStorage.getItem("user_email");
+// Provider component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
+  const [accountType, setAccountType] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  let isAuthenticated = false;
-  const [email, setEmail] = useState(email_saved || "");
-  const [accountType, setAccountType] = useState<string>("");
   const isProvider = accountType === "Service Provider";
   const isClient = accountType === "Client";
-  const [token, setToken] = useState(accessToken || "");
 
-  if (token) {
-    const decoded = jwtDecode(token);
-    const tokenStatus = tokenExpiresIn(decoded.exp as number);
-    console.log({ tokenStatus });
-    isAuthenticated = !!token && !tokenExpiresIn(decoded.exp as number).expired;
-  }
+  // 🔄 Restore session from localStorage on app load
+  useEffect(() => {
+    const restoreSession = () => {
+      const storedToken = localStorage.getItem("access_token");
+      const storedEmail = localStorage.getItem("user_email");
+      const storedUser = localStorage.getItem("user_saved");
 
-  //default auth state is not authenticated. then use effect checks if there is an accessToken
+      if (storedToken && storedEmail) {
+        try {
+          const decoded = jwtDecode<DecodedToken>(storedToken);
+          const tokenStatus = tokenExpiresIn(decoded.exp);
 
+          if (!tokenStatus.expired) {
+            const parsedUser = storedUser ? JSON.parse(storedUser) : {};
+            setToken(storedToken);
+            setEmail(storedEmail);
+            setAccountType(parsedUser?.type || decoded.role || "");
+            setIsAuthenticated(true);
+          } else {
+            console.warn("Token expired, clearing session.");
+            localStorage.clear();
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+          localStorage.clear();
+        }
+      }
+
+      setLoading(false); // ✅ End loading state
+    };
+
+    restoreSession();
+  }, []);
+
+  // 🔐 Handle login
   const login = (accessToken: string, email: string, accountType: string) => {
-    setEmail(email);
     setToken(accessToken);
+    setEmail(email);
     setAccountType(accountType);
-    window.localStorage.setItem("access_token", accessToken);
-    window.localStorage.setItem("user_email", email);
+    setIsAuthenticated(true);
+
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("user_email", email);
+    localStorage.setItem("user_saved", JSON.stringify({ type: accountType }));
   };
 
-  const saveProfile = (profile: null) => {
-    window.localStorage.setItem("user_profile", String(profile));
+  // 💾 Save profile
+  const saveProfile = (profile: unknown) => {
+    localStorage.setItem("user_profile", JSON.stringify(profile));
   };
 
-  const clearProfile = () => {
-    window.localStorage.setItem("user_profile", "");
-  };
-
+  // 🚪 Logout
   const logout = () => {
     setToken("");
-    window.localStorage.setItem("access_token", "");
-    window.localStorage.setItem("token_expires_at", "");
-    window.localStorage.setItem("user_email", "");
-    window.localStorage.setItem("user_saved", "");
-    clearProfile();
-    // navigate to homepage.
+    setEmail("");
+    setAccountType("");
+    setIsAuthenticated(false);
+    localStorage.clear();
   };
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem("access_token");
-    const email = localStorage.getItem("user_email");
-    const user = localStorage.getItem("user_saved");
-    const parsedUser = user ? JSON.parse(user as string) : "";
-    console.log({ parsedUser });
-
-    if (accessToken && email && user) {
-      setEmail(email);
-      setToken(accessToken);
-      setAccountType(parsedUser?.type);
-    }
-  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
         login,
-        saveProfile,
         logout,
+        saveProfile,
         email,
         token,
         accountType,
         isProvider,
         isClient,
+        loading,
       }}
     >
       {children}

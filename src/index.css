@@ -7,7 +7,7 @@
   --radius: 0.625rem;
 
   /* === Base surfaces === */
-  --background: oklch(0.98 0.01 250);
+  --background: #ffffff;
   --foreground: oklch(0.22 0.03 260);
 
   /* === Cards and surfaces === */
@@ -52,7 +52,11 @@
   --sidebar-ring: oklch(0.72 0.16 250);
 
   /* === Gradient === */
-  --gradient-main: linear-gradient(45deg, oklch(0.72 0.16 250), oklch(0.93 0.015 250));
+  --gradient-main: linear-gradient(
+    45deg,
+    oklch(0.72 0.16 250),
+    oklch(0.93 0.015 250)
+  );
 }
 
 @theme {

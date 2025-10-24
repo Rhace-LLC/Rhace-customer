@@ -20,23 +20,38 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  Navigate,
   useLocation,
   useNavigate,
 } from "react-router-dom";
 
-// Import pages
-
+// --------------------- Scroll to top on route change ---------------------
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-
-  useEffect(() => {
-    // Scroll window to the top whenever the route changes
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
+  useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 };
 
+/** 🔒 Protected Route Wrapper */
+function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const auth = useAuth();
+  console.log("isAuth", auth.isAuthenticated)
+
+  if (auth.loading) {
+    return <div className="p-8 text-center">Loading Session...</div>;
+  }
+
+  if (!auth.isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+// --------------------- Main Router ---------------------
 function Navigation(): React.JSX.Element {
   return (
     <Router>
@@ -46,15 +61,13 @@ function Navigation(): React.JSX.Element {
   );
 }
 
-// Move useLocation inside a separate component inside Router
-// How to implement page not found?
 function NavigationContent() {
-  let auth = useAuth();
-  let navigate = useNavigate();
-  const location = useLocation();
+  const auth = useAuth();
   const [activeTab, setActiveTab] = useState("home");
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  console.log(auth)
 
   const getPageTitle = () => {
     switch (activeTab) {
@@ -76,56 +89,119 @@ function NavigationContent() {
         return "Bookies";
     }
   };
-
   useEffect(() => {
-    // This useEffect is now only for general redirection,
-    // but the core fix is in the conditional rendering below.
     if (auth.isAuthenticated && location.pathname === "/") {
       navigate("/dashboard");
     }
   }, [auth, location, navigate]);
 
+  if (auth.isAuthenticated && location.pathname === "/") {
+    return null;
+  }
+
   return (
     <div className="min-h-screen">
+      {
+        auth.isAuthenticated && (
+          <>
+          
       <Header
         title={getPageTitle()}
         onMenuClick={() => setIsSidebarOpen(true)}
       />
+      <div className="py-10" />
+          </>
+
+        )
+      }
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      
-         <div className="py-10" /> 
-      
 
-      <main className={`flex`}>
-        <section id="mainpage" className={`flex-1`}>
+
+      <main className="flex">
+        <section id="mainpage" className="flex-1">
           <Routes>
-            <Route path="/" Component={HomePage} />
-            {/* Auth Pages */}
+            {/* Public Routes */}
             <Route path="/login" Component={Login} />
             <Route path="/signup" Component={Signup} />
             <Route path="/forgot-password" Component={ForgotPassword} />
             <Route path="/resetpassword" Component={ResetPassword} />
             <Route path="/verify-email" Component={OtpVerification} />
 
-            <Route path="/menu" Component={MenuPage} />
-            <Route path="/orders" Component={OrdersPage} />
-            <Route path="/reservations" Component={ReservationsPage} />
-            <Route path="/payments" Component={PaymentsPage} />
-            <Route path="/notifications" Component={NotificationsPage} />
-            <Route path="/profile" Component={ProfilePage} />
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Protected Routes */}
+            <Route
+              path="/menu"
+              element={
+                <ProtectedRoute>
+                  <MenuPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reservations"
+              element={
+                <ProtectedRoute>
+                  <ReservationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payments"
+              element={
+                <ProtectedRoute>
+                  <PaymentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* 404 Route - must be last */}
+            {/* Catch-all 404 */}
             <Route path="*" Component={NotFound} />
           </Routes>
         </section>
       </main>
 
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      {
+        auth.isAuthenticated && (
+          <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />          
+        )
+      }
     </div>
   );
 }

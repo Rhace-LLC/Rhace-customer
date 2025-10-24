@@ -1,0 +1,45 @@
+/* Floating bubble background */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.4;
+  pointer-events: none;
+  background-color: rgb(219 234 254); /* bg-blue-100 */
+  transform-origin: center;
+}
+
+/* Individual bubble sizes, positions & randomized animation properties */
+.bubble-1 {
+  width: 180px;
+  height: 180px;
+  top: 8%;
+  left: 5%;
+}
+
+.bubble-2 {
+  width: 120px;
+  height: 120px;
+  top: 75%;
+  left: 12%;
+}
+
+.bubble-3 {
+  width: 220px;
+  height: 220px;
+  top: 25%;
+  right: 6%;
+}
+
+.bubble-4 {
+  width: 150px;
+  height: 150px;
+  bottom: 15%;
+  right: 18%;
+}
+
+.bubble-5 {
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: 40%;
+}
