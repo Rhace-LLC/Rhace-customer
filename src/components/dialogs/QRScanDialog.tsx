@@ -3,7 +3,7 @@ import { X, Camera, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { QrReader } from "react-qr-reader";
+import { useZxing } from "react-zxing";
 
 interface QRScanDialogProps {
   isOpen: boolean;
@@ -13,24 +13,23 @@ interface QRScanDialogProps {
 export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
-  console.log("Scan Result:", scanResult)
+  const [error, setError] = useState<string | null>(null);
 
-  const handleScan = (result: string | null) => {
-    if (result) {
-      setScanResult(result);
+  const { ref } = useZxing({
+    paused: !scanning,
+    onDecodeResult(result) {
+      const text = result.getText();
+      setScanResult(text);
+      toast.success(`QR code detected: ${text}`);
       setScanning(false);
-      toast.success(`QR code detected: ${result}`);
       onClose();
-    }
-    else {
-      handleError("No Result")
-    }
-  };
-
-  const handleError = (err: any) => {
-    console.error(err);
-    toast.error("Unable to access camera or scan QR code");
-  };
+    },
+    onError(err) {
+      console.error(err);
+      setError("Unable to access camera or scan QR code");
+      toast.error("Unable to access camera or scan QR code");
+    },
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,18 +57,9 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
                 <p className="text-sm opacity-70">Camera view will appear here</p>
               </div>
             ) : (
-              <QrReader
-                constraints={{ facingMode: "environment" }}
-                onResult={(result, error) => {
-                  if (!!result) {
-                    handleScan(result.getText());
-                  }
-                  if (!!error) {
-                    console.warn(error);
-                  }
-                }}
-                containerStyle={{ width: "100%", height: "100%" }}
-                videoStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
+              <video
+                ref={ref}
+                className="w-full h-full object-cover rounded-lg"
               />
             )}
           </div>
