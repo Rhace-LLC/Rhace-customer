@@ -2,8 +2,37 @@
 
 import { getConfig } from "./utils/reqConfig";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
-import { CategoryData } from "@/store/category.slice";
-import { MenuDishData } from "@/store/menu.slice";
+
+// ---------------- Types ----------------
+export interface CategoryData {
+  id: number;
+  name: string;
+  description: string | null;
+  image: string | null;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ---------------- Types ----------------
+export interface MenuDishData {
+  id: string;
+  name: string;
+  category: CategoryData;
+  description: string;
+  price: string;
+  ingredients: {
+    inventory_item: number;
+    quantity: number;
+  }[];
+  display_ingredients: string[];
+  allergens: string[];
+  image_url: string | null;
+  prep_time: string;
+  created: string;
+  updated: string;
+  availability: boolean;
+}
 
 // ========== CATEGORIES =========
 const getAllCategories = async (token: string): Promise<CategoryData[]> => {

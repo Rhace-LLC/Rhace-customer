@@ -13,6 +13,7 @@ interface QRScanDialogProps {
 export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
+  console.log("Scan Result:", scanResult)
 
   const handleScan = (result: string | null) => {
     if (result) {
@@ -20,6 +21,9 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
       setScanning(false);
       toast.success(`QR code detected: ${result}`);
       onClose();
+    }
+    else {
+      handleError("No Result")
     }
   };
 
