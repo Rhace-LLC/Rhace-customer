@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const auth = useAuth();
   const [userInfo, setUserInfo] = useState({
     name: "John Doe",
     email: "john.doe@email.com",
@@ -30,7 +32,7 @@ export function ProfilePage() {
   const handleLogout = () => {
     if (confirm("Are you sure you want to log out?")) {
       // Mock logout functionality
-      alert("Logged out successfully!");
+      auth.logout();
     }
   };
 

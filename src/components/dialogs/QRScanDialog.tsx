@@ -3,6 +3,7 @@ import { X, Camera, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { QrReader } from "react-qr-reader";
 
 interface QRScanDialogProps {
   isOpen: boolean;
@@ -10,16 +11,21 @@ interface QRScanDialogProps {
 }
 
 export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
-  const [isScanning, setIsScanning] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<string | null>(null);
 
-  const handleStartScan = () => {
-    setIsScanning(true);
-    // Mock QR scanning process
-    setTimeout(() => {
-      setIsScanning(false);
-      toast.success("Successfully scanned, Table 2");
+  const handleScan = (result: string | null) => {
+    if (result) {
+      setScanResult(result);
+      setScanning(false);
+      toast.success(`QR code detected: ${result}`);
       onClose();
-    }, 3000);
+    }
+  };
+
+  const handleError = (err: any) => {
+    console.error(err);
+    toast.error("Unable to access camera or scan QR code");
   };
 
   return (
@@ -37,32 +43,30 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
         <div className="space-y-4">
           <div className="text-center">
             <p className="text-muted-foreground mb-4">
-              Scan the QR code on your table to access the menu and place orders
+              Point your camera at the QR code on your table
             </p>
           </div>
 
-          {/* Mock Camera View */}
-          <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-            {isScanning ? (
-              <div className="text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent"></div>
-                <p className="text-muted-foreground text-sm">Scanning...</p>
-
-                {/* Scanning overlay */}
-                <div className="border-primary absolute inset-4 rounded-lg border-2">
-                  <div className="border-primary absolute top-0 left-0 h-6 w-6 rounded-tl-lg border-t-4 border-l-4"></div>
-                  <div className="border-primary absolute top-0 right-0 h-6 w-6 rounded-tr-lg border-t-4 border-r-4"></div>
-                  <div className="border-primary absolute bottom-0 left-0 h-6 w-6 rounded-bl-lg border-b-4 border-l-4"></div>
-                  <div className="border-primary absolute right-0 bottom-0 h-6 w-6 rounded-br-lg border-r-4 border-b-4"></div>
-                </div>
+          <div className="relative aspect-square overflow-hidden rounded-lg bg-black">
+            {!scanning ? (
+              <div className="flex flex-col items-center justify-center h-full text-center text-white bg-gray-900/70">
+                <QrCode className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
+                <p className="text-sm opacity-70">Camera view will appear here</p>
               </div>
             ) : (
-              <div className="text-center">
-                <QrCode className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-                <p className="text-muted-foreground text-sm">
-                  Camera view will appear here
-                </p>
-              </div>
+              <QrReader
+                constraints={{ facingMode: "environment" }}
+                onResult={(result, error) => {
+                  if (!!result) {
+                    handleScan(result.getText());
+                  }
+                  if (!!error) {
+                    console.warn(error);
+                  }
+                }}
+                containerStyle={{ width: "100%", height: "100%" }}
+                videoStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             )}
           </div>
 
@@ -75,12 +79,11 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
               Cancel
             </Button>
             <Button
-              onClick={handleStartScan}
-              disabled={isScanning}
+              onClick={() => setScanning((prev) => !prev)}
               className="bg-primary hover:bg-primary/90 flex-1"
             >
               <Camera className="mr-2 h-4 w-4" />
-              {isScanning ? "Scanning..." : "Start Scan"}
+              {scanning ? "Stop Scan" : "Start Scan"}
             </Button>
           </div>
         </div>

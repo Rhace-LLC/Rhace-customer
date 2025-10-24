@@ -67,7 +67,9 @@ const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
 };
 
 // Provider component
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [accountType, setAccountType] = useState("");

@@ -63,41 +63,43 @@ function Navigation(): React.JSX.Element {
 
 function NavigationContent() {
   const auth = useAuth();
-  const [activeTab, setActiveTab] = useState("home");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation()
 
-  console.log(auth)
-
-  const getPageTitle = () => {
-    switch (activeTab) {
-      case "home":
-        return "Home";
-      case "menu":
-        return "Menu";
-      case "orders":
-        return "Orders";
-      case "reservations":
-        return "Reservations";
-      case "payments":
-        return "Payments";
-      case "notifications":
-        return "Notifications";
-      case "profile":
-        return "Profile";
-      default:
-        return "Bookies";
-    }
+  const [activeTab, setActiveTab] = useState("home");
+  const [title, setTitle] = useState("");
+  
+  // Map pathname to tab key and title
+  const pathToTab: Record<string, { tab: string; title: string }> = {
+    "/": { tab: "home", title: "Home" },
+    "/menu": { tab: "menu", title: "Menu" },
+    "/orders": { tab: "orders", title: "Orders" },
+    "/reservations": { tab: "reservations", title: "Reservations" },
+    "/payments": { tab: "payments", title: "Payments" },
+    "/notifications": { tab: "notifications", title: "Notifications" },
+    "/profile": { tab: "profile", title: "Profile" },
+    "/login": { tab: "login", title: "Login" },
   };
-  useEffect(() => {
-    if (auth.isAuthenticated && location.pathname === "/") {
-      navigate("/dashboard");
-    }
-  }, [auth, location, navigate]);
 
-  if (auth.isAuthenticated && location.pathname === "/") {
-    return null;
-  }
+  // Update activeTab and title whenever location changes
+  useEffect(() => {
+    const mapping = pathToTab[location.pathname];
+    if (mapping) {
+      setActiveTab(mapping.tab);
+      setTitle(mapping.title);
+    } else {
+      setActiveTab("home");
+      setTitle("Rhace");
+    }
+  }, [location.pathname]);
+
+  // Redirect logged-in users away from /login
+  useEffect(() => {
+    if (auth.isAuthenticated && location.pathname === "/login") {
+      navigate("/");
+    }
+  }, [auth.isAuthenticated, location.pathname, navigate]);
 
   return (
     <div className="min-h-screen">
@@ -106,7 +108,7 @@ function NavigationContent() {
           <>
           
       <Header
-        title={getPageTitle()}
+        title={title}
         onMenuClick={() => setIsSidebarOpen(true)}
       />
       <div className="py-10" />
@@ -118,7 +120,7 @@ function NavigationContent() {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={()=> {}}
       />
 
 
