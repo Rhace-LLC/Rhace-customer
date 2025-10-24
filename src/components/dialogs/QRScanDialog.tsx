@@ -14,6 +14,7 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  console.log("Error", error,"Scan Result", scanResult)
 
   const { ref } = useZxing({
     paused: !scanning,
