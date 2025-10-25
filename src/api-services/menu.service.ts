@@ -31,7 +31,7 @@ export interface MenuDishData {
   prep_time: string;
   created: string;
   updated: string;
-  availability: boolean;
+  available: boolean;
 }
 
 // ========== CATEGORIES =========

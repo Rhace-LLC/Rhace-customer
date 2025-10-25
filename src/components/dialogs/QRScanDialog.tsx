@@ -7,23 +7,29 @@ import { useZxing } from "react-zxing";
 
 interface QRScanDialogProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (data: string) => void;
+  onSuccess: (data: string) => void;
 }
 
-export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
+export function QRScanDialog({
+  isOpen,
+  onClose,
+  onSuccess,
+}: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  console.log("Error", error,"Scan Result", scanResult)
+  console.log(error, scanResult);
 
   const { ref } = useZxing({
     paused: !scanning,
     onDecodeResult(result) {
+      console.log("here", result.getText());
       const text = result.getText();
       setScanResult(text);
       toast.success(`QR code detected: ${text}`);
       setScanning(false);
-      onClose();
+      onSuccess(text); // ✅ Call onSuccess instead of onClose
     },
     onError(err) {
       console.error(err);
@@ -32,13 +38,18 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
     },
   });
 
+  const handleDialogClose = () => {
+    setScanning(false);
+    onClose("Closed-True");
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>Scan QR Code</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={handleDialogClose}>
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -53,14 +64,16 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
 
           <div className="relative aspect-square overflow-hidden rounded-lg bg-black">
             {!scanning ? (
-              <div className="flex flex-col items-center justify-center h-full text-center text-white bg-gray-900/70">
+              <div className="flex h-full flex-col items-center justify-center bg-gray-900/70 text-center text-white">
                 <QrCode className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-                <p className="text-sm opacity-70">Camera view will appear here</p>
+                <p className="text-sm opacity-70">
+                  Camera view will appear here
+                </p>
               </div>
             ) : (
               <video
                 ref={ref}
-                className="w-full h-full object-cover rounded-lg"
+                className="h-full w-full rounded-lg object-cover"
               />
             )}
           </div>
@@ -70,7 +83,11 @@ export function QRScanDialog({ isOpen, onClose }: QRScanDialogProps) {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={handleDialogClose}
+              className="flex-1"
+            >
               Cancel
             </Button>
             <Button

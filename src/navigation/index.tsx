@@ -33,13 +33,9 @@ const ScrollToTop = () => {
 };
 
 /** 🔒 Protected Route Wrapper */
-function ProtectedRoute({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
-  console.log("isAuth", auth.isAuthenticated)
+  console.log("isAuth", auth.isAuthenticated);
 
   if (auth.loading) {
     return <div className="p-8 text-center">Loading Session...</div>;
@@ -65,11 +61,11 @@ function NavigationContent() {
   const auth = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation()
+  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState("home");
   const [title, setTitle] = useState("");
-  
+
   // Map pathname to tab key and title
   const pathToTab: Record<string, { tab: string; title: string }> = {
     "/": { tab: "home", title: "Home" },
@@ -103,26 +99,18 @@ function NavigationContent() {
 
   return (
     <div className="min-h-screen">
-      {
-        auth.isAuthenticated && (
-          <>
-          
-      <Header
-        title={title}
-        onMenuClick={() => setIsSidebarOpen(true)}
-      />
-      <div className="py-10" />
-          </>
-
-        )
-      }
+      {auth.isAuthenticated && (
+        <>
+          <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
+          <div className="py-8" />
+        </>
+      )}
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         activeTab={activeTab}
-        onTabChange={()=> {}}
+        onTabChange={() => {}}
       />
-
 
       <main className="flex">
         <section id="mainpage" className="flex-1">
@@ -199,11 +187,9 @@ function NavigationContent() {
         </section>
       </main>
 
-      {
-        auth.isAuthenticated && (
-          <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />          
-        )
-      }
+      {auth.isAuthenticated && (
+        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      )}
     </div>
   );
 }

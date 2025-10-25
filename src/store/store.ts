@@ -1,10 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./userSlice";
+import menuReducer from "./menu.slice";
+import orderCartReducer from "./orderCart.slice";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    // Add more slices here
+    menu: menuReducer,
+    orderCart: orderCartReducer,
   },
   devTools: import.meta.env.MODE !== "production",
 });
