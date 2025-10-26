@@ -1,12 +1,12 @@
 import {
   Home,
-  Menu,
   CalendarDays,
   ShoppingBag,
   CreditCard,
   Bell,
   User,
   X,
+  Utensils,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -26,7 +26,7 @@ export function Sidebar({
 }: SidebarProps) {
   const menuItems = [
     { id: "home", label: "Home", icon: Home, path: "/" },
-    { id: "menu", label: "Menu", icon: Menu, path: "/menu" },
+    { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
     {
       id: "reservations",
       label: "Reservations",

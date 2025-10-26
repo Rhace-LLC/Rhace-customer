@@ -8,7 +8,6 @@ import { DishDetailSheet } from "@/components/sheets/DishDetailSheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateMenuDishData } from "@/store/menu.slice";
 import { RootState } from "@/store/store";
-import placeholderImg from "../../assets/download.jpeg";
 import { Button } from "@/components/ui/button";
 import {
   addToCart,
@@ -89,7 +88,7 @@ export const RenderMenuCategoryDishes = ({
     console.log("here", allData[categoryId]);
     if (!allData[categoryId]) fetchAllDishes();
   }, [categoryId]);
-/*
+  /*
 
   const handleDishClick = (dish: any) => {
     setSelectedDish(dish);
@@ -119,7 +118,7 @@ export const RenderMenuCategoryDishes = ({
               className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
             >
               <img
-                src={placeholderImg || undefined}
+                src={dish.image_url || undefined}
                 alt={dish.name}
                 className="mb-3 h-32 w-full rounded-lg object-cover"
               />
@@ -176,7 +175,7 @@ export const RenderMenuCategoryDishes = ({
                       : "bg-black text-white hover:bg-gray-800"
                   }`}
                 >
-                  {isInCart(dish.id) ? "Added Already" : "Add To Order"}
+                  {isInCart(dish.id) ? "Added" : "Add To Order"}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>

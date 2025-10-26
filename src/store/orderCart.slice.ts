@@ -89,10 +89,15 @@ const CartItemSlice = createSlice({
         }
       }
     },
+    // ✅ Remove dish entirely from cart
+    removeFromCart: (state, action: PayloadAction<string>) => {
+      const dishId = action.payload;
+      state.data = state.data.filter((item) => item.dishData.id !== dishId);
+    },
   },
 });
 
 // ---------------- Exports ----------------
-export const { addToCart, increaseQuantity, reduceQuantity } =
+export const { addToCart, removeFromCart, increaseQuantity, reduceQuantity } =
   CartItemSlice.actions;
 export default CartItemSlice.reducer;
