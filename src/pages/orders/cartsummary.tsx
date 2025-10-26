@@ -65,7 +65,7 @@ const OrderSummary: React.FC = () => {
 
       toast.success("User data loaded successfully!");
       console.log("✅ User Data:", res);
-      setUser(res)
+      setUser(res);
 
       return res;
     } catch (error) {

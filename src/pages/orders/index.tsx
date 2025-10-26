@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
 import { MenuDishData } from "@/api-services/menu.service";
-import moment from "moment"
+import moment from "moment";
 import {
   addToCart,
   increaseQuantity,
@@ -89,44 +89,10 @@ export function OrdersPage() {
     }
   };
 
-  const pastOrders = [
-    {
-      id: "ORD-003",
-      status: "preparing",
-      items: ["Ribeye Steak", "Mashed Potatoes"],
-      total: 52,
-      orderTime: "Yesterday, 7:30 PM",
-      date: "Dec 29, 2024",
-    },
-    {
-      id: "ORD-004",
-      status: "ready",
-      items: ["Margherita Pizza", "Tiramisu"],
-      total: 28,
-      orderTime: "Dec 27, 6:45 PM",
-      date: "Dec 27, 2024",
-    },
-    {
-      id: "ORD-005",
-      status: "served",
-      items: ["Burrata Caprese", "Truffle Arancini"],
-      total: 34,
-      orderTime: "Dec 25, 8:00 PM",
-      date: "Dec 25, 2024",
-    },
-    {
-      id: "ORD-0078",
-      status: "delivered",
-      items: ["Python Steak", "Truffle Arancini"],
-      total: 34,
-      orderTime: "Dec 25, 8:00 PM",
-      date: "Dec 25, 2024",
-    },
-  ];
-
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "received" : return <Utensils className="h-5 w-5 text-amber-500" />
+      case "received":
+        return <Utensils className="h-5 w-5 text-amber-500" />;
       case "preparing":
         return <ChefHat className="h-5 w-5 text-orange-500" />;
       case "ready":
@@ -142,7 +108,8 @@ export function OrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "received": return "bg-amber-100 text-amber-800";
+      case "received":
+        return "bg-amber-100 text-amber-800";
       case "preparing":
         return "bg-orange-100 text-orange-800";
       case "ready":
@@ -288,85 +255,53 @@ export function OrdersPage() {
 
           <TabsContent value="orders" className="space-y-4">
             <ContentHOC
-                    loading={fetchUserOrdersLoading}
-                    error={!!fetchUserOrdersError}
-                    noContent={userOrders?.length === 0}
-                    loadingText="Fetching Your Orders. Please Wait."
-                    noContentMessage="Reload Your Orders List"
-                    noContentBtnText="Reload Your Orders"
-                    noContentAction={fetchUserOrders}
-                    errMessage={fetchUserOrdersError || "Failed to load borrowers."}
-                    actionFn={fetchUserOrders}
+              loading={fetchUserOrdersLoading}
+              error={!!fetchUserOrdersError}
+              noContent={userOrders?.length === 0}
+              loadingText="Fetching Your Orders. Please Wait."
+              noContentMessage="Reload Your Orders List"
+              noContentBtnText="Reload Your Orders"
+              noContentAction={fetchUserOrders}
+              errMessage={fetchUserOrdersError || "Failed to load borrowers."}
+              actionFn={fetchUserOrders}
             >
-                     {userOrders.map((order) => (
-              <Card
-                key={order.id}
-                className="cursor-pointer transition-shadow hover:shadow-md"
-                onClick={() => handleOrderClick(order)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">
-                      Order {order.id}
-                    </CardTitle>
-                    <Badge className={getStatusColor(order.status)}>
-                      {order.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-start gap-3">
-                    {getStatusIcon(order.status)}
-                    <div className="flex-1">
-                      <p className="text-muted-foreground mb-1 text-sm">
-                        {order.items.join(", ")}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">
-                          {moment(order.created_at).format("lll")}
-                        </span>
-                        <span className="font-medium">${order.total_price}</span>
+              {userOrders.map((order) => (
+                <Card
+                  key={order.id}
+                  className="cursor-pointer transition-shadow hover:shadow-md"
+                  onClick={() => handleOrderClick(order)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">
+                        Order {order.id}
+                      </CardTitle>
+                      <Badge className={getStatusColor(order.status)}>
+                        {order.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-start gap-3">
+                      {getStatusIcon(order.status)}
+                      <div className="flex-1">
+                        <p className="text-muted-foreground mb-1 text-sm">
+                          {order.items.join(", ")}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground text-sm">
+                            {moment(order.created_at).format("lll")}
+                          </span>
+                          <span className="font-medium">
+                            ${order.total_price}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}    
+                  </CardContent>
+                </Card>
+              ))}
             </ContentHOC>
-            {pastOrders.map((order) => (
-              <Card
-                key={order.id}
-                className="cursor-pointer transition-shadow hover:shadow-md"
-                onClick={() => handleOrderClick(order)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">
-                      Order {order.id}
-                    </CardTitle>
-                    <Badge className={getStatusColor(order.status)}>
-                      {order.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-start gap-3">
-                    {getStatusIcon(order.status)}
-                    <div className="flex-1">
-                      <p className="text-muted-foreground mb-1 text-sm">
-                        {order.items.join(", ")}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground text-sm">
-                          {order.orderTime}
-                        </span>
-                        <span className="font-medium">${order.total}</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </TabsContent>
         </Tabs>
       </div>
