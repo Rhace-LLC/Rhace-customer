@@ -1,5 +1,6 @@
 import { setSelection } from "@/store/restaurant_selection.slice";
 import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 export function parseAndDispatchSelection(fullUrl: string) {
     const dispatch = useDispatch()
@@ -20,6 +21,11 @@ export function parseAndDispatchSelection(fullUrl: string) {
           restaurantName,
         })
       )
+      toast.info(JSON.stringify({
+          tableId,
+          restaurantId,
+          restaurantName,
+        }))
       return {
         tableId,
         restaurantId,

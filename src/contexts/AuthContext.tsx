@@ -25,7 +25,7 @@ interface AuthContextType {
 const noop = () => {};
 
 const defaultAuthContext: AuthContextType = {
-  isAuthenticated: true,
+  isAuthenticated: false,
   login: noop,
   logout: noop,
   saveProfile: noop,
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [token, setToken] = useState("");
   const [accountType, setAccountType] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!false);
 
   const isProvider = accountType === "Service Provider";
   const isClient = accountType === "Client";
