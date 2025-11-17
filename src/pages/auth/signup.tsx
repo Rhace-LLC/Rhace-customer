@@ -8,14 +8,12 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { register, RegisterRequestBody } from "@/api-services/auth.service";
-import { useAuth } from "@/contexts/AuthContext";
 
 export interface FormErrors {
   [key: string]: string;
 }
 
 export default function Signup() {
-  const auth = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     first_name: "",
@@ -96,13 +94,12 @@ export default function Signup() {
         role: "customer",
       };
 
-      const response = await register(payload); // ✅ API call
+      await register(payload); // ✅ API call
       toast.success("Account created successfully!");
       // Auto-login or redirect to login
-      auth.login(response.tokens.access, form.email, response.role);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate("/"); // redirect to dashboard/home
+      navigate('/verify-email')
     } catch (error: any) {
       toast.error("Failed to create account. Please try again.");
     } finally {
