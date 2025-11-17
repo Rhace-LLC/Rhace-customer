@@ -1,4 +1,4 @@
-import { X, Download, Mail, CreditCard, Calendar, Clock } from "lucide-react";
+import { Download, Mail, CreditCard, Calendar, Clock } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -33,16 +33,13 @@ export function TransactionDetailSheet({
         <SheetHeader className="pb-4">
           <div className="flex items-center justify-between">
             <SheetTitle>Receipt Details</SheetTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
           </div>
         </SheetHeader>
 
         <div className="space-y-6">
           {/* Restaurant Header */}
           <div className="rounded-lg bg-gray-50 p-4 text-center">
-            <h3 className="mb-1 text-lg font-medium">Bookies Restaurant</h3>
+            <h3 className="mb-1 text-lg font-medium">Restaurant XXX</h3>
             <p className="text-muted-foreground text-sm">
               123 Gourmet Street, Food District
             </p>

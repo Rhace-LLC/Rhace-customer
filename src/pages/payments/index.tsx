@@ -1,6 +1,4 @@
-import { CreditCard, Smartphone, Plus, Eye } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { TransactionDetailSheet } from "@/components/sheets/TransactionDetailSheet";
@@ -10,29 +8,6 @@ export function PaymentsPage() {
   const handleTransactionClick = (transaction: any) => {
     setSelectedTransaction(transaction);
   };
-  const paymentMethods = [
-    {
-      id: 1,
-      type: "card",
-      name: "Visa ending in 4242",
-      icon: CreditCard,
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: "card",
-      name: "Mastercard ending in 8888",
-      icon: CreditCard,
-      isDefault: false,
-    },
-    {
-      id: 3,
-      type: "wallet",
-      name: "Apple Pay",
-      icon: Smartphone,
-      isDefault: false,
-    },
-  ];
 
   const transactions = [
     {
@@ -79,92 +54,47 @@ export function PaymentsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="space-y-6 p-5">
-        {/* Payment Methods */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Payment Methods
-              </CardTitle>
-              <Button variant="outline" size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Add
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {paymentMethods.map((method) => {
-              const Icon = method.icon;
-              return (
-                <div
-                  key={method.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="text-muted-foreground h-5 w-5" />
-                    <span>{method.name}</span>
-                  </div>
-                  {method.isDefault && (
-                    <Badge variant="secondary">Default</Badge>
-                  )}
+      <div className="space-y-5 p-4">
+        <h2 className="mt-10 text-2xl font-medium">Transaction History</h2>
+
+        <div className="space-y-3">
+          {transactions.map((transaction) => (
+            <div
+              key={transaction.id}
+              className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+              onClick={() => handleTransactionClick(transaction)}
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium">Order {transaction.orderId}</h4>
+                  <p className="text-muted-foreground text-sm">
+                    {transaction.date} at {transaction.time}
+                  </p>
                 </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        {/* Transaction History */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Transaction History</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {transactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
-                  onClick={() => handleTransactionClick(transaction)}
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">
-                        Order {transaction.orderId}
-                      </h4>
-                      <p className="text-muted-foreground text-sm">
-                        {transaction.date} at {transaction.time}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">${transaction.amount}</p>
-                      <Badge className="bg-green-100 text-xs text-green-800">
-                        {transaction.status}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {transaction.method}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Eye className="text-muted-foreground h-4 w-4" />
-                      <span className="text-muted-foreground">
-                        View receipt
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="text-muted-foreground mt-2 text-sm">
-                    {transaction.items.join(", ")}
-                  </div>
+                <div className="text-right">
+                  <p className="font-medium">${transaction.amount}</p>
+                  <Badge className="bg-green-100 text-xs text-green-800">
+                    {transaction.status}
+                  </Badge>
                 </div>
-              ))}
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {transaction.method}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Eye className="text-muted-foreground h-4 w-4" />
+                  <span className="text-muted-foreground">View receipt</span>
+                </div>
+              </div>
+
+              <div className="text-muted-foreground mt-2 text-sm">
+                {transaction.items.join(", ")}
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
       </div>
 
       <TransactionDetailSheet

@@ -15,7 +15,10 @@ import { OrdersPage } from "@/pages/orders";
 import { PaymentsPage } from "@/pages/payments";
 import { ProfilePage } from "@/pages/profile";
 import { ReservationsPage } from "@/pages/reservations";
+import { setSelection } from "@/store/restaurant_selection.slice";
+import { RootState } from "@/store/store";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
   Route,
@@ -59,12 +62,43 @@ function Navigation(): React.JSX.Element {
 
 function NavigationContent() {
   const auth = useAuth();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState("home");
   const [title, setTitle] = useState("");
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  const selectedRestaurant = useSelector(
+    (state: RootState) => state.selectedRestaurant
+  );
+  
+  useEffect(() => {
+    // Ensure only runs on base route "/"
+    if (location.pathname !== "/") return;
+
+    // If Redux store already has data, don't override it
+    if (selectedRestaurant.restaurantId) return;
+
+    const searchParams = new URLSearchParams(location.search);
+
+    const tableId = searchParams.get("tid");
+    const restaurantId = searchParams.get("rid");
+    const restaurantName = searchParams.get("r");
+
+    // Only dispatch if all required fields exist
+    if (tableId && restaurantId && restaurantName) {
+      dispatch(
+        setSelection({
+          tableId,
+          restaurantId,
+          restaurantName,
+        })
+      );
+    }
+  }, [location, dispatch, selectedRestaurant]);
 
   // Map pathname to tab key and title
   const pathToTab: Record<string, { tab: string; title: string }> = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { X, Camera, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
@@ -11,27 +11,24 @@ interface QRScanDialogProps {
   onSuccess: (data: string) => void;
 }
 
-export function QRScanDialog({
-  isOpen,
-  onClose,
-  onSuccess,
-}: QRScanDialogProps) {
+export function QRScanDialog({ isOpen, onClose, onSuccess }: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  console.log(error, scanResult);
+  const beepRef = useRef<HTMLAudioElement | null>(null);
 
-  const { ref } = useZxing({
+  const { ref: zxingRef } = useZxing({
     paused: !scanning,
-    onDecodeResult(result) {
-      console.log("here", result.getText());
-      const text = result.getText();
-      setScanResult(text);
-      toast.success(`QR code detected: ${text}`);
+    onDecodeResult: (result: any) => {
+      const text: string = result.getText();
+      if (!text) return;
+
+      // 🔊 Play beep
+      beepRef.current?.play().catch(() => {});
+
       setScanning(false);
-      onSuccess(text); // ✅ Call onSuccess instead of onClose
+      onSuccess(text);
     },
-    onError(err) {
+    onError: (err: any) => {
       console.error(err);
       setError("Unable to access camera or scan QR code");
       toast.error("Unable to access camera or scan QR code");
@@ -40,7 +37,7 @@ export function QRScanDialog({
 
   const handleDialogClose = () => {
     setScanning(false);
-    onClose("Closed-True");
+    onClose("Closed");
   };
 
   return (
@@ -63,31 +60,27 @@ export function QRScanDialog({
           </div>
 
           <div className="relative aspect-square overflow-hidden rounded-lg bg-black">
-            {!scanning ? (
-              <div className="flex h-full flex-col items-center justify-center bg-gray-900/70 text-center text-white">
-                <QrCode className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-                <p className="text-sm opacity-70">
-                  Camera view will appear here
-                </p>
-              </div>
-            ) : (
+            {scanning ? (
               <video
-                ref={ref}
+                ref={zxingRef} // ✅ directly use the hook ref
                 className="h-full w-full rounded-lg object-cover"
               />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center bg-gray-900/70 text-center text-white">
+                <QrCode className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
+                <p className="text-sm opacity-70">Camera view will appear here</p>
+              </div>
             )}
           </div>
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <div className="text-muted-foreground text-center text-sm">
             <p>Position the QR code within the frame</p>
           </div>
 
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleDialogClose}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={handleDialogClose} className="flex-1">
               Cancel
             </Button>
             <Button
@@ -99,6 +92,9 @@ export function QRScanDialog({
             </Button>
           </div>
         </div>
+
+        {/* Beep sound */}
+        <audio ref={beepRef} src="/beep.mp3" preload="auto" />
       </DialogContent>
     </Dialog>
   );

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RhaceLogo from "../../assets/Rhace-10.png";
 import { useState } from "react";
 import { useLoading } from "@/contexts/LoadingContext";
@@ -16,6 +16,7 @@ export default function ForgotPassword() {
   const { setLoading, setLoadingText } = useLoading();
   const [form, setForm] = useState({ email: "" });
   const [errors, setErrors] = useState<FormErrors>({});
+  const navigate = useNavigate()
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -48,6 +49,7 @@ export default function ForgotPassword() {
       const response = await requestPasswordReset(form.email);
 
       toast.success(response?.message || "Password reset link sent!");
+      navigate(`/resetpassword?email=${form.email}`)
     } catch (error) {
       toast.error("Failed to send reset link. Please try again.");
     } finally {

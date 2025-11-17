@@ -25,7 +25,7 @@ interface AuthContextType {
 const noop = () => {};
 
 const defaultAuthContext: AuthContextType = {
-  isAuthenticated: false,
+  isAuthenticated: true,
   login: noop,
   logout: noop,
   saveProfile: noop,

@@ -7,6 +7,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { resetPassword } from "@/api-services/auth.service";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export interface FormErrors {
   [key: string]: string;
@@ -14,8 +15,11 @@ export interface FormErrors {
 
 export default function ResetPassword() {
   const { setLoading, setLoadingText } = useLoading();
+  const navigate = useNavigate()
 
   const [step, setStep] = useState<"otp" | "reset">("otp");
+  const [SearchParam] = useSearchParams()
+  const email = SearchParam.get("email") || ''
   const [form, setForm] = useState({
     email: "",
     otp: "",
@@ -32,7 +36,6 @@ export default function ResetPassword() {
   const validateStep = () => {
     const errors: FormErrors = {};
     if (step === "otp") {
-      if (!form.email.trim()) errors.email = "Email is required";
       if (!form.otp.trim()) errors.otp = "OTP is required";
     } else {
       if (!form.password.trim()) errors.password = "Password is required";
@@ -63,13 +66,15 @@ export default function ResetPassword() {
       } else {
         setLoadingText("Resetting password...");
         const payload = {
-          email: form.email,
+          email,
           otp: form.otp,
-          newPassword: form.password,
+          new_password: form.password,
+          confirm_password: form.password,
         };
         const response = await resetPassword(payload);
-        console.log("Response", response);
         toast.success(response?.message || "Password reset successful!");
+        navigate('/login')
+        
       }
     } catch (error) {
       toast.error("Failed to reset password. Please try again.");
@@ -87,8 +92,8 @@ export default function ResetPassword() {
         </div>
 
         <div className="text-center">
-          <h3 className="text-3xl font-bold text-gray-800">
-            {step === "otp" ? "Verify OTP" : "Reset Password"}
+          <h3 className="text-2xl font-bold text-gray-800">
+            {step === "otp" ? "Enter Reset OTP" : "Reset Password"}
           </h3>
           <p className="mt-2 font-medium text-gray-500">
             {step === "otp"
@@ -100,22 +105,6 @@ export default function ResetPassword() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {step === "otp" ? (
             <>
-              <div className="space-y-1">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  required
-                />
-                {errors.email && (
-                  <small className="text-red-500">{errors.email}</small>
-                )}
-              </div>
-
               <div className="space-y-1">
                 <Label htmlFor="otp">OTP</Label>
                 <Input
@@ -205,6 +194,12 @@ export default function ResetPassword() {
               </Button>
             </>
           )}
+          
+        <p className="text-center text-sm text-gray-600">
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Back to Login
+          </Link>
+        </p>
         </form>
       </div>
     </div>
