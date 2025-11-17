@@ -7,9 +7,11 @@ import { updatMenuCategoryData } from "@/store/menu.slice";
 import { parseError } from "@/api-services/utils/parseError";
 import { ContentHOC } from "@/components/nocontent";
 import { RenderMenuCategory } from "./rendercat";
+import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 
 export function MenuPage() {
   const auth = useAuth();
+  const selectedRestaurant = useSelectedRestaurant()
   const dispatch = useDispatch();
 
   const dataStore = useSelector((state: RootState) => state.menu);
@@ -23,7 +25,7 @@ export function MenuPage() {
       setFetchCategoryLoading(true);
       setFetchCategoryError("");
 
-      const response = await getAllCategories(auth.token);
+      const response = await getAllCategories(selectedRestaurant.restaurantId || "",auth.token);
       console.log("Menu Data Response:", response);
       dispatch(updatMenuCategoryData(response));
     } catch (error: any) {

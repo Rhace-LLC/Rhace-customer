@@ -14,6 +14,7 @@ import {
   increaseQuantity,
   reduceQuantity,
 } from "@/store/orderCart.slice";
+import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 
 interface RenderMenuCategoryDishesProps {
   categoryId: number;
@@ -24,6 +25,7 @@ export const RenderMenuCategoryDishes = ({
 }: RenderMenuCategoryDishesProps) => {
   const auth = useAuth();
   const dispatch = useDispatch();
+    const selectedRestaurant = useSelectedRestaurant()
 
   const [fetchAllDishesLoading, setFetchAllDishesLoading] = useState(false);
   const [fetchAllDishesError, setFetchAllDishesError] = useState("");
@@ -32,7 +34,6 @@ export const RenderMenuCategoryDishes = ({
   const dataStore = useSelector((state: RootState) => state.menu);
   const allData = dataStore.data;
   const dishes = allData[categoryId] || [];
-  console.log("dishes", dishes, allData[categoryId]);
 
   const orderCart = useSelector((state: RootState) => state.orderCart);
   console.log("order Cart", orderCart);
@@ -72,7 +73,7 @@ export const RenderMenuCategoryDishes = ({
       setFetchAllDishesLoading(true);
       setFetchAllDishesError("");
 
-      const response = await getMenuItems(auth.token, { category: categoryId });
+      const response = await getMenuItems(selectedRestaurant.restaurantId || "", auth.token, { category: categoryId });
       dispatch(updateMenuDishData({ key: String(categoryId), data: response }));
 
       console.log("✅ Dishes fetched:", response);

@@ -24,8 +24,6 @@ export const RenderMenuCategory = () => {
     );
   };
 
-  console.log("Category from store:", allCatData);
-
   return (
     <div className="space-y-4">
       <div className="my-3 border border-b border-gray-100" />
