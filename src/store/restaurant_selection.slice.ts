@@ -2,15 +2,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface SelectionState {
-  tableId: string | null;
+  tableId: string | undefined;
   restaurantId: string | null;
-  restaurantName: string | null;
+  restaurantName: string | undefined;
+  tableNo: string | undefined;
 }
 
 const initialState: SelectionState = {
-  tableId: null,
+  tableId: undefined,
+  tableNo: undefined,
   restaurantId: null,
-  restaurantName: null,
+  restaurantName: undefined,
 };
 
 const selectionSlice = createSlice({
@@ -23,17 +25,20 @@ const selectionSlice = createSlice({
         tableId: string;
         restaurantId: string;
         restaurantName: string;
+        tableNo:string;
       }>
     ) => {
       state.tableId = action.payload.tableId;
       state.restaurantId = action.payload.restaurantId;
       state.restaurantName = action.payload.restaurantName;
+      state.tableNo = action.payload.tableNo
     },
 
     clearSelection: (state) => {
-      state.tableId = null;
+      state.tableId = undefined;
       state.restaurantId = null;
-      state.restaurantName = null;
+      state.restaurantName = undefined;
+      state.tableNo = undefined;
     },
   },
 });

@@ -1,5 +1,8 @@
+"use client";
+
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
+import { LoginResponse } from "@/api-services/auth.service";
 
 interface DecodedToken {
   exp: number;
@@ -10,7 +13,7 @@ interface DecodedToken {
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (token: string, email: string, accountType: string) => void;
+  login: (response: LoginResponse) => void;
   logout: () => void;
   saveProfile: (profile: unknown) => void;
   email: string;
@@ -19,6 +22,7 @@ interface AuthContextType {
   isProvider: boolean;
   isClient: boolean;
   loading: boolean;
+  user: LoginResponse["user"] | null;
 }
 
 // Default functions to avoid undefined references
@@ -35,12 +39,10 @@ const defaultAuthContext: AuthContextType = {
   isProvider: false,
   isClient: false,
   loading: true,
+  user: null,
 };
 
-// Create the context
 const AuthContext = createContext<AuthContextType>(defaultAuthContext);
-
-// Custom hook for easy context access
 export const useAuth = () => useContext(AuthContext);
 
 interface TokenExpiryInfo {
@@ -66,20 +68,18 @@ const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
   };
 };
 
-// Provider component
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [accountType, setAccountType] = useState("");
+  const [user, setUser] = useState<LoginResponse["user"] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(!false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const isProvider = accountType === "Service Provider";
   const isClient = accountType === "Client";
 
-  // 🔄 Restore session from localStorage on app load
+  // Restore session
   useEffect(() => {
     const restoreSession = () => {
       const storedToken = localStorage.getItem("access_token");
@@ -92,13 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const tokenStatus = tokenExpiresIn(decoded.exp);
 
           if (!tokenStatus.expired) {
-            const parsedUser = storedUser ? JSON.parse(storedUser) : {};
             setToken(storedToken);
             setEmail(storedEmail);
+
+            const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+            setUser(parsedUser);
+
             setAccountType(parsedUser?.type || decoded.role || "");
             setIsAuthenticated(true);
           } else {
-            console.warn("Token expired, clearing session.");
             localStorage.clear();
           }
         } catch (error) {
@@ -107,34 +109,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
 
-      setLoading(false); // ✅ End loading state
+      setLoading(false);
     };
 
     restoreSession();
   }, []);
 
-  // 🔐 Handle login
-  const login = (accessToken: string, email: string, accountType: string) => {
-    setToken(accessToken);
-    setEmail(email);
-    setAccountType(accountType);
+  // Login
+  const login = (response: LoginResponse) => {
+    setToken(response.tokens.access);
+    setEmail(response.user.email);
+    setAccountType(response.role);
+    setUser(response.user);
     setIsAuthenticated(true);
 
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("user_email", email);
-    localStorage.setItem("user_saved", JSON.stringify({ type: accountType }));
+    localStorage.setItem("access_token", response.tokens.access);
+    localStorage.setItem("user_email", response.user.email);
+    localStorage.setItem("user_saved", JSON.stringify(response.user));
   };
 
-  // 💾 Save profile
+  // Save profile
   const saveProfile = (profile: unknown) => {
-    localStorage.setItem("user_profile", JSON.stringify(profile));
+    if (!profile) return;
+    setUser(profile as LoginResponse["user"]);
+    localStorage.setItem("user_saved", JSON.stringify(profile));
   };
 
-  // 🚪 Logout
   const logout = () => {
     setToken("");
     setEmail("");
     setAccountType("");
+    setUser(null);
     setIsAuthenticated(false);
     localStorage.clear();
   };
@@ -152,6 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isProvider,
         isClient,
         loading,
+        user,
       }}
     >
       {children}

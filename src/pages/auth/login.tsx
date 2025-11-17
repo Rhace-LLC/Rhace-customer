@@ -76,7 +76,7 @@ export default function Login() {
       };
       const response = await login(payload); // Await API call
 
-      auth.login(response.tokens.access, form.email, response.role);
+      auth.login(response);
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
 

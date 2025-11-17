@@ -18,6 +18,7 @@ function parseAndDispatchSelection(fullUrl: string) {
     const url = new URL(fullUrl);
 
     const tableId = url.searchParams.get("tid") || "";
+    const tableNo = url.searchParams.get('tno') || "";
     const restaurantId = url.searchParams.get("rid") || "";
     const restaurantName = url.searchParams.get("r") || "";
 
@@ -28,6 +29,7 @@ function parseAndDispatchSelection(fullUrl: string) {
           tableId,
           restaurantId,
           restaurantName,
+          tableNo,
         })
       )
       toast.info(JSON.stringify({
@@ -141,7 +143,7 @@ function parseAndDispatchSelection(fullUrl: string) {
               <p className="text-muted-foreground">
                 You’re now seated at{" "}
                 <span className="text-primary font-semibold">
-                  Table {selectedRestaurant.tableId}
+                  Table {selectedRestaurant.tableNo}
                 </span>
                 .
               </p>

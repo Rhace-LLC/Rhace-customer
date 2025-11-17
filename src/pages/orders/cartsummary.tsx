@@ -9,7 +9,6 @@ import {
   OrderItem,
 } from "@/api-services/order.service";
 import { useAuth } from "@/contexts/AuthContext";
-import { getMe } from "@/api-services/auth.service";
 import { useLoading } from "@/contexts/LoadingContext";
 import { parseError } from "@/api-services/utils/parseError";
 import { toast } from "sonner";
@@ -24,11 +23,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogHeader } from "@/components/ui/dialog";
+import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 
 const OrderSummary: React.FC = () => {
   const auth = useAuth();
+  const selectedRestaurant = useSelectedRestaurant()
   const { setLoading, setLoadingText } = useLoading();
-  const [user, setUser] = useState<any>();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
@@ -55,39 +55,17 @@ const OrderSummary: React.FC = () => {
       toast.info("Payment not complete. Please try again.");
     }
   };
-  // ✅ Get User Data
-  const getUserData = async () => {
-    try {
-      setLoading(true);
-      setLoadingText("Getting User Data");
-
-      const res = await getMe(auth.token);
-
-      toast.success("User data loaded successfully!");
-      console.log("✅ User Data:", res);
-      setUser(res);
-
-      return res;
-    } catch (error) {
-      const errmsg = parseError(error);
-      toast.error(errmsg || "Failed to fetch user data");
-      console.error("❌ Error getting user data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // ✅ Handle Checkout
   const handleCheckout = async () => {
-    await getUserData();
     try {
       setLoading(true);
       setLoadingText("Processing Checkout");
 
       const payload: CreateOrderPayload = {
-        customer_id: user?.user_id, // adjust as needed
+        customer_id: auth?.user?.id || "", // adjust as needed
         order_type: "dine-in", // or "takeaway", etc.
-        table_id: "a463b0de-b2fb-4f6a-b9f0-6ff4dc86ff47",
+        table_id: selectedRestaurant.tableId,
         items: orderCart.data.map((cartItem) => {
           return {
             menu_item_id: cartItem.dishData.id,
@@ -95,14 +73,13 @@ const OrderSummary: React.FC = () => {
           } as OrderItem;
         }),
         status: "received",
-        customer_name: user?.name || "Guest",
-        customer_phone: user?.phone || "",
-        address: "123 Main St", // optional
+        customer_name: `${auth?.user?.last_name} ${auth?.user?.first_name}`,
+        customer_phone: "08011111111",
+        address: "Address", // optional
       };
 
       const response = await createOrder(payload, auth.token);
 
-      toast.success("Order created successfully!");
       console.log("✅ Order Response:", response);
 
       // initialize payment

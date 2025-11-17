@@ -6,20 +6,32 @@ import { bookiesAxiosInstance } from "./utils/baseUrl";
 // ---------------------------
 // 📘 Interfaces
 // ---------------------------
+// ------------------ USER ROLE TYPE ------------------
+export type UserRole =
+  | "admin"
+  | "restaurant_owner"
+  | "waiter"
+  | "kitchen"
+  | "inventory_mgr"
+  | "driver"
+  | "customer"
+  | "unassigned";
+
 export interface LoginResponse {
   tokens: {
     refresh: string;
     access: string;
   };
-  role:
-    | "admin"
-    | "waiter"
-    | "kitchen"
-    | "inventory_mgr"
-    | "driver"
-    | "customer";
+  role: UserRole;
+  user: UserDataLogin;
 }
 
+export interface UserDataLogin {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+}
 // Login request
 export interface LoginRequestBody {
   email: string;

@@ -87,6 +87,7 @@ function NavigationContent() {
     const tableId = searchParams.get("tid");
     const restaurantId = searchParams.get("rid");
     const restaurantName = searchParams.get("r");
+    const tableNo = searchParams.get('tno') || "";
 
     // Only dispatch if all required fields exist
     if (tableId && restaurantId && restaurantName) {
@@ -95,6 +96,7 @@ function NavigationContent() {
           tableId,
           restaurantId,
           restaurantName,
+          tableNo
         })
       );
     }
