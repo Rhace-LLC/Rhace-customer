@@ -4,12 +4,50 @@ import { useState } from "react";
 import { QRScanDialog } from "@/components/dialogs/QRScanDialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { parseAndDispatchSelection } from "./parseAndDispatchSelection";
+import { setSelection } from "@/store/restaurant_selection.slice";
 
 export function HomePage() {
   const navigate = useNavigate();
+    const dispatch = useDispatch()
+
+function parseAndDispatchSelection(fullUrl: string) {
+  try {
+    // Create URL instance for robust parsing
+    const url = new URL(fullUrl);
+
+    const tableId = url.searchParams.get("tid") || "";
+    const restaurantId = url.searchParams.get("rid") || "";
+    const restaurantName = url.searchParams.get("r") || "";
+
+    // Only dispatch if values exist
+    if (tableId && restaurantId && restaurantName) {
+      dispatch(
+        setSelection({
+          tableId,
+          restaurantId,
+          restaurantName,
+        })
+      )
+      toast.info(JSON.stringify({
+          tableId,
+          restaurantId,
+          restaurantName,
+        }))
+      return {
+        tableId,
+        restaurantId,
+        restaurantName,
+      };
+    }
+
+    return null; // invalid / incomplete params
+  } catch (error) {
+    console.error("Invalid URL passed to parseAndDispatchSelection:", error)
+    return null;
+  }
+}
 
   
   const selectedRestaurant = useSelector(

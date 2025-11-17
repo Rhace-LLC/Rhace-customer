@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { X, Camera, QrCode } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
@@ -14,16 +14,12 @@ interface QRScanDialogProps {
 export function QRScanDialog({ isOpen, onClose, onSuccess }: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const beepRef = useRef<HTMLAudioElement | null>(null);
 
   const { ref: zxingRef } = useZxing({
     paused: !scanning,
     onDecodeResult: (result: any) => {
       const text: string = result.getText();
       if (!text) return;
-
-      // 🔊 Play beep
-      beepRef.current?.play().catch(() => {});
 
       setScanning(false);
       onSuccess(text);
@@ -62,7 +58,7 @@ export function QRScanDialog({ isOpen, onClose, onSuccess }: QRScanDialogProps) 
           <div className="relative aspect-square overflow-hidden rounded-lg bg-black">
             {scanning ? (
               <video
-                ref={zxingRef} // ✅ directly use the hook ref
+                ref={zxingRef}
                 className="h-full w-full rounded-lg object-cover"
               />
             ) : (
@@ -92,9 +88,6 @@ export function QRScanDialog({ isOpen, onClose, onSuccess }: QRScanDialogProps) 
             </Button>
           </div>
         </div>
-
-        {/* Beep sound */}
-        <audio ref={beepRef} src="/beep.mp3" preload="auto" />
       </DialogContent>
     </Dialog>
   );
