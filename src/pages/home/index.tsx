@@ -32,7 +32,7 @@ export function HomePage() {
         toast.success(`Welcome! You're now seated at Table ${parsed.tableId}`);
       } else {
         console.warn("⚠️ QR data missing tableId:", parsed);
-        toast.error("Invalid QR data — no table information found.");
+        toast.error(JSON.stringify(parsed) + "Invalid QR data — no table information found. " + data);
       }
     } catch (error) {
       console.error("❌ Failed to parse QR code data:", error);
