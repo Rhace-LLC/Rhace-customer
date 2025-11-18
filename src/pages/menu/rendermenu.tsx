@@ -2,124 +2,99 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ArrowRight, CheckCircle } from "lucide-react";
 
-import { getMenuItems, MenuDishData } from "@/api-services/menu.service";
 import { ContentHOC } from "@/components/nocontent";
 import { DishDetailSheet } from "@/components/sheets/DishDetailSheet";
 import { useAuth } from "@/contexts/AuthContext";
-//import { updateMenuDishData } from "@/store/menuSlice";
+import { addToCart, increaseQuantity, reduceQuantity } from "@/store/orderCart.slice";
 import { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
-import {
-  addToCart,
-  increaseQuantity,
-  reduceQuantity,
-} from "@/store/orderCart.slice";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+import { useMenuData } from "./useMenuData";
 
-interface RenderMenuCategoryDishesProps {
-  categoryId: number;
-}
 
-export const RenderMenuCategoryDishes = ({
-  categoryId,
-}: RenderMenuCategoryDishesProps) => {
-  const auth = useAuth();
+export const RenderMenuCategoryDishes = () => {
   const dispatch = useDispatch();
+  const auth = useAuth();
   const selectedRestaurant = useSelectedRestaurant();
 
-  const [fetchAllDishesLoading, setFetchAllDishesLoading] = useState(false);
-  const [fetchAllDishesError, setFetchAllDishesError] = useState("");
+  // Redux store
+  const menuStore = useSelector((state: RootState) => state.menu);
+  const { restaurant, categories, menuItems } = menuStore;
+
+  // UI state
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedDish, setSelectedDish] = useState<any | null>(null);
 
-  const dataStore = useSelector((state: RootState) => state.menu);
-  const allData = dataStore.data;
-  const dishes = allData[categoryId] || [];
+  // Menu fetching hook
+  const { loading: fetchAllDishesLoading, error: fetchAllDishesError, fetchMenuData } =
+    useMenuData(selectedRestaurant.restaurantId || "");
 
+  // Fetch menu on mount or when restaurant changes
+  useEffect(() => {
+    if (selectedRestaurant.restaurantId) fetchMenuData();
+  }, [selectedRestaurant.restaurantId]);
+
+  // Filter dishes by selected category
+  const filteredDishes = selectedCategory
+    ? menuItems.filter((dish) => dish.category.id === selectedCategory)
+    : menuItems;
+
+  // Cart selectors/helpers
   const orderCart = useSelector((state: RootState) => state.orderCart);
-  console.log("order Cart", orderCart);
 
-  const getDishQuantity = (dishId: string): number => {
-    const item = orderCart.data.find(
-      (cartItem) => cartItem.dishData.id === dishId
-    );
+  const getDishQuantity = (dishId: string) => {
+    const item = orderCart.data.find((cartItem) => cartItem.dishData.id === dishId);
     return item ? item.quantity : 0;
   };
 
-  const isInCart = (dishId: string): boolean => {
-    return orderCart.data.some(
-      (cartItem) => cartItem.dishData.id === dishId && cartItem.added
-    );
-  };
+  const isInCart = (dishId: string) =>
+    orderCart.data.some((cartItem) => cartItem.dishData.id === dishId && cartItem.added);
 
-  const handleAddToCart = (dish: MenuDishData) => {
-    /*toast.success(
-      `Added ${dish.name} to cart!`
-    );*/
-
+  const handleAddToCart = (dish: any) => {
     dispatch(addToCart(dish));
   };
-
-  const handleIncrease = (dish: MenuDishData) => {
-    dispatch(increaseQuantity(dish));
-  };
-
-  const handleDecrease = (dish: MenuDishData) => {
-    dispatch(reduceQuantity(dish));
-  };
-
-  // Fetch dishes when categoryId changes
-  const fetchAllDishes = async () => {
-    try {
-      setFetchAllDishesLoading(true);
-      setFetchAllDishesError("");
-
-      const response = await getMenuItems(
-        selectedRestaurant.restaurantId || "",
-        auth.token,
-        { category: categoryId }
-      );
-     // dispatch(updateMenuDishData({ key: String(categoryId), data: response }));
-
-      console.log("✅ Dishes fetched:", response);
-    } catch (error: any) {
-      console.error("❌ Error fetching dishes:", error);
-      setFetchAllDishesError(error.message || "Failed to fetch dishes");
-    } finally {
-      setFetchAllDishesLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    console.log("here", allData[categoryId]);
-    if (!allData[categoryId]) fetchAllDishes();
-  }, [categoryId]);
-  /*
-
-  const handleDishClick = (dish: any) => {
-    setSelectedDish(dish);
-  };
-*/
+  const handleIncrease = (dish: any) => dispatch(increaseQuantity(dish));
+  const handleDecrease = (dish: any) => dispatch(reduceQuantity(dish));
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div>
+      {/* Category filter */}
+      {categories.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          <Button
+            variant={selectedCategory === null ? "default" : "outline"}
+            onClick={() => setSelectedCategory(null)}
+          >
+            All
+          </Button>
+          {categories.map((cat) => (
+            <Button
+              key={cat.id}
+              variant={selectedCategory === cat.id ? "default" : "outline"}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              {cat.name}
+            </Button>
+          ))}
+        </div>
+      )}
+
       <ContentHOC
         loading={fetchAllDishesLoading}
         error={!!fetchAllDishesError}
-        noContent={dishes?.length === 0}
+        noContent={filteredDishes.length === 0}
         loadingText="Fetching Dishes. Please Wait."
         noContentMessage="No dishes found for this category."
         noContentBtnText="Reload Dishes"
-        noContentAction={fetchAllDishes}
+        noContentAction={fetchMenuData}
         errMessage={fetchAllDishesError || "Failed to load dishes."}
-        actionFn={fetchAllDishes}
+        actionFn={fetchMenuData}
       >
-        {dishes &&
-          dishes.map((dish, index) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {filteredDishes.map((dish) => (
             <div
-              key={index}
-              onClick={() => {
-                //  handleDishClick(dish)
-              }}
+              key={dish.id}
+              onClick={() => setSelectedDish(dish)}
               className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
             >
               <img
@@ -158,9 +133,7 @@ export const RenderMenuCategoryDishes = ({
                   >
                     –
                   </Button>
-                  <span className="text-sm font-medium select-none">
-                    {getDishQuantity(dish.id)}
-                  </span>
+                  <span className="text-sm font-medium select-none">{getDishQuantity(dish.id)}</span>
                   <Button
                     variant="outline"
                     className="text-muted-foreground hover:bg-muted/80 h-8 w-8 cursor-pointer rounded-full p-5 transition active:scale-95"
@@ -171,9 +144,7 @@ export const RenderMenuCategoryDishes = ({
                 </div>
                 <Button
                   disabled={isInCart(dish.id)}
-                  onClick={() =>
-                    !isInCart(dish.id) && dispatch(addToCart(dish))
-                  }
+                  onClick={() => !isInCart(dish.id) && handleAddToCart(dish)}
                   className={`flex w-full cursor-pointer items-center justify-center gap-2 transition active:scale-95 ${
                     isInCart(dish.id)
                       ? "cursor-not-allowed bg-gray-300 text-gray-600"
@@ -186,6 +157,7 @@ export const RenderMenuCategoryDishes = ({
               </div>
             </div>
           ))}
+        </div>
       </ContentHOC>
 
       {/* Dish detail sheet */}

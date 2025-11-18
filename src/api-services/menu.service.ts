@@ -34,6 +34,66 @@ export interface MenuDishData {
   available: boolean;
 }
 
+export interface Restaurant {
+  id: string;
+  name: string;
+  description: string;
+  cuisine_type: string;
+  address: string;
+  city: string;
+  phone: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+}
+
+export interface CategoryDetails {
+  id: number;
+  restaurant: string;
+  restaurant_name: string;
+  name: string;
+  description: string;
+  image: string;
+  image_url: string;
+  items_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Ingredient {
+  inventory_item: number;
+  quantity: number;
+}
+
+export interface MenuItem {
+  id: string;
+  restaurant: string;
+  restaurant_name: string;
+  name: string;
+  category: CategoryDetails;
+  description: string;
+  price: string;
+  ingredients: Ingredient[];
+  display_ingredients: string[];
+  allergens: string[];
+  image_url: string;
+  prep_time: string;
+  created: string;
+  updated: string;
+  available: boolean;
+  is_special: boolean;
+}
+
+export interface GetMenuResponse {
+  restaurant: Restaurant;
+  categories: Category[];
+  menu_items: MenuItem[];
+}
+
 // ========== CATEGORIES =========
 const getAllCategories = async (
   restaurantId: string,
@@ -126,13 +186,14 @@ const getMenuItems = async (
   restaurantId: string,
   token: string,
   params?: GetMenuParams
-): Promise<MenuDishData[]> => {
+): Promise<GetMenuResponse> => {
+  params
   const config = getConfig(
-    `/menu/restaurant/${restaurantId}/menu-items/`,
+    `/menu/public/restaurant/${restaurantId}/menu/`,
     "GET",
     token,
     undefined,
-    params
+    {}
   );
   return bookiesAxiosInstance(config);
 };

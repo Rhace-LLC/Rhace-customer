@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./userSlice";
-import menuReducer from "./menu.slice";
+import menuReducer from "./menuSlice";
 import orderCartReducer from "./orderCart.slice";
 import restaurantSelectionReducer from "./restaurant_selection.slice";
 import reservationReducer from "./reservation.slice";

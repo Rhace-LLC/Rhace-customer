@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getAllCategories } from "@/api-services/menu.service";
-import { updatMenuCategoryData } from "@/store/menu.slice";
+import { updatMenuCategoryData } from "@/store/menuSlice";
 import { parseError } from "@/api-services/utils/parseError";
 import { ContentHOC } from "@/components/nocontent";
 import { RenderMenuCategory } from "./rendercat";
