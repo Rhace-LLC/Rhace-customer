@@ -34,7 +34,6 @@ export interface MenuDishData {
   available: boolean;
 }
 
-
 // ========== CATEGORIES =========
 const getAllCategories = async (
   restaurantId: string,

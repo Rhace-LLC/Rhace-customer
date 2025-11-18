@@ -16,7 +16,7 @@ export default function ForgotPassword() {
   const { setLoading, setLoadingText } = useLoading();
   const [form, setForm] = useState({ email: "" });
   const [errors, setErrors] = useState<FormErrors>({});
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -49,7 +49,7 @@ export default function ForgotPassword() {
       const response = await requestPasswordReset(form.email);
 
       toast.success(response?.message || "Password reset link sent!");
-      navigate(`/resetpassword?email=${form.email}`)
+      navigate(`/resetpassword?email=${form.email}`);
     } catch (error) {
       toast.error("Failed to send reset link. Please try again.");
     } finally {

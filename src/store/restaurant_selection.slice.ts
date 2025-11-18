@@ -25,13 +25,13 @@ const selectionSlice = createSlice({
         tableId: string;
         restaurantId: string;
         restaurantName: string;
-        tableNo:string;
+        tableNo: string;
       }>
     ) => {
       state.tableId = action.payload.tableId;
       state.restaurantId = action.payload.restaurantId;
       state.restaurantName = action.payload.restaurantName;
-      state.tableNo = action.payload.tableNo
+      state.tableNo = action.payload.tableNo;
     },
 
     clearSelection: (state) => {

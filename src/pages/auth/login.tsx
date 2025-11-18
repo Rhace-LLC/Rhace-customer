@@ -7,7 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { login, LoginRequestBody, resendVerifyEmailOtp } from "@/api-services/auth.service";
+import {
+  login,
+  LoginRequestBody,
+  resendVerifyEmailOtp,
+} from "@/api-services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { parseError } from "@/api-services/utils/parseError";
 
@@ -16,7 +20,7 @@ export interface FormErrors {
 }
 export default function Login() {
   const auth = useAuth();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -84,12 +88,12 @@ export default function Login() {
 
       toast.success("Login successful!");
     } catch (error) {
-      const message = parseError(error)
+      const message = parseError(error);
       toast.error(message || "Failed to login. Please try again.");
-      console.log("Message", message)
-      if(message == "Please verify your email before logging in"){        
-      navigate(`/verify-email?email=${form.email}`)
-      resendVerifyEmailOtp({email: form.email})
+      console.log("Message", message);
+      if (message == "Please verify your email before logging in") {
+        navigate(`/verify-email?email=${form.email}`);
+        resendVerifyEmailOtp({ email: form.email });
       }
     } finally {
       setLoading(false);

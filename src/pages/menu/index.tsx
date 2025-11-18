@@ -37,6 +37,7 @@ export function MenuPage() {
 
       if (parsed && parsed.tableId) {
         toast.success(`Welcome! You're now seated at Table ${parsed.tableId}`);
+        fetchCategory();
       } else {
         toast.error("Invalid QR — table information missing.");
       }
@@ -110,7 +111,6 @@ export function MenuPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-
       {/* ❗ SHOW BLOCKER UI UNTIL THEY SCAN QR */}
       {shouldProceed && <ScanRequiredUI onScan={handleQRScan} />}
 
@@ -130,15 +130,6 @@ export function MenuPage() {
           >
             <RenderMenuCategory />
           </ContentHOC>
-
-          {/* FLOATING QR BUTTON (hidden until scanned) */}
-          <Button
-            onClick={handleQRScan}
-            size="icon"
-            className="bg-primary hover:bg-primary/90 fixed right-5 bottom-24 z-40 h-14 w-14 rounded-full shadow-lg"
-          >
-            <QrCode className="h-6 w-6" />
-          </Button>
         </>
       )}
 
@@ -157,29 +148,28 @@ export function MenuPage() {
 
 function ScanRequiredUI({ onScan }: { onScan: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center bg-white">
-
-      <div className="animate-pulse bg-blue-50 p-10 rounded-full mb-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
+      <div className="mb-6 animate-pulse rounded-full bg-blue-50 p-10">
         <ScanLine className="h-20 w-20 text-blue-600" />
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+      <h2 className="mb-3 text-2xl font-bold text-gray-800">
         Scan Your Table QR Code
       </h2>
 
-      <p className="text-gray-600 max-w-sm mb-8">
+      <p className="mb-8 max-w-sm text-gray-600">
         To access this restaurant’s menu, please scan the QR code on your table.
-        This helps us identify your table and provide a smooth ordering experience.
+        This helps us identify your table and provide a smooth ordering
+        experience.
       </p>
 
       <Button
         onClick={onScan}
-        className="px-6 py-3 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+        className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-lg text-white hover:bg-blue-700"
       >
         <QrCode className="h-5 w-5" />
         Scan QR to Continue
       </Button>
-
     </div>
   );
 }

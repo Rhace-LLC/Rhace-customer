@@ -90,13 +90,23 @@ const requestPasswordReset = async (email: string): Promise<any> => {
 
 // Verify password reset token
 const verifyPasswordReset = async (data: Record<string, any>): Promise<any> => {
-  const config = getConfig(`/auth/password-reset/verify/`, "POST", undefined, data);
+  const config = getConfig(
+    `/auth/password-reset/verify/`,
+    "POST",
+    undefined,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // Reset password
 const resetPassword = async (data: Record<string, any>): Promise<any> => {
-  const config = getConfig(`/auth/password-reset/reset/`, "POST", undefined, data);
+  const config = getConfig(
+    `/auth/password-reset/reset/`,
+    "POST",
+    undefined,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
@@ -117,8 +127,15 @@ const verifyEmail = async (data: VerifyEmailBody): Promise<any> => {
 };
 
 // POST /auth/resend/verify-email/otp/
-const resendVerifyEmailOtp = async (data: ResendVerifyOtpBody): Promise<any> => {
-  const config = getConfig(`/auth/resend/verify-email/otp/`, "POST", undefined, data);
+const resendVerifyEmailOtp = async (
+  data: ResendVerifyOtpBody
+): Promise<any> => {
+  const config = getConfig(
+    `/auth/resend/verify-email/otp/`,
+    "POST",
+    undefined,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 

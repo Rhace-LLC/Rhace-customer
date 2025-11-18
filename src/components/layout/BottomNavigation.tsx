@@ -19,7 +19,12 @@ export function BottomNavigation({
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
     { id: "orders", label: "Orders", icon: ShoppingBag, path: "/orders" },
-    { id: "reservation", label: "Reservations", icon: CalendarDays, path: "/reservations" },
+    {
+      id: "reservation",
+      label: "Reservations",
+      icon: CalendarDays,
+      path: "/reservations",
+    },
   ];
 
   return (

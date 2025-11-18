@@ -27,7 +27,7 @@ import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 
 const OrderSummary: React.FC = () => {
   const auth = useAuth();
-  const selectedRestaurant = useSelectedRestaurant()
+  const selectedRestaurant = useSelectedRestaurant();
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);

@@ -186,7 +186,7 @@ export function ProfilePage() {
         </Card>
 
         {/* Account Stats */}
-        <Card>
+        <Card hidden>
           <CardHeader>
             <CardTitle>Account Statistics</CardTitle>
           </CardHeader>

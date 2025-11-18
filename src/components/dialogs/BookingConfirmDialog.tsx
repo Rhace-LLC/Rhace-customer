@@ -2,9 +2,11 @@ import { Calendar, Clock, Users, MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import { ReservationForm } from "@/pages/reservations/createReservation";
+import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 
 interface BookingConfirmDialogProps {
-  reservation: any;
+  reservation: ReservationForm;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -18,6 +20,8 @@ export function BookingConfirmDialog({
 }: BookingConfirmDialogProps) {
   if (!reservation) return null;
 
+  const selectedRestaurant = useSelectedRestaurant();
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -27,10 +31,12 @@ export function BookingConfirmDialog({
 
         <div className="space-y-4">
           <div className="rounded-lg bg-gray-50 p-4 text-center">
-            <h3 className="mb-2 text-lg font-medium">Bookies Restaurant</h3>
+            <h3 className="mb-2 text-lg font-medium">
+              Restaurant Venue - {selectedRestaurant.restaurantName}
+            </h3>
             <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
               <MapPin className="h-4 w-4" />
-              <span>123 Gourmet Street, Food District</span>
+              <span></span>
             </div>
           </div>
 
@@ -55,8 +61,8 @@ export function BookingConfirmDialog({
               <Users className="text-muted-foreground h-5 w-5" />
               <div>
                 <p className="font-medium">
-                  {reservation.partySize}{" "}
-                  {reservation.partySize === 1 ? "guest" : "guests"}
+                  {reservation.party_size}{" "}
+                  {reservation.party_size === 1 ? "guest" : "guests"}
                 </p>
                 <p className="text-muted-foreground text-sm">Party size</p>
               </div>
@@ -67,10 +73,19 @@ export function BookingConfirmDialog({
                 <span className="text-xs font-bold text-white">T</span>
               </div>
               <div>
-                <p className="font-medium">{reservation.table}</p>
+                <p className="font-medium">{reservation.status}</p>
                 <p className="text-muted-foreground text-sm">
-                  Table assignment
+                  Reservation Status
                 </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="bg-primary flex h-5 w-5 items-center justify-center rounded">
+                <span className="text-xs font-bold text-white">T</span>
+              </div>
+              <div>
+                <p className="font-medium">Your table would be assigned</p>
+                <p className="text-muted-foreground text-sm">-</p>
               </div>
             </div>
           </div>
@@ -88,7 +103,10 @@ export function BookingConfirmDialog({
               Cancel
             </Button>
             <Button
-              onClick={onConfirm}
+              onClick={() => {
+                onClose();
+                onConfirm();
+              }}
               className="bg-primary hover:bg-primary/90 flex-1"
             >
               Confirm Reservation

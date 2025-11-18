@@ -67,13 +67,26 @@ const getOrders = async (token?: string): Promise<OrderResponse[]> => {
 };
 
 // POST /orders/{order_id}/assign-table/
-const assignTable = async (order_id: number, data: UpdateOrderPayload, token?: string) => {
-  const config = getConfig(`/orders/${order_id}/assign-table/`, "POST", token, data);
+const assignTable = async (
+  order_id: number,
+  data: UpdateOrderPayload,
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/${order_id}/assign-table/`,
+    "POST",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // POST /orders/{order_id}/cancel/
-const cancelOrder = async (order_id: number, data: UpdateOrderPayload, token?: string) => {
+const cancelOrder = async (
+  order_id: number,
+  data: UpdateOrderPayload,
+  token?: string
+) => {
   const config = getConfig(`/orders/${order_id}/cancel/`, "POST", token, data);
   return bookiesAxiosInstance(config);
 };
@@ -85,8 +98,17 @@ const getOrderQueue = async (order_id: number, token?: string) => {
 };
 
 // POST /orders/{order_id}/update-status/
-const updateOrderStatus = async (order_id: number, data: UpdateOrderPayload, token?: string) => {
-  const config = getConfig(`/orders/${order_id}/update-status/`, "POST", token, data);
+const updateOrderStatus = async (
+  order_id: number,
+  data: UpdateOrderPayload,
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/${order_id}/update-status/`,
+    "POST",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
@@ -97,7 +119,10 @@ const bulkUpdateStatus = async (data: BulkStatusPayload, token?: string) => {
 };
 
 // POST /orders/create/
-const createOrder = async (data: CreateOrderPayload, token?: string): Promise<any> => {
+const createOrder = async (
+  data: CreateOrderPayload,
+  token?: string
+): Promise<any> => {
   const config = getConfig(`/orders/create/`, "POST", token, data);
   return bookiesAxiosInstance(config);
 };
@@ -105,7 +130,11 @@ const createOrder = async (data: CreateOrderPayload, token?: string): Promise<an
 // ---------------- Delivery Confirmation ----------------
 
 // GET /orders/order/{order_id}/confirm-delivery/token={token}
-const confirmDeliveryGet = async (order_id: number, confirmation_token: string, token?: string) => {
+const confirmDeliveryGet = async (
+  order_id: number,
+  confirmation_token: string,
+  token?: string
+) => {
   const config = getConfig(
     `/orders/order/${order_id}/confirm-delivery/token=${confirmation_token}`,
     "GET",
@@ -134,7 +163,11 @@ const confirmDeliveryPost = async (
 
 // GET /orders/orders/{order_id}/confirm-delivery/
 const confirmDeliveryGetNoToken = async (order_id: number, token?: string) => {
-  const config = getConfig(`/orders/orders/${order_id}/confirm-delivery/`, "GET", token);
+  const config = getConfig(
+    `/orders/orders/${order_id}/confirm-delivery/`,
+    "GET",
+    token
+  );
   return bookiesAxiosInstance(config);
 };
 
@@ -144,19 +177,36 @@ const confirmDeliveryPostNoToken = async (
   data: UpdateOrderPayload,
   token?: string
 ) => {
-  const config = getConfig(`/orders/orders/${order_id}/confirm-delivery/`, "POST", token, data);
+  const config = getConfig(
+    `/orders/orders/${order_id}/confirm-delivery/`,
+    "POST",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // GET /orders/orders/{order_id}/wait-time/
 const getOrderWaitTime = async (order_id: number, token?: string) => {
-  const config = getConfig(`/orders/orders/${order_id}/wait-time/`, "GET", token);
+  const config = getConfig(
+    `/orders/orders/${order_id}/wait-time/`,
+    "GET",
+    token
+  );
   return bookiesAxiosInstance(config);
 };
 
 // POST /orders/orders/bulk-confirm-delivery/
-const bulkConfirmDelivery = async (data: { order_ids: number[] }, token?: string) => {
-  const config = getConfig(`/orders/orders/bulk-confirm-delivery/`, "POST", token, data);
+const bulkConfirmDelivery = async (
+  data: { order_ids: number[] },
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/orders/bulk-confirm-delivery/`,
+    "POST",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
@@ -195,7 +245,11 @@ const updateReservationPut = async (id: number, data: any, token?: string) => {
 };
 
 // PATCH /orders/reservations/{id}/
-const updateReservationPatch = async (id: number, data: any, token?: string) => {
+const updateReservationPatch = async (
+  id: number,
+  data: any,
+  token?: string
+) => {
   const config = getConfig(`/orders/reservations/${id}/`, "PATCH", token, data);
   return bookiesAxiosInstance(config);
 };
@@ -213,32 +267,68 @@ const cancelReservation = async (id: number, token?: string) => {
 };
 
 // PUT /orders/reservations/{id}/status-update/
-const updateReservationStatus = async (id: number, data: any, token?: string) => {
-  const config = getConfig(`/orders/reservations/${id}/status-update/`, "PUT", token, data);
+const updateReservationStatus = async (
+  id: number,
+  data: any,
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/reservations/${id}/status-update/`,
+    "PUT",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // PUT /orders/reservations/{id}/update
 const reservationUpdatePut = async (id: number, data: any, token?: string) => {
-  const config = getConfig(`/orders/reservations/${id}/update`, "PUT", token, data);
+  const config = getConfig(
+    `/orders/reservations/${id}/update`,
+    "PUT",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // PATCH /orders/reservations/{id}/update
-const reservationUpdatePatch = async (id: number, data: any, token?: string) => {
-  const config = getConfig(`/orders/reservations/${id}/update`, "PATCH", token, data);
+const reservationUpdatePatch = async (
+  id: number,
+  data: any,
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/reservations/${id}/update`,
+    "PATCH",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // POST /orders/reservations/create/
-const createReservation = async (data: any, token?: string) => {
-  const config = getConfig(`/orders/reservations/create/`, "POST", token, data);
+const createReservation = async (
+  restaurant_id: string,
+  data: any,
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/reservations/create/${restaurant_id}`,
+    "POST",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
 // GET /orders/table-reservation/{table_id}/
 const getTableReservation = async (table_id: number, token?: string) => {
-  const config = getConfig(`/orders/table-reservation/${table_id}/`, "GET", token);
+  const config = getConfig(
+    `/orders/table-reservation/${table_id}/`,
+    "GET",
+    token
+  );
   return bookiesAxiosInstance(config);
 };
 

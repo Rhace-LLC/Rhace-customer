@@ -74,7 +74,7 @@ function NavigationContent() {
   const selectedRestaurant = useSelector(
     (state: RootState) => state.selectedRestaurant
   );
-  
+
   useEffect(() => {
     // Ensure only runs on base route "/"
     if (location.pathname !== "/") return;
@@ -87,7 +87,7 @@ function NavigationContent() {
     const tableId = searchParams.get("tid");
     const restaurantId = searchParams.get("rid");
     const restaurantName = searchParams.get("r");
-    const tableNo = searchParams.get('tno') || "";
+    const tableNo = searchParams.get("tno") || "";
 
     // Only dispatch if all required fields exist
     if (tableId && restaurantId && restaurantName) {
@@ -96,7 +96,7 @@ function NavigationContent() {
           tableId,
           restaurantId,
           restaurantName,
-          tableNo
+          tableNo,
         })
       );
     }

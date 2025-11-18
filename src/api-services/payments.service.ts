@@ -1,6 +1,7 @@
 // src/services/paymentsService.ts
 import { getConfig } from "./utils/reqConfig";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
+import { PaymentTransaction } from "@/store/paymentTranxSlice";
 
 // ---------------- Types ----------------
 
@@ -26,11 +27,24 @@ export interface PaymentVerificationResponse {
   status: string; // e.g. "error"
   message: string; // e.g. "An error occurred during verification
 }
+export interface Pagination {
+  current_page: number;
+  total_pages: number;
+  total_items: number;
+  has_next: boolean;
+  has_previous: boolean;
+}
 
+export interface PaymentsHistoryResponse {
+  payments: PaymentTransaction[];
+  pagination: Pagination;
+}
 // ---------------- Payments ----------------
 
 // GET /payments/history/
-const getPaymentHistory = async (token?: string) => {
+const getPaymentHistory = async (
+  token?: string
+): Promise<PaymentsHistoryResponse> => {
   const config = getConfig(`/payments/history/`, "GET", token);
   return bookiesAxiosInstance(config);
 };

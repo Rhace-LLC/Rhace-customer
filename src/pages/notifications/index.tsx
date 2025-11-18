@@ -1,81 +1,52 @@
-import { useState } from "react";
-import {
-  Bell,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  Calendar,
-  Trash2,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNotificationData } from "./useNotificationData";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { ContentHOC } from "@/components/nocontent";
+import { Pagination } from "@/components/pagination";
+import { markAsRead, removeNotification } from "@/store/notification.slice";
 
 export function NotificationsPage() {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "order",
-      title: "Order Ready!",
-      message: "Your order #ORD-002 is ready for pickup",
-      time: "5 mins ago",
-      isRead: false,
-      icon: CheckCircle,
-      iconColor: "text-green-500",
-    },
-    {
-      id: 2,
-      type: "reservation",
-      title: "Reservation Confirmed",
-      message:
-        "Your table reservation for Dec 31 at 7:30 PM has been confirmed",
-      time: "2 hours ago",
-      isRead: false,
-      icon: Calendar,
-      iconColor: "text-blue-500",
-    },
-    {
-      id: 3,
-      type: "payment",
-      title: "Payment Received",
-      message: "Payment of $35.50 has been processed successfully",
-      time: "3 hours ago",
-      isRead: true,
-      icon: CreditCard,
-      iconColor: "text-green-500",
-    },
-    {
-      id: 4,
-      type: "order",
-      title: "Order in Progress",
-      message: "Your order #ORD-001 is being prepared. Estimated time: 15 mins",
-      time: "1 day ago",
-      isRead: true,
-      icon: Clock,
-      iconColor: "text-orange-500",
-    },
-    {
-      id: 5,
-      type: "general",
-      title: "New Menu Items",
-      message: "Check out our new seasonal dishes now available!",
-      time: "2 days ago",
-      isRead: true,
-      icon: Bell,
-      iconColor: "text-primary",
-    },
-  ]);
+  const dispatch = useDispatch();
+
+  const [page, setPage] = useState(1);
+  const page_size = 8;
+
+  const dataStore = useSelector((state: RootState) => state.notifications);
+  const allData = dataStore.data;
+  const totalItems = dataStore.total;
+
+  const total_pages = Math.ceil(totalItems / page_size);
+
+  // Hook for fetching notifications
+  const {
+    fetchAllData,
+    loading: fetchLoading,
+    error: fetchError,
+  } = useNotificationData(page, page_size);
+
+  // Get notifications for current page
+  const notifications = allData[String(page)] ?? [];
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const handleDelete = (notificationId: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    dispatch(removeNotification(notificationId));
   };
 
-  const markAsRead = (notificationId: number) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
-    );
+  const handleMarkAsRead = (notificationId: number) => {
+    dispatch(markAsRead(notificationId));
   };
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  // Fetch data if not available for current page
+  useEffect(() => {
+    if (!allData[String(page)]) {
+      fetchAllData();
+    }
+  }, [page, allData, fetchAllData]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -91,37 +62,49 @@ export function NotificationsPage() {
           )}
         </div>
 
-        {/* Notifications List */}
-        <div className="space-y-3">
-          {notifications.length > 0 ? (
-            notifications.map((notification) => {
-              const Icon = notification.icon;
+        <ContentHOC
+          loading={fetchLoading}
+          error={!!fetchError}
+          noContent={notifications.length === 0}
+          loadingText="Fetching notifications..."
+          noContentBtnText="Refresh"
+          noContentMessage="No notifications found"
+          noContentAction={fetchAllData}
+          errMessage={fetchError}
+          actionFn={fetchAllData}
+        >
+          {/* Notifications List */}
+          <div className="space-y-3">
+            {notifications.map((notification) => {
+              const Icon = notification.icon || Bell; // fallback
               return (
                 <Card
                   key={notification.id}
                   className={`cursor-pointer transition-all duration-200 ${
-                    !notification.isRead
+                    !notification.is_read
                       ? "border-primary/20 bg-primary/5"
                       : "hover:shadow-md"
                   }`}
                   onClick={() =>
-                    !notification.isRead && markAsRead(notification.id)
+                    !notification.is_read && handleMarkAsRead(notification.id)
                   }
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <Icon
-                        className={`mt-0.5 h-5 w-5 ${notification.iconColor}`}
+                        className={`mt-0.5 h-5 w-5 ${notification.iconColor || "text-primary"}`}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="mb-1 flex items-center justify-between">
                           <h4
-                            className={`font-medium ${!notification.isRead ? "text-primary" : ""}`}
+                            className={`font-medium ${
+                              !notification.is_read ? "text-primary" : ""
+                            }`}
                           >
                             {notification.title}
                           </h4>
                           <div className="flex items-center gap-2">
-                            {!notification.isRead && (
+                            {!notification.is_read && (
                               <div className="bg-primary h-2 w-2 rounded-full" />
                             )}
                             <Button
@@ -141,26 +124,23 @@ export function NotificationsPage() {
                           {notification.message}
                         </p>
                         <span className="text-muted-foreground text-xs">
-                          {notification.time}
+                          {notification.time_ago}
                         </span>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               );
-            })
-          ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Bell className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <h3 className="mb-2 font-medium">No notifications</h3>
-                <p className="text-muted-foreground text-sm">
-                  You're all caught up! New notifications will appear here.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            })}
+          </div>
+        </ContentHOC>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={page}
+          totalPages={total_pages}
+          onPageChange={(p) => setPage(p)}
+        />
       </div>
     </div>
   );

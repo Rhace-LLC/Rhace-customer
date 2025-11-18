@@ -8,9 +8,9 @@ import { toast } from "sonner";
 import { parseError } from "@/api-services/utils/parseError";
 
 export default function OtpVerification() {
-  const navigate = useNavigate()
-  const [SearchParams] = useSearchParams()
-  const email = SearchParams.get("email")
+  const navigate = useNavigate();
+  const [SearchParams] = useSearchParams();
+  const email = SearchParams.get("email");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
@@ -38,10 +38,10 @@ export default function OtpVerification() {
     setLoading(true);
     try {
       await verifyEmail({ otp, email: email || "" });
-    toast.success("OTP Verified Successfully!");
-      navigate("/login")
+      toast.success("OTP Verified Successfully!");
+      navigate("/login");
     } catch (err: any) {
-       const message = parseError(err)
+      const message = parseError(err);
       toast.error(message || "Verification failed. Try again.");
     } finally {
       setLoading(false);
@@ -54,7 +54,7 @@ export default function OtpVerification() {
     setMessage("");
 
     try {
-      await resendVerifyEmailOtp({email: email || ""});
+      await resendVerifyEmailOtp({ email: email || "" });
       setMessage("A new OTP has been sent to your email.");
       setCooldown(30); // reset cooldown
     } catch (err: any) {
@@ -66,8 +66,7 @@ export default function OtpVerification() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl border border-gray-100 animate-fadeIn">
-        
+      <div className="animate-fadeIn w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 shadow-xl">
         {/* Title */}
         <h2 className="mb-4 text-center text-3xl font-extrabold text-blue-700">
           Verify OTP
@@ -78,12 +77,12 @@ export default function OtpVerification() {
 
         {/* Alerts */}
         {error && (
-          <div className="mb-3 rounded-lg bg-red-100 p-3 text-sm text-red-700 border border-red-300">
+          <div className="mb-3 rounded-lg border border-red-300 bg-red-100 p-3 text-sm text-red-700">
             {error}
           </div>
         )}
         {message && (
-          <div className="mb-3 rounded-lg bg-green-100 p-3 text-sm text-green-700 border border-green-300">
+          <div className="mb-3 rounded-lg border border-green-300 bg-green-100 p-3 text-sm text-green-700">
             {message}
           </div>
         )}
@@ -96,8 +95,7 @@ export default function OtpVerification() {
               value={otp}
               maxLength={6}
               onChange={(e) => setOtp(e.target.value.replace(/\D/, ""))}
-              className="w-full rounded-xl border px-4 py-3 text-center text-xl tracking-widest 
-              font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+              className="w-full rounded-xl border px-4 py-3 text-center text-xl font-semibold tracking-widest transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="••••••"
             />
           </div>
@@ -106,27 +104,31 @@ export default function OtpVerification() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 
-            text-white font-semibold text-lg hover:bg-blue-700 transition-all shadow-md disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-lg font-semibold text-white shadow-md transition-all hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Verify OTP"}
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              "Verify OTP"
+            )}
           </button>
         </form>
 
         {/* RESEND OTP */}
         <div className="mt-6 text-center">
           {cooldown > 0 ? (
-            <p className="text-gray-500 text-sm">
-              Resend available in <span className="font-semibold">{cooldown}s</span>
+            <p className="text-sm text-gray-500">
+              Resend available in{" "}
+              <span className="font-semibold">{cooldown}s</span>
             </p>
           ) : (
             <button
               onClick={handleResend}
               disabled={resendLoading}
-              className="flex items-center justify-center gap-2 text-blue-600 font-semibold hover:underline"
+              className="flex items-center justify-center gap-2 font-semibold text-blue-600 hover:underline"
             >
               {resendLoading ? (
-                <Loader2 className="animate-spin h-4 w-4" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <RefreshCw className="h-4 w-4" />
               )}

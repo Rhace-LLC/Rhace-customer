@@ -31,9 +31,7 @@ const statusColor = (status: string) => {
   }
 };
 
-const RenderReservationTable: React.FC<RenderReservationTable> = ({
-  data,
-}) => {
+const RenderReservationTable: React.FC<RenderReservationTable> = ({ data }) => {
   return (
     <div className="w-full overflow-x-auto rounded-md border">
       <Table>
@@ -53,10 +51,7 @@ const RenderReservationTable: React.FC<RenderReservationTable> = ({
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={8}
-                className="text-center py-6 text-gray-500"
-              >
+              <TableCell colSpan={8} className="py-6 text-center text-gray-500">
                 No reservations found.
               </TableCell>
             </TableRow>
@@ -66,9 +61,7 @@ const RenderReservationTable: React.FC<RenderReservationTable> = ({
                 <TableCell>{res.customer_name}</TableCell>
                 <TableCell>{res.customer_phone}</TableCell>
                 <TableCell>{res.party_size}</TableCell>
-                <TableCell>
-                  {new Date(res.date).toLocaleDateString()}
-                </TableCell>
+                <TableCell>{new Date(res.date).toLocaleDateString()}</TableCell>
                 <TableCell>{res.time}</TableCell>
 
                 <TableCell>
@@ -81,9 +74,7 @@ const RenderReservationTable: React.FC<RenderReservationTable> = ({
                   {res.table_id ? `Table ${res.table_id}` : "—"}
                 </TableCell>
 
-                <TableCell>
-                  {new Date(res.created).toLocaleString()}
-                </TableCell>
+                <TableCell>{new Date(res.created).toLocaleString()}</TableCell>
               </TableRow>
             ))
           )}

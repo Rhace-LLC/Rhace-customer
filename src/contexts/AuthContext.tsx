@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useContext, useEffect } from "react";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { LoginResponse } from "@/api-services/auth.service";
 
 interface DecodedToken {
@@ -68,7 +68,9 @@ const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
   };
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [accountType, setAccountType] = useState("");

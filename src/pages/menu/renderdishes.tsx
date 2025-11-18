@@ -25,7 +25,7 @@ export const RenderMenuCategoryDishes = ({
 }: RenderMenuCategoryDishesProps) => {
   const auth = useAuth();
   const dispatch = useDispatch();
-    const selectedRestaurant = useSelectedRestaurant()
+  const selectedRestaurant = useSelectedRestaurant();
 
   const [fetchAllDishesLoading, setFetchAllDishesLoading] = useState(false);
   const [fetchAllDishesError, setFetchAllDishesError] = useState("");
@@ -73,7 +73,11 @@ export const RenderMenuCategoryDishes = ({
       setFetchAllDishesLoading(true);
       setFetchAllDishesError("");
 
-      const response = await getMenuItems(selectedRestaurant.restaurantId || "", auth.token, { category: categoryId });
+      const response = await getMenuItems(
+        selectedRestaurant.restaurantId || "",
+        auth.token,
+        { category: categoryId }
+      );
       dispatch(updateMenuDishData({ key: String(categoryId), data: response }));
 
       console.log("✅ Dishes fetched:", response);

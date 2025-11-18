@@ -19,9 +19,9 @@ export interface Reservation {
   customer_name: string;
   customer_phone: string;
   party_size: number;
-  date: string;         // ISO datetime
-  time: string;         // "HH:mm"
-  status: string;       // pending | confirmed | cancelled | completed
+  date: string; // ISO datetime
+  time: string; // "HH:mm"
+  status: string; // pending | confirmed | cancelled | completed
   table_id: string | null;
   restaurant: string;
   notes?: string;

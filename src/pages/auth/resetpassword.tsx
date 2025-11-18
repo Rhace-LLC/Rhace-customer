@@ -15,11 +15,11 @@ export interface FormErrors {
 
 export default function ResetPassword() {
   const { setLoading, setLoadingText } = useLoading();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [step, setStep] = useState<"otp" | "reset">("otp");
-  const [SearchParam] = useSearchParams()
-  const email = SearchParam.get("email") || ''
+  const [SearchParam] = useSearchParams();
+  const email = SearchParam.get("email") || "";
   const [form, setForm] = useState({
     email: "",
     otp: "",
@@ -73,8 +73,7 @@ export default function ResetPassword() {
         };
         const response = await resetPassword(payload);
         toast.success(response?.message || "Password reset successful!");
-        navigate('/login')
-        
+        navigate("/login");
       }
     } catch (error) {
       toast.error("Failed to reset password. Please try again.");
@@ -194,12 +193,12 @@ export default function ResetPassword() {
               </Button>
             </>
           )}
-          
-        <p className="text-center text-sm text-gray-600">
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Back to Login
-          </Link>
-        </p>
+
+          <p className="text-center text-sm text-gray-600">
+            <Link to="/login" className="text-blue-600 hover:underline">
+              Back to Login
+            </Link>
+          </p>
         </form>
       </div>
     </div>

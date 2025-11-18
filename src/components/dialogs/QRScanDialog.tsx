@@ -11,7 +11,11 @@ interface QRScanDialogProps {
   onSuccess: (data: string) => void;
 }
 
-export function QRScanDialog({ isOpen, onClose, onSuccess }: QRScanDialogProps) {
+export function QRScanDialog({
+  isOpen,
+  onClose,
+  onSuccess,
+}: QRScanDialogProps) {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,19 +68,25 @@ export function QRScanDialog({ isOpen, onClose, onSuccess }: QRScanDialogProps) 
             ) : (
               <div className="flex h-full flex-col items-center justify-center bg-gray-900/70 text-center text-white">
                 <QrCode className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-                <p className="text-sm opacity-70">Camera view will appear here</p>
+                <p className="text-sm opacity-70">
+                  Camera view will appear here
+                </p>
               </div>
             )}
           </div>
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {error && <p className="text-center text-sm text-red-500">{error}</p>}
 
           <div className="text-muted-foreground text-center text-sm">
             <p>Position the QR code within the frame</p>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleDialogClose} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={handleDialogClose}
+              className="flex-1"
+            >
               Cancel
             </Button>
             <Button
