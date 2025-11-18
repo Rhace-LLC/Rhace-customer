@@ -6,6 +6,7 @@ import { bookiesAxiosInstance } from "./utils/baseUrl";
 // ---------------------------
 // 📘 Interfaces
 // ---------------------------
+
 // ------------------ USER ROLE TYPE ------------------
 export type UserRole =
   | "admin"
@@ -32,18 +33,16 @@ export interface UserDataLogin {
   first_name: string;
   last_name: string;
 }
-// Login request
+
 export interface LoginRequestBody {
   email: string;
   password: string;
 }
 
-// Logout request
 export interface LogoutRequestBody {
   refresh: string;
 }
 
-// Register request
 export interface RegisterRequestBody {
   id?: string;
   email: string;
@@ -53,6 +52,16 @@ export interface RegisterRequestBody {
   password: string;
   confirm_password: string;
   role: string;
+}
+
+// New interfaces for added endpoints
+export interface VerifyEmailBody {
+  email: string;
+  otp: string;
+}
+
+export interface ResendVerifyOtpBody {
+  email: string;
 }
 
 // ---------------------------
@@ -71,12 +80,6 @@ const logout = async (data: LogoutRequestBody): Promise<any> => {
   return bookiesAxiosInstance(config);
 };
 
-// Get current authenticated user
-const getMe = async (token: string): Promise<any> => {
-  const config = getConfig(`/auth/me/`, "GET", token);
-  return bookiesAxiosInstance(config);
-};
-
 // Request password reset
 const requestPasswordReset = async (email: string): Promise<any> => {
   const config = getConfig(`/auth/password-reset/request/`, "POST", undefined, {
@@ -87,23 +90,13 @@ const requestPasswordReset = async (email: string): Promise<any> => {
 
 // Verify password reset token
 const verifyPasswordReset = async (data: Record<string, any>): Promise<any> => {
-  const config = getConfig(
-    `/auth/password-reset/verify/`,
-    "POST",
-    undefined,
-    data
-  );
+  const config = getConfig(`/auth/password-reset/verify/`, "POST", undefined, data);
   return bookiesAxiosInstance(config);
 };
 
 // Reset password
 const resetPassword = async (data: Record<string, any>): Promise<any> => {
-  const config = getConfig(
-    `/auth/password-reset/reset/`,
-    "POST",
-    undefined,
-    data
-  );
+  const config = getConfig(`/auth/password-reset/reset/`, "POST", undefined, data);
   return bookiesAxiosInstance(config);
 };
 
@@ -114,14 +107,31 @@ const register = async (data: RegisterRequestBody): Promise<any> => {
 };
 
 // ---------------------------
+// ⭐ NEW ENDPOINTS
+// ---------------------------
+
+// POST /auth/verify/email/
+const verifyEmail = async (data: VerifyEmailBody): Promise<any> => {
+  const config = getConfig(`/auth/verify/email/`, "POST", undefined, data);
+  return bookiesAxiosInstance(config);
+};
+
+// POST /auth/resend/verify-email/otp/
+const resendVerifyEmailOtp = async (data: ResendVerifyOtpBody): Promise<any> => {
+  const config = getConfig(`/auth/resend/verify-email/otp/`, "POST", undefined, data);
+  return bookiesAxiosInstance(config);
+};
+
+// ---------------------------
 // 📘 Export All
 // ---------------------------
 export {
   login,
   logout,
-  getMe,
   requestPasswordReset,
   verifyPasswordReset,
   resetPassword,
   register,
+  verifyEmail,
+  resendVerifyEmailOtp,
 };

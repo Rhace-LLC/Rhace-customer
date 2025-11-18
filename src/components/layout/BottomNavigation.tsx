@@ -1,4 +1,4 @@
-import { Home, ShoppingBag, CreditCard, Utensils } from "lucide-react";
+import { Home, ShoppingBag, Utensils, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -19,7 +19,7 @@ export function BottomNavigation({
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
     { id: "orders", label: "Orders", icon: ShoppingBag, path: "/orders" },
-    { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },
+    { id: "reservation", label: "Reservations", icon: CalendarDays, path: "/reservations" },
   ];
 
   return (

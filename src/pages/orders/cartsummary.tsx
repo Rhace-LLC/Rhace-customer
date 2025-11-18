@@ -102,7 +102,7 @@ const OrderSummary: React.FC = () => {
   };
 
   // ✅ Initiate Order Payment
-  const initiaiteOrderPayment = async (orderId: string) => {
+  const initiaiteOrderPayment = async (orderId: string): Promise<any> => {
     try {
       setLoading(true);
       setLoadingText("Initializing Payment...");

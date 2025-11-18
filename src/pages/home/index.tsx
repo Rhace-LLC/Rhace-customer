@@ -32,11 +32,6 @@ function parseAndDispatchSelection(fullUrl: string) {
           tableNo,
         })
       )
-      toast.info(JSON.stringify({
-          tableId,
-          restaurantId,
-          restaurantName,
-        }))
       return {
         tableId,
         restaurantId,

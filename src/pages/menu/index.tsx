@@ -8,11 +8,22 @@ import { parseError } from "@/api-services/utils/parseError";
 import { ContentHOC } from "@/components/nocontent";
 import { RenderMenuCategory } from "./rendercat";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+import { setSelection } from "@/store/restaurant_selection.slice";
+import { Button } from "@/components/ui/button";
+import { QrCode, ScanLine } from "lucide-react";
+import { QRScanDialog } from "@/components/dialogs/QRScanDialog";
+import { toast } from "sonner";
 
 export function MenuPage() {
-  const auth = useAuth();
-  const selectedRestaurant = useSelectedRestaurant()
+  const [isQRScanOpen, setIsQRScanOpen] = useState(false);
+
+  const handleQRScan = () => setIsQRScanOpen(true);
+
   const dispatch = useDispatch();
+  const auth = useAuth();
+  const selectedRestaurant = useSelectedRestaurant();
+
+  const shouldProceed = !selectedRestaurant.restaurantId;
 
   const dataStore = useSelector((state: RootState) => state.menu);
   const allCatData = dataStore.categoryData;
@@ -20,46 +31,155 @@ export function MenuPage() {
   const [fetchCategoryLoading, setFetchCategoryLoading] = useState(false);
   const [fetchCategoryError, setFetchCategoryError] = useState("");
 
+  const handleScanSuccess = (data: string) => {
+    try {
+      const parsed = parseAndDispatchSelection(data);
+
+      if (parsed && parsed.tableId) {
+        toast.success(`Welcome! You're now seated at Table ${parsed.tableId}`);
+      } else {
+        toast.error("Invalid QR — table information missing.");
+      }
+    } catch {
+      toast.error("Invalid QR code. Please try again.");
+    } finally {
+      setIsQRScanOpen(false);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setIsQRScanOpen(false);
+  };
+
+  function parseAndDispatchSelection(fullUrl: string) {
+    try {
+      const url = new URL(fullUrl);
+
+      const tableId = url.searchParams.get("tid") || "";
+      const tableNo = url.searchParams.get("tno") || "";
+      const restaurantId = url.searchParams.get("rid") || "";
+      const restaurantName = url.searchParams.get("r") || "";
+
+      if (tableId && restaurantId && restaurantName) {
+        dispatch(
+          setSelection({
+            tableId,
+            restaurantId,
+            restaurantName,
+            tableNo,
+          })
+        );
+
+        return {
+          tableId,
+          restaurantId,
+          restaurantName,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Invalid URL:", error);
+      return null;
+    }
+  }
+
   const fetchCategory = async () => {
     try {
       setFetchCategoryLoading(true);
       setFetchCategoryError("");
 
-      const response = await getAllCategories(selectedRestaurant.restaurantId || "",auth.token);
-      console.log("Menu Data Response:", response);
-      dispatch(updatMenuCategoryData(response));
+      const res = await getAllCategories(
+        selectedRestaurant.restaurantId || "",
+        auth.token
+      );
+
+      dispatch(updatMenuCategoryData(res));
     } catch (error: any) {
-      console.error("Fetch Category Error:", error);
-      const errorMessage = parseError(error) || "Failed to fetch categories.";
-      setFetchCategoryError(errorMessage);
+      setFetchCategoryError(parseError(error));
     } finally {
       setFetchCategoryLoading(false);
     }
   };
 
   useEffect(() => {
-    if (allCatData.length == 0) {
+    if (allCatData.length === 0 && !shouldProceed) {
       fetchCategory();
     }
   }, []);
 
   return (
-    <div
-      className={`min-h-screen bg-gray-50 pb-20 ${fetchCategoryLoading || fetchCategoryError ? "p-6 pt-12" : ""}`}
-    >
-      <ContentHOC
-        loading={fetchCategoryLoading}
-        error={!!fetchCategoryError}
-        noContent={allCatData.length === 0}
-        loadingText="Fetching Categories. Please Wait."
-        noContentMessage="Reload Categorie List"
-        noContentBtnText="Reload Categories"
-        noContentAction={fetchCategory}
-        errMessage={fetchCategoryError || "Failed to load borrowers."}
-        actionFn={fetchCategory}
+    <div className="min-h-screen bg-gray-50 pb-20">
+
+      {/* ❗ SHOW BLOCKER UI UNTIL THEY SCAN QR */}
+      {shouldProceed && <ScanRequiredUI onScan={handleQRScan} />}
+
+      {/* CONTENT (only if scanned) */}
+      {!shouldProceed && (
+        <>
+          <ContentHOC
+            loading={fetchCategoryLoading}
+            error={!!fetchCategoryError}
+            noContent={allCatData.length === 0}
+            loadingText="Fetching Categories. Please Wait."
+            noContentMessage="Reload Categories List"
+            noContentBtnText="Reload Categories"
+            noContentAction={fetchCategory}
+            errMessage={fetchCategoryError || "Failed to load categories."}
+            actionFn={fetchCategory}
+          >
+            <RenderMenuCategory />
+          </ContentHOC>
+
+          {/* FLOATING QR BUTTON (hidden until scanned) */}
+          <Button
+            onClick={handleQRScan}
+            size="icon"
+            className="bg-primary hover:bg-primary/90 fixed right-5 bottom-24 z-40 h-14 w-14 rounded-full shadow-lg"
+          >
+            <QrCode className="h-6 w-6" />
+          </Button>
+        </>
+      )}
+
+      <QRScanDialog
+        isOpen={isQRScanOpen}
+        onClose={handleDialogClose}
+        onSuccess={handleScanSuccess}
+      />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------
+   BLOCKER UI COMPONENT
+------------------------------------------------------------- */
+
+function ScanRequiredUI({ onScan }: { onScan: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center bg-white">
+
+      <div className="animate-pulse bg-blue-50 p-10 rounded-full mb-6">
+        <ScanLine className="h-20 w-20 text-blue-600" />
+      </div>
+
+      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+        Scan Your Table QR Code
+      </h2>
+
+      <p className="text-gray-600 max-w-sm mb-8">
+        To access this restaurant’s menu, please scan the QR code on your table.
+        This helps us identify your table and provide a smooth ordering experience.
+      </p>
+
+      <Button
+        onClick={onScan}
+        className="px-6 py-3 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
       >
-        <RenderMenuCategory />
-      </ContentHOC>
+        <QrCode className="h-5 w-5" />
+        Scan QR to Continue
+      </Button>
+
     </div>
   );
 }

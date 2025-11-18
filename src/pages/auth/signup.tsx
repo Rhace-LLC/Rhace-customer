@@ -96,10 +96,9 @@ export default function Signup() {
 
       await register(payload); // ✅ API call
       toast.success("Account created successfully!");
-      // Auto-login or redirect to login
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/verify-email')
+      navigate(`/verify-email?email=${form.email}`)
     } catch (error: any) {
       toast.error("Failed to create account. Please try again.");
     } finally {

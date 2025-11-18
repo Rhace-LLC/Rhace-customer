@@ -1,10 +1,19 @@
-import { useState } from "react";
-import { Calendar, Users, Clock, Plus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {  Users, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { BookingConfirmDialog } from "@/components/dialogs/BookingConfirmDialog";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { useAuth } from "@/contexts/AuthContext";
+import { getReservations } from "@/api-services/order.service";
+//import { updateReservationData } from "@/store/reservation.slice";
+import { parseError } from "@/api-services/utils/parseError";
+import { ContentHOC } from "@/components/nocontent";
+import RenderReservationTable from "./RenderReservationTable";
+import CreateReservationPrompt from "./createReservationPrompt";
+import { Pagination } from "@/components/pagination";
 
 export function ReservationsPage() {
   const [pendingReservation, setPendingReservation] = useState(null);
@@ -35,25 +44,6 @@ export function ReservationsPage() {
     "9:00 PM",
   ];
 
-  const upcomingReservations = [
-    {
-      id: "RES-001",
-      date: "Dec 31, 2024",
-      time: "7:30 PM",
-      partySize: 4,
-      table: "Table 12",
-      status: "confirmed",
-    },
-    {
-      id: "RES-002",
-      date: "Jan 5, 2025",
-      time: "6:00 PM",
-      partySize: 2,
-      table: "Table 8",
-      status: "confirmed",
-    },
-  ];
-
   const handleBooking = () => {
     const reservation = {
       date: selectedDate.toLocaleDateString(),
@@ -64,11 +54,55 @@ export function ReservationsPage() {
     handleBookTable(reservation);
   };
 
+
+  // 
+  const auth = useAuth()
+  //const dispatch = useDispatch()
+  const [totalItems, setTotalItems] = useState(0);
+  const [page, setPage] = useState(1);
+  const page_size = 8;
+  const total_pages = Math.ceil(totalItems / page_size);
+
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchError, setFetchError] = useState("");
+
+
+  const dataStore = useSelector((state: RootState) => state.reservations);
+  const allData = dataStore.data;
+
+  // ========== API Calls ==========
+  const fetchAllData = async () => {
+    try {
+      setFetchLoading(true);
+      setFetchError("");
+      await getReservations(auth.token);
+      //dispatch(updateReservationData({ key: String(page), data: res }));
+      //dispatch(updateInventoryTotal({ data_total: 69 }));
+      setTotalItems(69)
+    } catch (error) {
+      setFetchError(parseError(error) || "Failed to fetch ");
+    } finally {
+      setFetchLoading(false);
+    }
+  };
+  // Normal Mode
+  const toShow = useMemo(
+    () => allData[String(page)] ?? [],
+    [allData, page]
+  );
+
+  useEffect(()=>{
+    fetchAllData()
+  },[])
+
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="space-y-6 p-5">
         {/* New Reservation */}
-        <Card>
+        <CreateReservationPrompt onStart={()=> {}} />
+
+        <Card hidden>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
@@ -170,52 +204,22 @@ export function ReservationsPage() {
         </Card>
 
         {/* Upcoming Reservations */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Upcoming Reservations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {upcomingReservations.length > 0 ? (
-              <div className="space-y-3">
-                {upcomingReservations.map((reservation) => (
-                  <div
-                    key={reservation.id}
-                    className="rounded-lg border border-gray-200 bg-white p-4"
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="text-muted-foreground h-4 w-4" />
-                        <span className="font-medium">{reservation.date}</span>
-                      </div>
-                      <Badge variant="secondary">{reservation.status}</Badge>
-                    </div>
-                    <div className="text-muted-foreground flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{reservation.time}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>{reservation.partySize} guests</span>
-                      </div>
-                      <span>{reservation.table}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <p className="text-muted-foreground">
-                  No upcoming reservations
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <h3 className="text-lg font-semibold tracking-tighter">
+              My Reservations</h3>
+          <ContentHOC
+          loading={fetchLoading}
+          error={!!fetchError}
+          noContent={toShow.length === 0}
+          loadingText="Fetching Your Reservations. Please wait..."
+          noContentMessage="No Reservations Found"
+          noContentBtnText="Reload"
+          noContentAction={fetchAllData}
+          errMessage={fetchError}
+          actionFn={fetchAllData}
+        >
+          <RenderReservationTable data={toShow} />
+        </ContentHOC>
+        <Pagination totalPages={total_pages} currentPage={page} onPageChange={(page)=>setPage(page)}></Pagination>
       </div>
       <BookingConfirmDialog
         reservation={pendingReservation}
