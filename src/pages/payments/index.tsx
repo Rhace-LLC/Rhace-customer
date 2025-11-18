@@ -60,9 +60,9 @@ export function PaymentsPage() {
               >
                 <div className="mb-2 flex items-center justify-between">
                   <div>
-                    <h4 className="font-medium">Order {txn.orderId}</h4>
+                    <h4 className="font-medium">Order {`txn.orderId`}</h4>
                     <p className="text-muted-foreground text-sm">
-                      {txn.date} at {txn.time}
+                      {`txn.date`} at {`txn.time`}
                     </p>
                   </div>
                   <div className="text-right">
@@ -74,7 +74,7 @@ export function PaymentsPage() {
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{txn.method}</span>
+                  <span className="text-muted-foreground">{`txn.method`}</span>
                   <div className="flex items-center gap-2">
                     <Eye className="text-muted-foreground h-4 w-4" />
                     <span className="text-muted-foreground">View receipt</span>
@@ -82,7 +82,7 @@ export function PaymentsPage() {
                 </div>
 
                 <div className="text-muted-foreground mt-2 text-sm">
-                  {txn.items.join(", ")}
+                  {`txn.items.join(", ")`}
                 </div>
               </div>
             ))}
