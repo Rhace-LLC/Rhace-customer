@@ -57,10 +57,10 @@ export const RenderMenuCategoryDishes = () => {
   const handleDecrease = (dish: any) => dispatch(reduceQuantity(dish));
 
   return (
-    <div>
+    <div className="pt-5 px-4">
       {/* Category filter */}
       {categories.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-wrap gap-2 justify-center">
           <Button
             variant={selectedCategory === null ? "default" : "outline"}
             onClick={() => setSelectedCategory(null)}
@@ -94,7 +94,6 @@ export const RenderMenuCategoryDishes = () => {
           {filteredDishes.map((dish) => (
             <div
               key={dish.id}
-              onClick={() => setSelectedDish(dish)}
               className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
             >
               <img

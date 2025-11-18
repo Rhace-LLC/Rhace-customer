@@ -5,14 +5,13 @@ import { RootState } from "@/store/store";
 import { getAllCategories } from "@/api-services/menu.service";
 import { updatMenuCategoryData } from "@/store/menuSlice";
 import { parseError } from "@/api-services/utils/parseError";
-import { ContentHOC } from "@/components/nocontent";
-import { RenderMenuCategory } from "./rendercat";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { setSelection } from "@/store/restaurant_selection.slice";
 import { Button } from "@/components/ui/button";
 import { QrCode, ScanLine } from "lucide-react";
 import { QRScanDialog } from "@/components/dialogs/QRScanDialog";
 import { toast } from "sonner";
+import { RenderMenuCategoryDishes } from "./rendermenu";
 
 export function MenuPage() {
   const [isQRScanOpen, setIsQRScanOpen] = useState(false);
@@ -117,19 +116,7 @@ export function MenuPage() {
       {/* CONTENT (only if scanned) */}
       {!shouldProceed && (
         <>
-          <ContentHOC
-            loading={fetchCategoryLoading}
-            error={!!fetchCategoryError}
-            noContent={allCatData.length === 0}
-            loadingText="Fetching Categories. Please Wait."
-            noContentMessage="Reload Categories List"
-            noContentBtnText="Reload Categories"
-            noContentAction={fetchCategory}
-            errMessage={fetchCategoryError || "Failed to load categories."}
-            actionFn={fetchCategory}
-          >
-            <RenderMenuCategory />
-          </ContentHOC>
+      <RenderMenuCategoryDishes />
         </>
       )}
 
