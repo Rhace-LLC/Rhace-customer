@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -17,13 +17,18 @@ import { CreateReservation, ReservationForm } from "./createReservation";
 import { useLoading } from "@/contexts/LoadingContext";
 import { toast } from "sonner";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+import {
+  updateReservationData,
+  updateReservationTotal,
+} from "@/store/reservation.slice";
+import RenderReservationCards from "./RenderReservationTable";
 export function ReservationsPage() {
   const { setLoading, setLoadingText } = useLoading();
   const [open, setOpen] = useState(false);
   const selectedRestaurant = useSelectedRestaurant();
 
   const auth = useAuth();
-  //const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [totalItems, setTotalItems] = useState(0);
   const [page, setPage] = useState(1);
   const page_size = 8;
@@ -40,9 +45,9 @@ export function ReservationsPage() {
     try {
       setFetchLoading(true);
       setFetchError("");
-      await getReservations(auth.token);
-      //dispatch(updateReservationData({ key: String(page), data: res }));
-      //dispatch(updateInventoryTotal({ data_total: 69 }));
+      const res = await getReservations(auth.token);
+      dispatch(updateReservationData({ key: String(page), data: res }));
+      dispatch(updateReservationTotal({ data_total: 100 }));
       setTotalItems(69);
     } catch (error) {
       setFetchError(parseError(error) || "Failed to fetch ");
@@ -50,6 +55,7 @@ export function ReservationsPage() {
       setFetchLoading(false);
     }
   };
+
   // Normal Mode
   const toShow = useMemo(() => allData[String(page)] ?? [], [allData, page]);
 
@@ -104,7 +110,7 @@ export function ReservationsPage() {
           errMessage={fetchError}
           actionFn={fetchAllData}
         >
-          <RenderReservationTable data={toShow} />
+          <RenderReservationCards data={toShow} />
         </ContentHOC>
         <Pagination
           totalPages={total_pages}

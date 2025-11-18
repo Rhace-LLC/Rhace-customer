@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Category, GetMenuResponse, MenuItem, Restaurant } from "@/api-services/menu.service";
+import {
+  Category,
+  GetMenuResponse,
+  MenuItem,
+  Restaurant,
+} from "@/api-services/menu.service";
 
 interface MenuState {
   restaurant: Restaurant | null;
@@ -34,7 +39,9 @@ const menuSlice = createSlice({
 
     // Update a single menu item by ID
     updateMenuItem(state, action: PayloadAction<MenuItem>) {
-      const index = state.menuItems.findIndex(item => item.id === action.payload.id);
+      const index = state.menuItems.findIndex(
+        (item) => item.id === action.payload.id
+      );
       if (index !== -1) state.menuItems[index] = action.payload;
     },
 
@@ -47,5 +54,11 @@ const menuSlice = createSlice({
   },
 });
 
-export const { setMenu, addMenuItems, addCategories, updateMenuItem, clearMenu } = menuSlice.actions;
+export const {
+  setMenu,
+  addMenuItems,
+  addCategories,
+  updateMenuItem,
+  clearMenu,
+} = menuSlice.actions;
 export default menuSlice.reducer;

@@ -1,87 +1,113 @@
 "use client";
 
 import React from "react";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableBody,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Reservation } from "@/store/reservation.slice";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ReservationItem } from "@/api-services/order.service";
 
-interface RenderReservationTable {
-  data: Reservation[];
+interface RenderReservationCardsProps {
+  data: ReservationItem[];
 }
 
 const statusColor = (status: string) => {
   switch (status.toLowerCase()) {
     case "pending":
-      return "bg-yellow-500";
+      return "bg-yellow-500 hover:bg-yellow-500/80";
     case "confirmed":
-      return "bg-green-600";
+      return "bg-green-600 hover:bg-green-600/80";
     case "cancelled":
-      return "bg-red-600";
+      return "bg-red-600 hover:bg-red-600/80";
     case "completed":
-      return "bg-blue-600";
+      return "bg-blue-600 hover:bg-blue-600/80";
     default:
-      return "bg-gray-500";
+      return "bg-gray-500 hover:bg-gray-500/80";
   }
 };
 
-const RenderReservationTable: React.FC<RenderReservationTable> = ({ data }) => {
+// Component for a single reservation card
+const ReservationCard: React.FC<{ reservation: ReservationItem }> = ({
+  reservation: res,
+}) => {
+  const formattedDate = new Date(res.date).toLocaleDateString();
+  const createdDate = new Date(res.date).toLocaleString();
+
+  // *** CORRECT TYPE USAGE HERE ***
+  const customerFullName = `${res.customer.first_name} ${res.customer.last_name}`;
+
   return (
-    <div className="w-full overflow-x-auto rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Customer</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Party Size</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Time</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Table</TableHead>
-            <TableHead>Created</TableHead>
-          </TableRow>
-        </TableHeader>
+    <Card className="shadow-lg transition-shadow duration-300 hover:shadow-xl">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="truncate text-xl font-bold">
+          {/* Using nested customer properties */}
+          {customerFullName}
+        </CardTitle>
+        <Badge className={`${statusColor(res.status)} text-white`}>
+          {res.status}
+        </Badge>
+      </CardHeader>
+      <CardDescription className="px-6 pb-2 text-sm text-gray-500">
+        <span className="font-semibold">{res.party_size} Guests</span>
+        <span className="mx-2">•</span>
+        {/* Using the assumed top-level table_id */}
+        {false ? `Table No` : "Unassigned"}
+      </CardDescription>
 
-        <TableBody>
-          {data.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={8} className="py-6 text-center text-gray-500">
-                No reservations found.
-              </TableCell>
-            </TableRow>
-          ) : (
-            data.map((res) => (
-              <TableRow key={res.id}>
-                <TableCell>{res.customer_name}</TableCell>
-                <TableCell>{res.customer_phone}</TableCell>
-                <TableCell>{res.party_size}</TableCell>
-                <TableCell>{new Date(res.date).toLocaleDateString()}</TableCell>
-                <TableCell>{res.time}</TableCell>
+      <Separator className="mx-auto w-[90%]" />
 
-                <TableCell>
-                  <Badge className={`${statusColor(res.status)}`}>
-                    {res.status}
-                  </Badge>
-                </TableCell>
+      <CardContent className="grid grid-cols-2 gap-y-2 pt-4 text-sm">
+        {/* Reservation Details */}
+        <div className="flex flex-col">
+          <span className="text-gray-500">Date & Time</span>
+          <span className="font-medium">
+            {formattedDate} at {res.time.substring(0, 5)}
+          </span>
+        </div>
 
-                <TableCell>
-                  {res.table_id ? `Table ${res.table_id}` : "—"}
-                </TableCell>
+        {/* Contact Details */}
+        <div className="flex flex-col">
+          <span className="text-gray-500">Phone</span>
+          {/* Using nested customer properties */}
+          <span className="font-medium">{res.customer.phone}</span>
+        </div>
 
-                <TableCell>{new Date(res.created).toLocaleString()}</TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+        {/* Created At */}
+        <div className="col-span-2 flex flex-col">
+          <span className="text-gray-500">Booked On</span>
+          {/* Using the assumed top-level created property */}
+          <span className="text-xs text-gray-700">{createdDate}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Main component to render the list of cards
+const RenderReservationCards: React.FC<RenderReservationCardsProps> = ({
+  data,
+}) => {
+  return (
+    <div className="">
+      {data.length === 0 ? (
+        <div className="rounded-lg border bg-gray-50 py-12 text-center text-gray-500">
+          <p className="text-lg font-medium">No reservations found.</p>
+          <p className="text-sm">Check back later or adjust your filters.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {data.map((res) => (
+            <ReservationCard key={res.id} reservation={res} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default RenderReservationTable;
+export default RenderReservationCards;

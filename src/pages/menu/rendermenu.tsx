@@ -5,12 +5,15 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 import { ContentHOC } from "@/components/nocontent";
 import { DishDetailSheet } from "@/components/sheets/DishDetailSheet";
 import { useAuth } from "@/contexts/AuthContext";
-import { addToCart, increaseQuantity, reduceQuantity } from "@/store/orderCart.slice";
+import {
+  addToCart,
+  increaseQuantity,
+  reduceQuantity,
+} from "@/store/orderCart.slice";
 import { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { useMenuData } from "./useMenuData";
-
 
 export const RenderMenuCategoryDishes = () => {
   const dispatch = useDispatch();
@@ -26,8 +29,11 @@ export const RenderMenuCategoryDishes = () => {
   const [selectedDish, setSelectedDish] = useState<any | null>(null);
 
   // Menu fetching hook
-  const { loading: fetchAllDishesLoading, error: fetchAllDishesError, fetchMenuData } =
-    useMenuData(selectedRestaurant.restaurantId || "");
+  const {
+    loading: fetchAllDishesLoading,
+    error: fetchAllDishesError,
+    fetchMenuData,
+  } = useMenuData(selectedRestaurant.restaurantId || "");
 
   // Fetch menu on mount or when restaurant changes
   useEffect(() => {
@@ -43,12 +49,16 @@ export const RenderMenuCategoryDishes = () => {
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
   const getDishQuantity = (dishId: string) => {
-    const item = orderCart.data.find((cartItem) => cartItem.dishData.id === dishId);
+    const item = orderCart.data.find(
+      (cartItem) => cartItem.dishData.id === dishId
+    );
     return item ? item.quantity : 0;
   };
 
   const isInCart = (dishId: string) =>
-    orderCart.data.some((cartItem) => cartItem.dishData.id === dishId && cartItem.added);
+    orderCart.data.some(
+      (cartItem) => cartItem.dishData.id === dishId && cartItem.added
+    );
 
   const handleAddToCart = (dish: any) => {
     dispatch(addToCart(dish));
@@ -57,10 +67,10 @@ export const RenderMenuCategoryDishes = () => {
   const handleDecrease = (dish: any) => dispatch(reduceQuantity(dish));
 
   return (
-    <div className="pt-5 px-4">
+    <div className="px-4 pt-5">
       {/* Category filter */}
       {categories.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2 justify-center">
+        <div className="mb-4 flex flex-wrap justify-center gap-2">
           <Button
             variant={selectedCategory === null ? "default" : "outline"}
             onClick={() => setSelectedCategory(null)}
@@ -132,7 +142,9 @@ export const RenderMenuCategoryDishes = () => {
                   >
                     –
                   </Button>
-                  <span className="text-sm font-medium select-none">{getDishQuantity(dish.id)}</span>
+                  <span className="text-sm font-medium select-none">
+                    {getDishQuantity(dish.id)}
+                  </span>
                   <Button
                     variant="outline"
                     className="text-muted-foreground hover:bg-muted/80 h-8 w-8 cursor-pointer rounded-full p-5 transition active:scale-95"

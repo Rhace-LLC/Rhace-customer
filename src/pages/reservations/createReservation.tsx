@@ -44,16 +44,30 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
     "8:30 PM",
   ];
 
-  /** When user clicks "Book Table" */
   const handleBooking = () => {
     if (!selectedTime) {
       alert("Please select a time.");
       return;
     }
 
+    // ---- FORMAT DATE (YYYY-MM-DD) ----
+    const formattedDate = selectedDate.toISOString().split("T")[0];
+
+    // ---- FORMAT TIME (HH:mm) ----
+    // If selectedTime is something like "7:30 PM", convert to 24-hr format
+    const formattedTime = (() => {
+      // If it's already 24hr format, return as is
+      if (/^\d{2}:\d{2}$/.test(selectedTime)) return selectedTime;
+
+      const date = new Date(`1970-01-01 ${selectedTime}`);
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
+    })();
+
     const reservation: ReservationForm = {
-      date: selectedDate.toDateString(),
-      time: selectedTime,
+      date: formattedDate,
+      time: formattedTime,
       party_size: partySize,
       status: "pending",
     };

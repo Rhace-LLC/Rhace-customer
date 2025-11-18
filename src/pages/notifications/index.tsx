@@ -91,9 +91,7 @@ export function NotificationsPage() {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      <Icon
-                        className={`mt-0.5 h-5 w-5 ${"text-primary"}`}
-                      />
+                      <Icon className={`mt-0.5 h-5 w-5 ${"text-primary"}`} />
                       <div className="min-w-0 flex-1">
                         <div className="mb-1 flex items-center justify-between">
                           <h4

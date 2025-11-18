@@ -1,9 +1,5 @@
-// src/services/paymentsService.ts
 import { getConfig } from "./utils/reqConfig";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
-import { PaymentTransaction } from "@/store/paymentTranxSlice";
-
-// ---------------- Types ----------------
 
 export interface InitializePaymentPayload {
   order_id: string;
@@ -27,6 +23,22 @@ export interface PaymentVerificationResponse {
   status: string; // e.g. "error"
   message: string; // e.g. "An error occurred during verification
 }
+
+export interface Payment {
+  id: string;
+  reference: string;
+  order_id: number;
+  amount: number;
+  currency: string;
+  status: "processing" | "failed" | "success";
+  payment_method: string | null;
+  customer_email: string;
+  created_at: string;
+  paid_at: string | null;
+  fees: number;
+  order_type: "dine-in" | string;
+}
+
 export interface Pagination {
   current_page: number;
   total_pages: number;
@@ -35,16 +47,15 @@ export interface Pagination {
   has_previous: boolean;
 }
 
-export interface PaymentsHistoryResponse {
-  payments: PaymentTransaction[];
+export interface PaymentHistoryResponse {
+  payments: Payment[];
   pagination: Pagination;
 }
-// ---------------- Payments ----------------
 
 // GET /payments/history/
 const getPaymentHistory = async (
   token?: string
-): Promise<PaymentsHistoryResponse> => {
+): Promise<PaymentHistoryResponse> => {
   const config = getConfig(`/payments/history/`, "GET", token);
   return bookiesAxiosInstance(config);
 };

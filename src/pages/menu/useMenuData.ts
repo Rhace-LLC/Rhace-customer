@@ -5,7 +5,6 @@ import { parseError } from "@/api-services/utils/parseError";
 import { getMenuItems } from "@/api-services/menu.service"; // your API function
 import { setMenu } from "@/store/menuupdated.slice";
 
-
 export function useMenuData(restaurantId: string) {
   const dispatch = useDispatch();
   const auth = useAuth();

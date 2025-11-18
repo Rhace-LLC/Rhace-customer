@@ -58,6 +58,59 @@ export interface OrderResponse {
   created_at: string;
 }
 
+// ---------------- Reservations ----------------
+export type GetReservationResponse = ReservationItem[];
+
+export interface Customer {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  role: string;
+  restaurant: string | null;
+  restaurant_name: string | null;
+  is_verified: boolean;
+}
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  slug: string;
+  owner: string;
+  owner_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+  description: string;
+  logo: string | null;
+  cuisine_type: string;
+  subscription_plan: string;
+  is_active: boolean;
+  trial_ends_at: string;
+  subscription_ends_at: string | null;
+  access_url: string;
+  access_token_url: string;
+  is_subscription_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ReservationItem {
+  id: number;
+  order: any | null;
+  customer: Customer;
+  party_size: number;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:mm:ss"
+  restaurant: Restaurant;
+  status: string;
+}
+
 // ---------------- Orders ----------------
 
 // GET /orders/
@@ -224,10 +277,10 @@ const assignWaiter = async (data: UpdateOrderPayload, token?: string) => {
   return bookiesAxiosInstance(config);
 };
 
-// ---------------- Reservations ----------------
-
 // GET /orders/reservations/
-const getReservations = async (token?: string) => {
+const getReservations = async (
+  token?: string
+): Promise<GetReservationResponse> => {
   const config = getConfig(`/orders/reservations/`, "GET", token);
   return bookiesAxiosInstance(config);
 };
@@ -306,15 +359,59 @@ const reservationUpdatePatch = async (
   );
   return bookiesAxiosInstance(config);
 };
-
+export interface ReservationCreationResponse {
+  id: number;
+  order: any | null;
+  customer: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    role: string;
+    restaurant: string | null;
+    restaurant_name: string | null;
+    is_verified: boolean;
+  };
+  party_size: number;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:mm:ss"
+  restaurant: {
+    id: string;
+    name: string;
+    slug: string;
+    owner: string;
+    owner_name: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    postal_code: string;
+    description: string;
+    logo: string | null;
+    cuisine_type: string;
+    subscription_plan: string;
+    is_active: boolean;
+    trial_ends_at: string;
+    subscription_ends_at: string | null;
+    access_url: string;
+    access_token_url: string;
+    is_subscription_active: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+  status: string;
+}
 // POST /orders/reservations/create/
 const createReservation = async (
   restaurant_id: string,
   data: any,
   token?: string
-) => {
+): Promise<ReservationCreationResponse> => {
   const config = getConfig(
-    `/orders/reservations/create/${restaurant_id}`,
+    `/orders/reservations/create/${restaurant_id}/`,
     "POST",
     token,
     data

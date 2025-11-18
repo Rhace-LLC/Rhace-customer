@@ -78,7 +78,7 @@ export const RenderMenuCategoryDishes = ({
         auth.token,
         { category: categoryId }
       );
-     // dispatch(updateMenuDishData({ key: String(categoryId), data: response }));
+      // dispatch(updateMenuDishData({ key: String(categoryId), data: response }));
 
       console.log("✅ Dishes fetched:", response);
     } catch (error: any) {

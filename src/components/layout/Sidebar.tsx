@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import RhaceLogo from "../../assets/Rhace-Favicon.png";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -67,12 +68,17 @@ export function Sidebar({
       >
         <div className="p-4">
           <div className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-                <span className="font-medium text-white">B</span>
-              </div>
-              <span className="text-xl font-medium">Bookies</span>
-            </div>
+
+<div className="flex items-center justify-center space-y-3 gap-2 pt-2">
+  {/* Logo Container: Modern, slightly rounded square with a subtle border/shadow */}
+  <div className="w-max overflow-hidden rounded-full border border-gray-100 shadow-sm p-2">
+    <img src={RhaceLogo} alt="Rhace Logo" className="w-[25px] h-full object-contain" />
+  </div>
+  {/* Brand Name */}
+  <span className="text-2xl font-semibold text-gray-900 tracking-tight relative bottom-2">
+    Rhace
+  </span>
+</div>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>

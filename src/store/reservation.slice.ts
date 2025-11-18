@@ -1,3 +1,4 @@
+import { ReservationItem } from "@/api-services/order.service";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // ---------------- Helper ----------------
@@ -11,24 +12,6 @@ export function uniqueBy<T, K extends keyof T>(items: T[], key: K): T[] {
   });
 }
 
-// ---------------- Types ----------------
-
-// Reservation interface (based on typical reservation structure)
-export interface Reservation {
-  id: string;
-  customer_name: string;
-  customer_phone: string;
-  party_size: number;
-  date: string; // ISO datetime
-  time: string; // "HH:mm"
-  status: string; // pending | confirmed | cancelled | completed
-  table_id: string | null;
-  restaurant: string;
-  notes?: string;
-  created: string;
-  updated: string;
-}
-
 // Summary counts for dashboard
 export interface ReservationSummary {
   total_pending: number;
@@ -39,7 +22,7 @@ export interface ReservationSummary {
 }
 
 interface ReservationState {
-  data: Record<string, Reservation[]>; // grouped or paginated by key
+  data: Record<string, ReservationItem[]>; // grouped or paginated by key
   summary: ReservationSummary;
   data_total: number;
 }
@@ -65,7 +48,7 @@ const ReservationSlice = createSlice({
     // Add or update a reservation in a specific page/group
     appendReservationToPage: (
       state,
-      action: PayloadAction<{ key: string; item: Reservation }>
+      action: PayloadAction<{ key: string; item: ReservationItem }>
     ) => {
       const { key, item } = action.payload;
       const current = state.data[key] || [];
@@ -76,14 +59,17 @@ const ReservationSlice = createSlice({
 
     updateReservationData: (
       state,
-      action: PayloadAction<{ key: string; data: Reservation[] }>
+      action: PayloadAction<{ key: string; data: ReservationItem[] }>
     ) => {
       const { key, data } = action.payload;
       state.data[key] = uniqueBy([...(state.data[key] || []), ...data], "id");
     },
 
     // Update a reservation across all groups
-    updateReservationDataById: (state, action: PayloadAction<Reservation>) => {
+    updateReservationDataById: (
+      state,
+      action: PayloadAction<ReservationItem>
+    ) => {
       Object.keys(state.data).forEach((key) => {
         state.data[key] = state.data[key].map((item) =>
           item.id === action.payload.id ? action.payload : item
@@ -95,7 +81,7 @@ const ReservationSlice = createSlice({
     removeReservationDataById: (state, action: PayloadAction<string>) => {
       Object.keys(state.data).forEach((key) => {
         state.data[key] = state.data[key].filter(
-          (item) => item.id !== action.payload
+          (item) => String(item.id) !== action.payload
         );
       });
     },

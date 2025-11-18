@@ -116,7 +116,7 @@ export function MenuPage() {
       {/* CONTENT (only if scanned) */}
       {!shouldProceed && (
         <>
-      <RenderMenuCategoryDishes />
+          <RenderMenuCategoryDishes />
         </>
       )}
 

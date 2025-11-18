@@ -1,6 +1,6 @@
+import { Payment } from "@/api-services/payments.service";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// ---------------- Helper ----------------
 export function uniqueBy<T, K extends keyof T>(items: T[], key: K): T[] {
   const seen = new Set<T[K]>();
   return items.filter((item) => {
@@ -11,40 +11,23 @@ export function uniqueBy<T, K extends keyof T>(items: T[], key: K): T[] {
   });
 }
 
-// ---------------- Types ----------------
-export interface PaymentTransaction {
-  id: string;
-  user_id: string;
-  amount: number;
-  currency: string;
-  payment_method: string; // e.g., card, wallet, bank
-  status: string; // pending | completed | failed
-  reference: string;
-  created: string;
-  updated: string;
+interface PaymentState {
+  data: Record<string, Payment[]>;
+  total: number;
 }
 
-// State type
-interface PaymentTransactionState {
-  data: Record<string, PaymentTransaction[]>; // grouped or paginated by key
-  total: number; // for pagination
-}
-
-// ---------------- Initial State ----------------
-const initialState: PaymentTransactionState = {
+const initialState: PaymentState = {
   data: {},
   total: 0,
 };
 
-// ---------------- Slice ----------------
-const PaymentTransactionSlice = createSlice({
-  name: "PaymentTransaction",
+const PaymentSlice = createSlice({
+  name: "Payment",
   initialState,
   reducers: {
-    // Add or update a transaction in a specific page/group
     appendTransactionToPage: (
       state,
-      action: PayloadAction<{ key: string; item: PaymentTransaction }>
+      action: PayloadAction<{ key: string; item: Payment }>
     ) => {
       const { key, item } = action.payload;
       const current = state.data[key] || [];
@@ -53,20 +36,15 @@ const PaymentTransactionSlice = createSlice({
       state.data[key] = updated;
     },
 
-    // Add or update multiple transactions in a page/group
     updateTransactionData: (
       state,
-      action: PayloadAction<{ key: string; data: PaymentTransaction[] }>
+      action: PayloadAction<{ key: string; data: Payment[] }>
     ) => {
       const { key, data } = action.payload;
       state.data[key] = uniqueBy([...(state.data[key] || []), ...data], "id");
     },
 
-    // Update a transaction across all groups by ID
-    updateTransactionDataById: (
-      state,
-      action: PayloadAction<PaymentTransaction>
-    ) => {
+    updateTransactionDataById: (state, action: PayloadAction<Payment>) => {
       Object.keys(state.data).forEach((key) => {
         state.data[key] = state.data[key].map((item) =>
           item.id === action.payload.id ? action.payload : item
@@ -74,7 +52,6 @@ const PaymentTransactionSlice = createSlice({
       });
     },
 
-    // Remove a transaction by ID across all groups
     removeTransactionDataById: (state, action: PayloadAction<string>) => {
       Object.keys(state.data).forEach((key) => {
         state.data[key] = state.data[key].filter(
@@ -83,7 +60,6 @@ const PaymentTransactionSlice = createSlice({
       });
     },
 
-    // Update total count
     updateTransactionTotal: (
       state,
       action: PayloadAction<{ total: number }>
@@ -91,7 +67,6 @@ const PaymentTransactionSlice = createSlice({
       state.total = action.payload.total;
     },
 
-    // Reset all transaction data
     clearTransactionData: (state) => {
       state.data = {};
       state.total = 0;
@@ -99,7 +74,6 @@ const PaymentTransactionSlice = createSlice({
   },
 });
 
-// ---------------- Exports ----------------
 export const {
   appendTransactionToPage,
   updateTransactionData,
@@ -107,6 +81,6 @@ export const {
   removeTransactionDataById,
   updateTransactionTotal,
   clearTransactionData,
-} = PaymentTransactionSlice.actions;
+} = PaymentSlice.actions;
 
-export default PaymentTransactionSlice.reducer;
+export default PaymentSlice.reducer;

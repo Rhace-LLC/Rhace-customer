@@ -187,7 +187,7 @@ const getMenuItems = async (
   token: string,
   params?: GetMenuParams
 ): Promise<GetMenuResponse> => {
-  params
+  params;
   const config = getConfig(
     `/menu/public/restaurant/${restaurantId}/menu/`,
     "GET",
