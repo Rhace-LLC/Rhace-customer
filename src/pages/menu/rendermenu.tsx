@@ -18,7 +18,7 @@ export const RenderMenuCategoryDishes = () => {
   const selectedRestaurant = useSelectedRestaurant();
 
   // Redux store
-  const menuStore = useSelector((state: RootState) => state.menu);
+  const menuStore = useSelector((state: RootState) => state.menuUpdated);
   const { restaurant, categories, menuItems } = menuStore;
 
   // UI state
