@@ -175,17 +175,14 @@ export function PaymentsPage() {
           </div>
         )}
       </div>
-{
-  selectedTransaction && (<TransactionDetailSheet
-        // Transaction is correctly typed now
-        transaction={selectedTransaction}
-        isOpen={!!selectedTransaction}
-        onClose={() => setSelectedTransaction(null)}
-      />
-
-  )
-}
-      
+      {selectedTransaction && (
+        <TransactionDetailSheet
+          // Transaction is correctly typed now
+          transaction={selectedTransaction}
+          isOpen={!!selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
+      )}
     </div>
   );
 }

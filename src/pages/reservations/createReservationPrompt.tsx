@@ -15,7 +15,7 @@ const CreateReservationPrompt: React.FC<Props> = ({ onStart }) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="mx-auto w-full max-w-md rounded-2xl border border-white/10 bg-gradient-to-br from-[#0F172A] to-[#1E293B] p-8 text-center shadow-lg"
+      className="mx-auto w-full rounded-2xl border border-white/10 bg-gradient-to-br from-[#0F172A] to-[#1E293B] p-8 text-center shadow-lg"
     >
       {/* Icon */}
       <motion.div
@@ -34,7 +34,10 @@ const CreateReservationPrompt: React.FC<Props> = ({ onStart }) => {
         Ready to Reserve?
         <Sparkles className="h-5 w-5 text-yellow-300" />
       </h2>
-
+      {/* Added Text */}
+      <p className="mt-1 text-base font-medium text-gray-100/90">
+        Find the perfect restaurant and book a reservation.
+      </p>
       {/* Subtitle */}
       <p className="mt-2 text-sm text-gray-300">
         Book your table in a few quick steps. Fast, simple, and stress-free!

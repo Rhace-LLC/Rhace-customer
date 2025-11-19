@@ -68,17 +68,20 @@ export function Sidebar({
       >
         <div className="p-4">
           <div className="mb-8 flex items-center justify-between">
-
-<div className="flex items-center justify-center space-y-3 gap-2 pt-2">
-  {/* Logo Container: Modern, slightly rounded square with a subtle border/shadow */}
-  <div className="w-max overflow-hidden rounded-full border border-gray-100 shadow-sm p-2">
-    <img src={RhaceLogo} alt="Rhace Logo" className="w-[25px] h-full object-contain" />
-  </div>
-  {/* Brand Name */}
-  <span className="text-2xl font-semibold text-gray-900 tracking-tight relative bottom-2">
-    Rhace
-  </span>
-</div>
+            <div className="flex items-center justify-center gap-2 space-y-3 pt-2">
+              {/* Logo Container: Modern, slightly rounded square with a subtle border/shadow */}
+              <div className="w-max overflow-hidden rounded-full border border-gray-100 p-2 shadow-sm">
+                <img
+                  src={RhaceLogo}
+                  alt="Rhace Logo"
+                  className="h-full w-[25px] object-contain"
+                />
+              </div>
+              {/* Brand Name */}
+              <span className="relative bottom-2 text-2xl font-semibold tracking-tight text-gray-900">
+                Rhace
+              </span>
+            </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>

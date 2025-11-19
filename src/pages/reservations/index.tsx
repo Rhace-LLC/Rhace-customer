@@ -5,11 +5,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   createReservation,
   getReservations,
+  Restaurant,
 } from "@/api-services/order.service";
 //import { updateReservationData } from "@/store/reservation.slice";
 import { parseError } from "@/api-services/utils/parseError";
 import { ContentHOC } from "@/components/nocontent";
-import RenderReservationTable from "./RenderReservationTable";
 import CreateReservationPrompt from "./createReservationPrompt";
 import { Pagination } from "@/components/pagination";
 import GenericSheet from "@/components/generic_sheet_overlay";
@@ -22,7 +22,21 @@ import {
   updateReservationTotal,
 } from "@/store/reservation.slice";
 import RenderReservationCards from "./RenderReservationTable";
+import { AllRestaurantsView } from "./AllRestaurantView";
+import { RestaurantDetailView } from "./RestaurantDetailView";
+
+type PageState =
+  | "initialState"
+  | "allRestaurantViewState"
+  | "restaurantViewState";
+
 export function ReservationsPage() {
+  const [pageState, setPageState] = useState<PageState>("initialState");
+  console.log("Page state:", pageState);
+  const [activeRestaurant, setActiveRestaurant] = useState<Restaurant | null>(
+    null
+  );
+
   const { setLoading, setLoadingText } = useLoading();
   const [open, setOpen] = useState(false);
   const selectedRestaurant = useSelectedRestaurant();
@@ -64,13 +78,17 @@ export function ReservationsPage() {
   }, []);
 
   const handleSubmit = async (data: ReservationForm) => {
+    if(!activeRestaurant){
+      toast.error("No Restaurant Selected. Unable to proceed with booking");
+      return
+    }
     try {
       setLoading(true);
       setLoadingText("Creating Your Reservation... Please wait");
 
       // Call API to create reservation
       const res = await createReservation(
-        selectedRestaurant.restaurantId || "",
+        activeRestaurant?.id || "",
         data,
         auth.token
       );
@@ -89,34 +107,102 @@ export function ReservationsPage() {
     }
   };
 
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const view = searchParams.get("view");
+      const restaurantId = searchParams.get("id");
+
+      if (view === "restaurants") {
+        setPageState("allRestaurantViewState");
+        setActiveRestaurant(null);
+      } else if (view === "restaurant" && restaurantId) {
+        setPageState("restaurantViewState");
+        // If activeRestaurant is not the same as query, reset or fetch
+        setActiveRestaurant((prev) =>
+          prev?.id === restaurantId ? prev : null
+        );
+        // TODO: optionally fetch restaurant by ID if needed
+      } else {
+        setPageState("initialState");
+        setActiveRestaurant(null);
+      }
+    };
+
+    window.addEventListener("popstate", handleUrlChange);
+    handleUrlChange(); // initialize state from current URL
+
+    return () => window.removeEventListener("popstate", handleUrlChange);
+  }, []);
+
+  const handleStartNewReservation = () => {
+    const params = new URLSearchParams();
+    params.set("view", "restaurants");
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState(null, "", newUrl);
+
+    setPageState("allRestaurantViewState");
+    setActiveRestaurant(null);
+  };
+
+  const handleSelectRestaurant = (restaurant: Restaurant) => {
+    const params = new URLSearchParams();
+    params.set("view", "restaurant");
+    params.set("id", restaurant.id);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState(null, "", newUrl);
+
+    setPageState("restaurantViewState");
+    setActiveRestaurant(restaurant);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="space-y-6 p-5">
-        {/* New Reservation */}
-        <CreateReservationPrompt onStart={() => setOpen(true)} />
+      <div
+        className={`space-y-6 ${pageState !== "restaurantViewState" && "p-5"} `}
+      >
+        <div>
+          {pageState === "initialState" && (
+            <section>
+              <CreateReservationPrompt onStart={handleStartNewReservation} />
+              <div className="py-2" />
 
-        {/* Upcoming Reservations */}
-        <h3 className="text-lg font-semibold tracking-tighter">
-          My Reservations
-        </h3>
-        <ContentHOC
-          loading={fetchLoading}
-          error={!!fetchError}
-          noContent={toShow.length === 0}
-          loadingText="Fetching Your Reservations. Please wait..."
-          noContentMessage="No Reservations Found"
-          noContentBtnText="Reload"
-          noContentAction={fetchAllData}
-          errMessage={fetchError}
-          actionFn={fetchAllData}
-        >
-          <RenderReservationCards data={toShow} />
-        </ContentHOC>
-        <Pagination
-          totalPages={total_pages}
-          currentPage={page}
-          onPageChange={(page) => setPage(page)}
-        />
+              {/* Upcoming Reservations */}
+              <h3 className="text-lg font-semibold tracking-tighter">
+                My Reservations
+              </h3>
+              <ContentHOC
+                loading={fetchLoading}
+                error={!!fetchError}
+                noContent={toShow.length === 0}
+                loadingText="Fetching Your Reservations. Please wait..."
+                noContentMessage="No Reservations Found"
+                noContentBtnText="Reload"
+                noContentAction={fetchAllData}
+                errMessage={fetchError}
+                actionFn={fetchAllData}
+              >
+                <RenderReservationCards data={toShow} />
+              </ContentHOC>
+              <Pagination
+                totalPages={total_pages}
+                currentPage={page}
+                onPageChange={(page) => setPage(page)}
+              />
+            </section>
+          )}
+
+          {pageState === "allRestaurantViewState" && (
+            <AllRestaurantsView onSelectRestaurant={handleSelectRestaurant} />
+          )}
+
+          {pageState === "restaurantViewState" && activeRestaurant && (
+            <RestaurantDetailView
+              restaurant={activeRestaurant}
+              onBookReservation={()=>{setOpen(true)}}
+            />
+          )}
+        </div>
       </div>
       <GenericSheet
         open={open}

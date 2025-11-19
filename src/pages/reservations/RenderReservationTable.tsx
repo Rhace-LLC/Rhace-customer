@@ -31,38 +31,33 @@ const statusColor = (status: string) => {
   }
 };
 
-// Component for a single reservation card
 const ReservationCard: React.FC<{ reservation: ReservationItem }> = ({
   reservation: res,
 }) => {
   const formattedDate = new Date(res.date).toLocaleDateString();
   const createdDate = new Date(res.date).toLocaleString();
-
-  // *** CORRECT TYPE USAGE HERE ***
   const customerFullName = `${res.customer.first_name} ${res.customer.last_name}`;
 
   return (
     <Card className="shadow-lg transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="truncate text-xl font-bold">
-          {/* Using nested customer properties */}
           {customerFullName}
         </CardTitle>
         <Badge className={`${statusColor(res.status)} text-white`}>
           {res.status}
         </Badge>
       </CardHeader>
+
       <CardDescription className="px-6 pb-2 text-sm text-gray-500">
         <span className="font-semibold">{res.party_size} Guests</span>
         <span className="mx-2">•</span>
-        {/* Using the assumed top-level table_id */}
         {false ? `Table No` : "Unassigned"}
       </CardDescription>
 
       <Separator className="mx-auto w-[90%]" />
 
       <CardContent className="grid grid-cols-2 gap-y-2 pt-4 text-sm">
-        {/* Reservation Details */}
         <div className="flex flex-col">
           <span className="text-gray-500">Date & Time</span>
           <span className="font-medium">
@@ -70,20 +65,26 @@ const ReservationCard: React.FC<{ reservation: ReservationItem }> = ({
           </span>
         </div>
 
-        {/* Contact Details */}
         <div className="flex flex-col">
           <span className="text-gray-500">Phone</span>
-          {/* Using nested customer properties */}
           <span className="font-medium">{res.customer.phone}</span>
         </div>
 
-        {/* Created At */}
         <div className="col-span-2 flex flex-col">
           <span className="text-gray-500">Booked On</span>
-          {/* Using the assumed top-level created property */}
           <span className="text-xs text-gray-700">{createdDate}</span>
         </div>
       </CardContent>
+
+      <div className="" />
+
+      {/* Show cancellation reason if status is cancelled */}
+      {res.status.toLowerCase() === "cancelled" && res.cancellation_reason && (
+        <div className="mx-6 mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <span className="font-semibold">Cancellation Reason:</span>{" "}
+          {res.cancellation_reason}
+        </div>
+      )}
     </Card>
   );
 };

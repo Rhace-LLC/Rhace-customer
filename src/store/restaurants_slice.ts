@@ -1,3 +1,4 @@
+import { Restaurant } from "@/api-services/order.service";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // ---------------- Helper ----------------
@@ -9,18 +10,6 @@ export function uniqueBy<T, K extends keyof T>(items: T[], key: K): T[] {
     seen.add(val);
     return true;
   });
-}
-
-// ---------------- Types ----------------
-export interface Restaurant {
-  id: string;
-  name: string;
-  address: string;
-  phone?: string;
-  email?: string;
-  owner?: string;
-  created: string;
-  updated: string;
 }
 
 // State type

@@ -2,6 +2,7 @@
 
 import { getConfig } from "./utils/reqConfig";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
+import { Restaurant } from "./order.service";
 
 // ---------------- Types ----------------
 export interface CategoryData {
@@ -32,16 +33,6 @@ export interface MenuDishData {
   created: string;
   updated: string;
   available: boolean;
-}
-
-export interface Restaurant {
-  id: string;
-  name: string;
-  description: string;
-  cuisine_type: string;
-  address: string;
-  city: string;
-  phone: string;
 }
 
 export interface Category {
