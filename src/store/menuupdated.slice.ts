@@ -3,8 +3,8 @@ import {
   Category,
   GetMenuResponse,
   MenuItem,
-  Restaurant,
 } from "@/api-services/menu.service";
+import { Restaurant } from "@/api-services/order.service";
 
 interface MenuState {
   restaurant: Restaurant | null;
