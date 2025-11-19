@@ -78,9 +78,9 @@ export function ReservationsPage() {
   }, []);
 
   const handleSubmit = async (data: ReservationForm) => {
-    if(!activeRestaurant){
+    if (!activeRestaurant) {
       toast.error("No Restaurant Selected. Unable to proceed with booking");
-      return
+      return;
     }
     try {
       setLoading(true);
@@ -199,7 +199,9 @@ export function ReservationsPage() {
           {pageState === "restaurantViewState" && activeRestaurant && (
             <RestaurantDetailView
               restaurant={activeRestaurant}
-              onBookReservation={()=>{setOpen(true)}}
+              onBookReservation={() => {
+                setOpen(true);
+              }}
             />
           )}
         </div>
