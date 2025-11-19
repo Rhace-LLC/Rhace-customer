@@ -20,25 +20,6 @@ interface RestaurantDetailViewProps {
   onBookReservation?: () => void;
 }
 
-const DetailCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}> = ({ icon, title, children }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 5 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3 }}
-    className="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md"
-  >
-    <div className="mb-2 flex items-center text-sm font-medium text-gray-700">
-      <span className="mr-2 text-indigo-500">{icon}</span>
-      {title}
-    </div>
-    <div className="text-sm text-gray-600">{children}</div>
-  </motion.div>
-);
-
 export const RestaurantDetailView: React.FC<RestaurantDetailViewProps> = ({
   restaurant,
   onBookReservation,
