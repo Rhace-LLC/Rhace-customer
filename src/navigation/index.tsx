@@ -13,7 +13,7 @@ import { MenuPage } from "@/pages/menu";
 import { NotificationsPage } from "@/pages/notifications";
 import { OrdersPage } from "@/pages/orders";
 import { PaymentsPage } from "@/pages/payments";
-import { ProfilePage } from "@/pages/profile";
+import { Profile } from "@/pages/profile";
 import { ReservationsPage } from "@/pages/reservations";
 import { setSelection } from "@/store/restaurant_selection.slice";
 import { RootState } from "@/store/store";
@@ -212,7 +212,7 @@ function NavigationContent() {
               path="/profile"
               element={
                 <ProtectedRoute>
-                  <ProfilePage />
+                  <Profile />
                 </ProtectedRoute>
               }
             />

@@ -11,7 +11,7 @@ import menuUpdatedReducer from "./menuupdated.slice";
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
+    profile: userReducer,
     menu: menuReducer,
     orderCart: orderCartReducer,
     selectedRestaurant: restaurantSelectionReducer,
