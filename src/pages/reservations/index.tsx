@@ -24,6 +24,7 @@ import {
 import RenderReservationCards from "./RenderReservationTable";
 import { AllRestaurantsView } from "./AllRestaurantView";
 import { RestaurantDetailView } from "./RestaurantDetailView";
+import { RestaurantProfile } from "@/api-services/restaurantProfile";
 
 type PageState =
   | "initialState"
@@ -33,7 +34,7 @@ type PageState =
 export function ReservationsPage() {
   const [pageState, setPageState] = useState<PageState>("initialState");
   console.log("Page state:", pageState);
-  const [activeRestaurant, setActiveRestaurant] = useState<Restaurant | null>(
+  const [activeRestaurant, setActiveRestaurant] = useState<RestaurantProfile | null>(
     null
   );
 
@@ -145,7 +146,7 @@ export function ReservationsPage() {
     setActiveRestaurant(null);
   };
 
-  const handleSelectRestaurant = (restaurant: Restaurant) => {
+  const handleSelectRestaurant = (restaurant: RestaurantProfile) => {
     const params = new URLSearchParams();
     params.set("view", "restaurant");
     params.set("id", restaurant.id);

@@ -1,4 +1,4 @@
-import { Restaurant } from "@/api-services/order.service";
+import { RestaurantProfile } from "@/api-services/restaurantProfile";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // ---------------- Helper ----------------
@@ -14,7 +14,7 @@ export function uniqueBy<T, K extends keyof T>(items: T[], key: K): T[] {
 
 // State type
 interface RestaurantState {
-  data: Record<string, Restaurant[]>; // grouped or paginated by key
+  data: Record<string, RestaurantProfile[]>; // grouped or paginated by key
   total: number; // useful for pagination
 }
 
@@ -32,7 +32,7 @@ const RestaurantSlice = createSlice({
     // Add or update a restaurant in a specific page/group
     appendRestaurantToPage: (
       state,
-      action: PayloadAction<{ key: string; item: Restaurant }>
+      action: PayloadAction<{ key: string; item: RestaurantProfile }>
     ) => {
       const { key, item } = action.payload;
       const current = state.data[key] || [];
@@ -44,14 +44,14 @@ const RestaurantSlice = createSlice({
     // Add or update multiple restaurants in a page/group
     updateRestaurantData: (
       state,
-      action: PayloadAction<{ key: string; data: Restaurant[] }>
+      action: PayloadAction<{ key: string; data: RestaurantProfile[] }>
     ) => {
       const { key, data } = action.payload;
       state.data[key] = uniqueBy([...(state.data[key] || []), ...data], "id");
     },
 
     // Update a restaurant across all groups by ID
-    updateRestaurantDataById: (state, action: PayloadAction<Restaurant>) => {
+    updateRestaurantDataById: (state, action: PayloadAction<RestaurantProfile>) => {
       Object.keys(state.data).forEach((key) => {
         state.data[key] = state.data[key].map((item) =>
           item.id === action.payload.id ? action.payload : item

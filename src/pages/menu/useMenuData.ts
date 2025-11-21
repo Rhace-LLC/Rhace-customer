@@ -4,8 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { parseError } from "@/api-services/utils/parseError";
 import { getMenuItems } from "@/api-services/menu.service"; // your API function
 import { setMenu } from "@/store/menuupdated.slice";
+import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 
-export function useMenuData(restaurantId: string) {
+export function useMenuData() {
+  const selectedRestaurant = useSelectedRestaurant();
+  const restaurantId = selectedRestaurant.restaurantId || "";
   const dispatch = useDispatch();
   const auth = useAuth();
 
@@ -20,7 +23,6 @@ export function useMenuData(restaurantId: string) {
       // Fetch menu from API
       const res = await getMenuItems(restaurantId, auth.token); // assuming API takes restaurantId and token
 
-      // Dispatch the menu data to Redux store
       dispatch(setMenu(res));
     } catch (err) {
       console.error(err);

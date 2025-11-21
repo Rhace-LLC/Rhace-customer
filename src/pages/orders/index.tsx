@@ -9,7 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { OrderDetailSheet } from "@/components/sheets/OrderDetailSheet";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,7 +44,6 @@ export function OrdersPage() {
   };
 
   const orderCart = useSelector((state: RootState) => state.orderCart);
-  console.log("order Cart", orderCart);
 
   const handleIncrease = (dish: MenuDishData) => {
     dispatch(increaseQuantity(dish));
@@ -77,12 +76,10 @@ export function OrdersPage() {
       setFetchUserOrdersError("");
 
       const response = await getOrders(auth.token);
-      console.log("✅ Orders Response:", response);
 
       // Adjust based on your API response structure
       setUserOrders(response);
     } catch (error: any) {
-      console.error("❌ Error fetching user orders:", error);
       setFetchUserOrdersError(error.message || "Failed to fetch user orders");
     } finally {
       setFetchUserOrdersLoading(false);
@@ -123,10 +120,22 @@ export function OrdersPage() {
     }
   };
 
+  const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
+
+  useEffect(()=>{
+    if(activeTab === "orders" && userOrders.length == 0){
+      fetchUserOrders()
+    }
+  },[activeTab])
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="p-5">
-        <Tabs defaultValue="cart" className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => setActiveTab(val as "cart" | "orders")}
+          className="w-full"
+        >
           <TabsList className="mb-6 grid w-full grid-cols-2">
             <TabsTrigger value="cart">Cart Summary</TabsTrigger>
             <TabsTrigger value="orders">My Orders</TabsTrigger>
@@ -137,96 +146,117 @@ export function OrdersPage() {
                 {/* padding bottom to make space for sticky button */}
                 {orderCart.data.map((item, index) => {
                   const dish = item.dishData;
+
                   return (
                     <div
                       key={index}
-                      className="mb-5 cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
+                      className="mb-4 cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
                     >
-                      {/* Dish Image */}
-                      <img
-                        src={dish.image_url || "/placeholder-dish.jpg"}
-                        alt={dish.name}
-                        className="mb-3 h-36 w-full rounded-lg object-cover"
-                      />
+                      <div className="flex items-start gap-4">
+                        {/* Avatar Image */}
+                        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                          <img
+                            src={dish.image_url || "/placeholder-dish.jpg"}
+                            alt={dish.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
 
-                      {/* Dish Info */}
-                      <h4 className="mb-2 font-semibold text-gray-800">
-                        {dish.name}
-                      </h4>
-                      <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
-                        {dish.description}
-                      </p>
-
-                      {/* Price & Availability */}
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-gray-800">
-                          ₦{parseFloat(dish.price).toLocaleString()}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {dish.available ? (
-                            <>
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                              <span className="text-sm text-green-500">
-                                Available
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4 text-gray-400" />
-                              <span className="text-sm text-gray-400">
-                                Unavailable
-                              </span>
-                            </>
-                          )}
+                        {/* Dish Info */}
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800">
+                            {dish.name}
+                          </h4>
+                          <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                            {dish.description}
+                          </p>
                         </div>
                       </div>
-
-                      {/* Quantity & Actions */}
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        {/* Quantity Control */}
-                        <div className="flex items-center gap-2">
-                          <Button
-                            onClick={() => handleDecrease(dish)}
-                            variant="outline"
-                            className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
-                          >
-                            –
-                          </Button>
-                          <span className="text-sm font-medium select-none">
-                            {getDishQuantity(dish.id)}
+                      <div>
+                        {/* Price & Availability */}
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="font-medium text-gray-800">
+                            ₦{parseFloat(dish.price).toLocaleString()}
                           </span>
-                          <Button
-                            onClick={() => handleIncrease(dish)}
-                            variant="outline"
-                            className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
-                          >
-                            +
-                          </Button>
+
+                          <div className="flex items-center gap-1">
+                            {dish.available ? (
+                              <>
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                <span className="text-sm text-green-500">
+                                  Available
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4 text-gray-400" />
+                                <span className="text-sm text-gray-400">
+                                  Unavailable
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Add/Remove Button */}
-                        <Button
-                          onClick={() => {
-                            if (!isInCart(dish.id)) {
-                              dispatch(addToCart(dish));
-                            } else {
-                              dispatch(removeFromCart(dish.id));
-                            }
-                          }}
-                          className={`flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
-                            isInCart(dish.id)
-                              ? "bg-amber-500 text-amber-900 hover:bg-amber-600 hover:text-amber-50 active:scale-95"
-                              : "bg-black text-white hover:bg-gray-900 active:scale-95 active:bg-gray-800"
-                          }`}
-                        >
-                          {isInCart(dish.id) ? "Remove" : "Add to Order"}
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
+                        <div className="my-2 border border-gray-100" />
+
+                        {/* Quantity & Actions */}
+                        <div className="mt-4 flex items-center justify-between gap-3">
+                          {/* Quantity Control */}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() => handleDecrease(dish)}
+                              variant="outline"
+                              className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
+                            >
+                              –
+                            </Button>
+
+                            <span className="text-sm font-medium select-none">
+                              {getDishQuantity(dish.id)}
+                            </span>
+
+                            <Button
+                              onClick={() => handleIncrease(dish)}
+                              variant="outline"
+                              className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
+                            >
+                              +
+                            </Button>
+                          </div>
+
+                          {/* Add / Remove */}
+                          <Button
+                            onClick={() => {
+                              if (!isInCart(dish.id)) {
+                                dispatch(addToCart(dish));
+                              } else {
+                                dispatch(removeFromCart(dish.id));
+                              }
+                            }}
+                            className={`flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
+                              isInCart(dish.id)
+                                ? "bg-amber-500 text-amber-900 hover:bg-amber-600 hover:text-amber-50 active:scale-95"
+                                : "bg-black text-white hover:bg-gray-900 active:scale-95 active:bg-gray-800"
+                            }`}
+                          >
+                            {isInCart(dish.id) ? "Remove" : "Add to Order"}
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
-                {<OrderSummary />}
+
+                {
+                  <OrderSummary
+                    OnCreateOrder={() => {
+                      setActiveTab("orders");
+                      fetchUserOrders();
+                    }}
+                  />
+                }
               </div>
             )}
             {orderCart.data.length == 0 && (
@@ -269,7 +299,9 @@ export function OrdersPage() {
                 <Card
                   key={order.id}
                   className="cursor-pointer transition-shadow hover:shadow-md"
-                  onClick={() => handleOrderClick(order)}
+                  onClick={() => {
+                   // handleOrderClick(order)
+                  }}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
@@ -293,7 +325,7 @@ export function OrdersPage() {
                             {moment(order.created_at).format("lll")}
                           </span>
                           <span className="font-medium">
-                            ${order.total_price}
+                            NGN {order.total_price}
                           </span>
                         </div>
                       </div>

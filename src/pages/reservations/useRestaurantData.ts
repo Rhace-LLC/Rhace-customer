@@ -7,6 +7,7 @@ import {
   updateRestaurantTotal,
 } from "@/store/restaurants_slice";
 import { getAllRestaurants } from "@/api-services/order.service";
+import { listRestaurantProfiles } from "@/api-services/restaurantProfile";
 
 export function useRestaurantData(page: number) {
   const dispatch = useDispatch();
@@ -21,10 +22,10 @@ export function useRestaurantData(page: number) {
       setError("");
 
       // Fetch all restaurants for this user's first restaurant or account
-      const res = await getAllRestaurants(auth.token);
+      const res = await listRestaurantProfiles(auth.token);
 
       // Store paginated data in Redux
-      dispatch(updateRestaurantData({ key: String(page), data: res.data }));
+      dispatch(updateRestaurantData({ key: String(page), data: res }));
 
       // Update total count (replace with dynamic total if API returns it)
       dispatch(updateRestaurantTotal({ total: 100 }));

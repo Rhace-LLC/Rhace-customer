@@ -4,10 +4,11 @@ import { useSelector } from "react-redux";
 import { useRestaurantData } from "./useRestaurantData";
 import { ContentHOC } from "@/components/nocontent";
 import { Pagination } from "@/components/pagination";
-import { Restaurant } from "@/api-services/order.service";
+import { RestaurantProfile } from "@/api-services/restaurantProfile";
+import RestaurantCard from "./RestaurantView";
 
 interface AllRestaurantsViewProps {
-  onSelectRestaurant: (restaurant: Restaurant) => void;
+  onSelectRestaurant: (restaurant: RestaurantProfile) => void;
 }
 
 export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
@@ -27,15 +28,23 @@ export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
   // Fetch data for current page if not already loaded
   useEffect(() => {
     if (!allData[String(page)]) {
-      fetchAllData();
+      fetchAllData()
     }
-  }, [page, allData]);
+  }, [page, allData])
 
   // Restaurants to show on current page
   const toShow = allData[String(page)] ?? [];
 
   return (
     <>
+<div className="mb-6">
+  <h1 className="text-2xl font-bold text-gray-900">
+    Discover Amazing Restaurants
+  </h1>
+  <p className="text-gray-600 mt-1 text-sm sm:text-base">
+    Browse curated dining spots, explore menus, and find the perfect place to enjoy your next meal.
+  </p>
+</div>
       <ContentHOC
         loading={loading}
         error={!!error}
@@ -48,23 +57,12 @@ export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
         actionFn={fetchAllData}
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {toShow.map((restaurant) => (
+          {toShow.map((restaurant, index) => (
             <div
-              key={restaurant.id}
-              onClick={() => onSelectRestaurant(restaurant)}
-              className="cursor-pointer rounded-lg border bg-white p-4 transition-shadow hover:shadow-md"
+              key={index}
+              
             >
-              <h4 className="truncate font-semibold text-gray-800">
-                {restaurant.name}
-              </h4>
-              {restaurant.address && (
-                <p className="truncate text-sm text-gray-500">
-                  {restaurant.address}
-                </p>
-              )}
-              {restaurant.phone && (
-                <p className="text-sm text-gray-400">{restaurant.phone}</p>
-              )}
+              <RestaurantCard restaurant={restaurant} onRestaurantView={() => onSelectRestaurant(restaurant)} />
             </div>
           ))}
         </div>

@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { getAllCategories } from "@/api-services/menu.service";
-import { updatMenuCategoryData } from "@/store/menuSlice";
-import { parseError } from "@/api-services/utils/parseError";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { setSelection } from "@/store/restaurant_selection.slice";
 import { Button } from "@/components/ui/button";
@@ -19,16 +14,10 @@ export function MenuPage() {
   const handleQRScan = () => setIsQRScanOpen(true);
 
   const dispatch = useDispatch();
-  const auth = useAuth();
+
   const selectedRestaurant = useSelectedRestaurant();
 
   const shouldProceed = !selectedRestaurant.restaurantId;
-
-  const dataStore = useSelector((state: RootState) => state.menu);
-  const allCatData = dataStore.categoryData;
-
-  const [fetchCategoryLoading, setFetchCategoryLoading] = useState(false);
-  const [fetchCategoryError, setFetchCategoryError] = useState("");
 
   const handleScanSuccess = (data: string) => {
     try {
@@ -36,7 +25,6 @@ export function MenuPage() {
 
       if (parsed && parsed.tableId) {
         toast.success(`Welcome! You're now seated at Table ${parsed.tableId}`);
-        fetchCategory();
       } else {
         toast.error("Invalid QR — table information missing.");
       }
@@ -84,36 +72,10 @@ export function MenuPage() {
     }
   }
 
-  const fetchCategory = async () => {
-    try {
-      setFetchCategoryLoading(true);
-      setFetchCategoryError("");
-
-      const res = await getAllCategories(
-        selectedRestaurant.restaurantId || "",
-        auth.token
-      );
-
-      dispatch(updatMenuCategoryData(res));
-    } catch (error: any) {
-      setFetchCategoryError(parseError(error));
-    } finally {
-      setFetchCategoryLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (allCatData.length === 0 && !shouldProceed) {
-      fetchCategory();
-    }
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* ❗ SHOW BLOCKER UI UNTIL THEY SCAN QR */}
       {shouldProceed && <ScanRequiredUI onScan={handleQRScan} />}
 
-      {/* CONTENT (only if scanned) */}
       {!shouldProceed && (
         <>
           <RenderMenuCategoryDishes />
@@ -129,18 +91,14 @@ export function MenuPage() {
   );
 }
 
-/* -------------------------------------------------------------
-   BLOCKER UI COMPONENT
-------------------------------------------------------------- */
-
 function ScanRequiredUI({ onScan }: { onScan: () => void }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center bg-white px-6 text-center">
       <div className="mb-6 animate-pulse rounded-full bg-blue-50 p-10">
         <ScanLine className="h-20 w-20 text-blue-600" />
       </div>
 
-      <h2 className="mb-3 text-2xl font-bold text-gray-800">
+      <h2 className="mb-3 text-[18px] font-bold text-gray-800">
         Scan Your Table QR Code
       </h2>
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
@@ -24,9 +24,13 @@ import {
 } from "@/components/ui/dialog";
 import { DialogHeader } from "@/components/ui/dialog";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+import { clearCart } from "@/store/orderCart.slice";
 
-const OrderSummary: React.FC = () => {
+const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
+  OnCreateOrder,
+}) => {
   const auth = useAuth();
+  const dispatch = useDispatch();
   const selectedRestaurant = useSelectedRestaurant();
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
@@ -80,12 +84,9 @@ const OrderSummary: React.FC = () => {
 
       const response = await createOrder(payload, auth.token);
 
-      console.log("✅ Order Response:", response);
-
       // initialize payment
       const payment = await initiaiteOrderPayment(String(response.id));
       setPaymentDetails(payment?.data);
-      console.log("✅ Payment Response:", response);
 
       if (payment?.data?.authorization_url) {
         setIsPaymentDialogOpen(true);
@@ -98,6 +99,13 @@ const OrderSummary: React.FC = () => {
       console.error("❌ Error creating order:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getUserOrder = async () => {
+    try {
+    } catch (error) {
+    } finally {
     }
   };
 
@@ -137,6 +145,9 @@ const OrderSummary: React.FC = () => {
 
       toast.success("Payment verification completed!");
       console.log("✅ Payment Verification Response:", response);
+      
+      dispatch(clearCart());
+      OnCreateOrder();
 
       return response;
     } catch (error) {
@@ -155,17 +166,15 @@ const OrderSummary: React.FC = () => {
         Order Summary
       </h2>
 
-      {/* Empty State */}
-
       <div className="my-6 border-t border-gray-200"></div>
-      {/* Cart Items */}
+
       <div className="space-y-4">
         {cartItems.map((item) => (
           <div key={item.dishData.id} className="flex items-center gap-4">
             <img
               src={item.dishData.image_url || "/placeholder-dish.jpg"}
               alt={item.dishData.name}
-              className="h-8 w-8 rounded-xl border border-gray-200 object-contain"
+              className="hidden h-8 w-8 rounded-xl border border-gray-200 object-contain"
             />
             <div className="flex-1">
               <h3 className="font-semibold text-gray-800">
@@ -186,10 +195,8 @@ const OrderSummary: React.FC = () => {
         ))}
       </div>
 
-      {/* Divider */}
       <div className="my-6 border-t border-gray-200"></div>
 
-      {/* Total Summary */}
       <div className="mb-6 flex items-center justify-between">
         <span className="font-medium text-gray-600">Total</span>
         <span className="text-lg font-semibold text-gray-900">
@@ -206,8 +213,7 @@ const OrderSummary: React.FC = () => {
         Checkout
         <ArrowRight className="h-4 w-4" />
       </Button>
-      {/* Payment Dialog */}
-      {/* ✅ Payment Dialog using shadcn */}
+
       <Dialog
         open={isPaymentDialogOpen}
         onOpenChange={(open) => {

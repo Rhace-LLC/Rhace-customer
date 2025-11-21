@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MenuDishData } from "@/api-services/menu.service";
 
-// ---------------- Helper ----------------
 export interface CategoryData {
   id: number;
   name: string;
@@ -12,7 +11,6 @@ export interface CategoryData {
   updated_at: string;
 }
 
-// ---------------- Types ----------------
 export interface CartItemData {
   id: number;
   categoryId: number;
@@ -25,26 +23,21 @@ interface CartItemState {
   data: CartItemData[];
 }
 
-// ---------------- Initial State ----------------
 const initialState: CartItemState = {
   data: [],
 };
 
-// ---------------- Slice ----------------
 const CartItemSlice = createSlice({
   name: "CartItem",
   initialState,
   reducers: {
-    // ✅ Add dish officially to cart
     addToCart: (state, action: PayloadAction<MenuDishData>) => {
       const dish = action.payload;
       const existing = state.data.find((item) => item.dishData.id === dish.id);
 
       if (existing) {
-        // Just mark it as officially added
         existing.added = true;
       } else {
-        // Add new dish to cart
         state.data.push({
           id: dish.id as unknown as number,
           categoryId: dish.category.id,
@@ -55,7 +48,6 @@ const CartItemSlice = createSlice({
       }
     },
 
-    // ✅ Increase quantity
     increaseQuantity: (state, action: PayloadAction<MenuDishData>) => {
       const dish = action.payload;
       const existing = state.data.find((item) => item.dishData.id === dish.id);
@@ -63,7 +55,6 @@ const CartItemSlice = createSlice({
       if (existing) {
         existing.quantity += 1;
       } else {
-        // Add with quantity 1 but not officially added yet
         state.data.push({
           id: dish.id as unknown as number,
           categoryId: dish.category.id,
@@ -74,30 +65,41 @@ const CartItemSlice = createSlice({
       }
     },
 
-    // ✅ Reduce quantity
     reduceQuantity: (state, action: PayloadAction<MenuDishData>) => {
       const dish = action.payload;
       const existing = state.data.find((item) => item.dishData.id === dish.id);
 
       if (existing) {
         existing.quantity -= 1;
+
         if (existing.quantity <= 0) {
-          // Remove item from cart
           state.data = state.data.filter(
             (item) => item.dishData.id !== dish.id
           );
         }
       }
     },
-    // ✅ Remove dish entirely from cart
+
     removeFromCart: (state, action: PayloadAction<string>) => {
       const dishId = action.payload;
       state.data = state.data.filter((item) => item.dishData.id !== dishId);
     },
+
+    // -------------------------------
+    // ✅ CLEAR CART REDUCER
+    // -------------------------------
+    clearCart: (state) => {
+      state.data = [];
+    },
   },
 });
 
-// ---------------- Exports ----------------
-export const { addToCart, removeFromCart, increaseQuantity, reduceQuantity } =
-  CartItemSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  increaseQuantity,
+  reduceQuantity,
+  clearCart,
+} = CartItemSlice.actions;
+
 export default CartItemSlice.reducer;

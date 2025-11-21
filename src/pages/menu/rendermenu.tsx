@@ -17,12 +17,12 @@ import { useMenuData } from "./useMenuData";
 
 export const RenderMenuCategoryDishes = () => {
   const dispatch = useDispatch();
-  const auth = useAuth();
+
   const selectedRestaurant = useSelectedRestaurant();
 
   // Redux store
   const menuStore = useSelector((state: RootState) => state.menuUpdated);
-  const { restaurant, categories, menuItems } = menuStore;
+  const { categories, menuItems } = menuStore;
 
   // UI state
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -33,11 +33,12 @@ export const RenderMenuCategoryDishes = () => {
     loading: fetchAllDishesLoading,
     error: fetchAllDishesError,
     fetchMenuData,
-  } = useMenuData(selectedRestaurant.restaurantId || "");
+  } = useMenuData();
 
   // Fetch menu on mount or when restaurant changes
   useEffect(() => {
-    if (selectedRestaurant.restaurantId) fetchMenuData();
+    if (selectedRestaurant.restaurantId && menuItems.length === 0)
+      fetchMenuData();
   }, [selectedRestaurant.restaurantId]);
 
   // Filter dishes by selected category

@@ -143,7 +143,6 @@ const resendVerifyEmailOtp = async (
 // 📘 Export All
 // ---------------------------
 
-
 // ---------------------------
 // 📘 Export All
 // ---------------------------
@@ -193,7 +192,7 @@ export const getProfile = async (token: string): Promise<UserProfile> => {
 export const updateProfile = async (
   token: string,
   data: UpdateProfileBody
-): Promise<{message: string; data: UserProfile}> => {
+): Promise<{ message: string; data: UserProfile }> => {
   const config = getConfig(`/auth/profile/`, "PUT", token, data);
   return bookiesAxiosInstance(config);
 };
@@ -212,7 +211,12 @@ export const changePassword = async (
   token: string,
   data: ChangePasswordBody
 ): Promise<any> => {
-  const config = getConfig(`/auth/profile/change-password/`, "PUT", token, data);
+  const config = getConfig(
+    `/auth/profile/change-password/`,
+    "PUT",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
@@ -221,7 +225,12 @@ export const patchPassword = async (
   token: string,
   data: ChangePasswordBody
 ): Promise<any> => {
-  const config = getConfig(`/auth/profile/change-password/`, "PATCH", token, data);
+  const config = getConfig(
+    `/auth/profile/change-password/`,
+    "PATCH",
+    token,
+    data
+  );
   return bookiesAxiosInstance(config);
 };
 
