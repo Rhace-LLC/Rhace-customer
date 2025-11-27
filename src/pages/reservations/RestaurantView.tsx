@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { RestaurantProfile } from "@/api-services/restaurantProfile";
 
 const fallBackImg = [
-    "https://plus.unsplash.com/premium_photo-1661883237884-263e8de8869b?q=80&w=889&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1556742393-d75f468bfcb0?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  ];
+  "https://plus.unsplash.com/premium_photo-1661883237884-263e8de8869b?q=80&w=889&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://images.unsplash.com/photo-1556742393-d75f468bfcb0?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+];
 
-  const getRandomImage = (images: string[]): string => {
+const getRandomImage = (images: string[]): string => {
   return images[Math.floor(Math.random() * images.length)];
 };
 
@@ -40,7 +40,10 @@ const sloganList = [
   "Your Favorite Spot in Town",
 ];
 
-const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onRestaurantView }) => {
+const RestaurantCard: React.FC<RestaurantCardProps> = ({
+  restaurant,
+  onRestaurantView,
+}) => {
   const rating = restaurant.avg_rating ?? 0;
 
   const randomPickedSlogan =
@@ -49,20 +52,20 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onRestauran
   const randomFallbackImage = getRandomImage(fallBackImg);
 
   return (
-    <div className="rounded-2xl bg-white shadow-sm p-4 w-full max-w-sm">
+    <div className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-sm">
       {/* Cover Image */}
-      <div className="w-full h-40 rounded-xl overflow-hidden bg-gray-100">
+      <div className="h-40 w-full overflow-hidden rounded-xl bg-gray-100">
         {restaurant.cover_image_url ? (
           <img
             src={restaurant.cover_image_url}
             alt={restaurant.name}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         ) : (
           <img
             src={randomFallbackImage}
             alt={restaurant.name}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         )}
       </div>
@@ -70,18 +73,18 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onRestauran
       {/* Name & Slogan */}
       <div className="mt-4">
         <h2 className="text-lg font-bold text-gray-900">{restaurant.name}</h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="mt-1 text-sm text-gray-500">
           {restaurant.slogan ?? randomPickedSlogan}
         </p>
       </div>
 
       {/* Location */}
-      <p className="text-sm text-gray-600 mt-2">
+      <p className="mt-2 text-sm text-gray-600">
         {restaurant.city}, {restaurant.state}, {restaurant.country}
       </p>
 
       {/* Rating */}
-      <div className="flex items-center gap-1 mt-3 text-yellow-500">
+      <div className="mt-3 flex items-center gap-1 text-yellow-500">
         <Star className="h-4 w-4 fill-yellow-500" />
         <span className="text-sm font-semibold text-gray-800">
           {rating.toFixed(1)}
@@ -89,12 +92,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onRestauran
       </div>
 
       {/* Button */}
-      <Button className="w-full mt-4" onClick={() => onRestaurantView(restaurant)}>
+      <Button
+        className="mt-4 w-full"
+        onClick={() => onRestaurantView(restaurant)}
+      >
         View Restaurant
       </Button>
     </div>
   );
 };
-
 
 export default RestaurantCard;

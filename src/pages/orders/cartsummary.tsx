@@ -145,7 +145,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
 
       toast.success("Payment verification completed!");
       console.log("✅ Payment Verification Response:", response);
-      
+
       dispatch(clearCart());
       OnCreateOrder();
 

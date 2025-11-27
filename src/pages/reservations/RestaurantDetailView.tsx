@@ -2,14 +2,7 @@
 
 import { RestaurantProfile } from "@/api-services/restaurantProfile";
 import { motion } from "framer-motion";
-import {
-  MapPin,
-  Clock4,
-  Globe,
-  Star,
-  Tag,
-  Phone,
-} from "lucide-react";
+import { MapPin, Clock4, Globe, Star, Tag, Phone } from "lucide-react";
 import React from "react";
 
 interface RestaurantDetailViewProps {
@@ -79,7 +72,7 @@ export const RestaurantDetailView: React.FC<RestaurantDetailViewProps> = ({
 
         {/* Logo + Name */}
         <div className="absolute bottom-0 left-0 flex w-full items-center gap-6 bg-gradient-to-b from-transparent to-black/100 p-6">
-          <div className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-white bg-white shadow-lg flex items-center justify-center text-3xl font-bold text-gray-700">
+          <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white bg-white text-3xl font-bold text-gray-700 shadow-lg">
             {restaurant.logo_url ? (
               <img
                 src={restaurant.logo_url}
@@ -92,11 +85,12 @@ export const RestaurantDetailView: React.FC<RestaurantDetailViewProps> = ({
           </div>
 
           <div className="text-white">
-            <h1 className="text-3xl font-bold leading-tight">
+            <h1 className="text-3xl leading-tight font-bold">
               {restaurant.name}
             </h1>
             <p className="text-md mt-1 text-amber-200">
-              {restaurant.slogan || restaurant.description?.slice(0, 80) ||
+              {restaurant.slogan ||
+                restaurant.description?.slice(0, 80) ||
                 "A delightful dining experience awaits."}
             </p>
           </div>
@@ -128,10 +122,10 @@ export const RestaurantDetailView: React.FC<RestaurantDetailViewProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center text-gray-700 text-md font-semibold">
+          <div className="text-md flex items-center font-semibold text-gray-700">
             <Star className="mr-1 h-5 w-5 text-yellow-500" />
             {rating.toFixed(1)}{" "}
-            <span className="text-gray-400 ml-1">
+            <span className="ml-1 text-gray-400">
               ({restaurant.rating_count})
             </span>
           </div>
@@ -166,38 +160,10 @@ export const RestaurantDetailView: React.FC<RestaurantDetailViewProps> = ({
           <p className="font-medium text-gray-900">Email: {restaurant.email}</p>
           <p className="font-medium text-gray-900">Phone: {restaurant.phone}</p>
         </InfoBlock>
-
-        {/* Website */}
-        <InfoBlock
-          title="Website"
-          icon={<Globe className="h-5 w-5 text-indigo-600" />}
-        >
-          <a
-            href={"#"}
-            className="block truncate font-medium text-indigo-600 hover:underline"
-          >
-            Official Website
-          </a>
-        </InfoBlock>
-
-        {/* Today Hours */}
-        <InfoBlock
-          title="Hours"
-          icon={<Clock4 className="h-5 w-5 text-indigo-600" />}
-        >
-          <p className="font-semibold text-gray-900">
-            {todayHours
-              ? `${formatTime(todayHours.open_time)} — ${formatTime(
-                  todayHours.close_time
-                )}`
-              : "No schedule available"}
-          </p>
-          <p className="text-xs text-gray-400">See full schedule below</p>
-        </InfoBlock>
       </div>
 
       {/* ========== PHOTO GALLERY ========== */}
-      <div className="px-6 pb-6">
+      <div className="hidden px-6 pb-6">
         <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
           Photo Gallery
         </h2>
@@ -270,7 +236,7 @@ const InfoBlock = ({
   children: React.ReactNode;
 }) => (
   <div className="flex flex-col gap-2">
-    <span className="text-sm font-semibold tracking-wide text-gray-500 uppercase flex items-center gap-1">
+    <span className="flex items-center gap-1 text-sm font-semibold tracking-wide text-gray-500 uppercase">
       {icon} {title}
     </span>
     <div>{children}</div>

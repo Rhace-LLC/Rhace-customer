@@ -51,7 +51,10 @@ const RestaurantSlice = createSlice({
     },
 
     // Update a restaurant across all groups by ID
-    updateRestaurantDataById: (state, action: PayloadAction<RestaurantProfile>) => {
+    updateRestaurantDataById: (
+      state,
+      action: PayloadAction<RestaurantProfile>
+    ) => {
       Object.keys(state.data).forEach((key) => {
         state.data[key] = state.data[key].map((item) =>
           item.id === action.payload.id ? action.payload : item

@@ -25,13 +25,14 @@ import {
 } from "@/store/orderCart.slice";
 import { useNavigate } from "react-router-dom";
 import OrderSummary from "./cartsummary";
-import { getOrders } from "@/api-services/order.service";
+import { getOrders, Order } from "@/api-services/order.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { ContentHOC } from "@/components/nocontent";
+import { OrdersOverview } from "./OrderCard";
 
 export function OrdersPage() {
   const auth = useAuth();
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -67,7 +68,7 @@ export function OrdersPage() {
 
   const [fetchUserOrdersLoading, setFetchUserOrdersLoading] = useState(false);
   const [fetchUserOrdersError, setFetchUserOrdersError] = useState("");
-  const [userOrders, setUserOrders] = useState<any[]>([]); // ideally use OrderResponse[]
+  const [userOrders, setUserOrders] = useState<Order[]>([]); // ideally use OrderResponse[]
 
   // ✅ Fetch User Orders
   const fetchUserOrders = async () => {
@@ -122,11 +123,11 @@ export function OrdersPage() {
 
   const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
 
-  useEffect(()=>{
-    if(activeTab === "orders" && userOrders.length == 0){
-      fetchUserOrders()
+  useEffect(() => {
+    if (activeTab === "orders" && userOrders.length == 0) {
+      fetchUserOrders();
     }
-  },[activeTab])
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -295,55 +296,22 @@ export function OrdersPage() {
               errMessage={fetchUserOrdersError || "Failed to load borrowers."}
               actionFn={fetchUserOrders}
             >
-              {userOrders.map((order) => (
-                <Card
-                  key={order.id}
-                  className="cursor-pointer transition-shadow hover:shadow-md"
-                  onClick={() => {
-                   // handleOrderClick(order)
-                  }}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">
-                        Order {order.id}
-                      </CardTitle>
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-start gap-3">
-                      {getStatusIcon(order.status)}
-                      <div className="flex-1">
-                        <p className="text-muted-foreground mb-1 text-sm">
-                          {order.items.join(", ")}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-sm">
-                            {moment(order.created_at).format("lll")}
-                          </span>
-                          <span className="font-medium">
-                            NGN {order.total_price}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              <OrdersOverview
+                userOrders={userOrders}
+                onOrderClick={(order) => setSelectedOrder(order)}
+              />
             </ContentHOC>
           </TabsContent>
         </Tabs>
       </div>
-
-      <OrderDetailSheet
-        order={selectedOrder}
-        isOpen={!!selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-        onCancelOrder={handleCancelOrder}
-      />
+      {selectedOrder && (
+        <OrderDetailSheet
+          order={selectedOrder}
+          isOpen={!!selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onCancelOrder={handleCancelOrder}
+        />
+      )}
     </div>
   );
 }

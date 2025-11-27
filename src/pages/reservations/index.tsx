@@ -34,9 +34,8 @@ type PageState =
 export function ReservationsPage() {
   const [pageState, setPageState] = useState<PageState>("initialState");
   console.log("Page state:", pageState);
-  const [activeRestaurant, setActiveRestaurant] = useState<RestaurantProfile | null>(
-    null
-  );
+  const [activeRestaurant, setActiveRestaurant] =
+    useState<RestaurantProfile | null>(null);
 
   const { setLoading, setLoadingText } = useLoading();
   const [open, setOpen] = useState(false);

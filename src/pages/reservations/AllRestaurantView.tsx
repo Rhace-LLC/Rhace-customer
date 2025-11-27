@@ -28,23 +28,24 @@ export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
   // Fetch data for current page if not already loaded
   useEffect(() => {
     if (!allData[String(page)]) {
-      fetchAllData()
+      fetchAllData();
     }
-  }, [page, allData])
+  }, [page, allData]);
 
   // Restaurants to show on current page
   const toShow = allData[String(page)] ?? [];
 
   return (
     <>
-<div className="mb-6">
-  <h1 className="text-2xl font-bold text-gray-900">
-    Discover Amazing Restaurants
-  </h1>
-  <p className="text-gray-600 mt-1 text-sm sm:text-base">
-    Browse curated dining spots, explore menus, and find the perfect place to enjoy your next meal.
-  </p>
-</div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Discover Amazing Restaurants
+        </h1>
+        <p className="mt-1 text-sm text-gray-600 sm:text-base">
+          Browse curated dining spots, explore menus, and find the perfect place
+          to enjoy your next meal.
+        </p>
+      </div>
       <ContentHOC
         loading={loading}
         error={!!error}
@@ -58,11 +59,11 @@ export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {toShow.map((restaurant, index) => (
-            <div
-              key={index}
-              
-            >
-              <RestaurantCard restaurant={restaurant} onRestaurantView={() => onSelectRestaurant(restaurant)} />
+            <div key={index}>
+              <RestaurantCard
+                restaurant={restaurant}
+                onRestaurantView={() => onSelectRestaurant(restaurant)}
+              />
             </div>
           ))}
         </div>

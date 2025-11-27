@@ -41,16 +41,62 @@ export interface BulkStatusPayload {
   status: string;
 }
 
-export interface OrderResponse {
+export interface MenuCategory {
+  id: number;
+  restaurant: string;
+  restaurant_name: string;
+  name: string;
+  description: string;
+  image: string;
+  image_url: string;
+  items_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MenuItem {
+  id: string;
+  restaurant: string;
+  restaurant_name: string;
+  name: string;
+  category: MenuCategory;
+  description: string;
+  price: string;
+  ingredients: {
+    inventory_item: number;
+    quantity: number;
+  }[];
+  display_ingredients: string[];
+  allergens: string[];
+  image_url: string;
+  prep_time: string;
+  created: string;
+  updated: string;
+  available: boolean;
+  is_special: boolean;
+}
+
+export interface OrderItem {
+  id: number;
+  menu_item: MenuItem;
+  quantity: number;
+  price: string;
+}
+
+export type OrderStatus = "received" | "preparing" | "completed" | "cancelled";
+
+export interface Order {
   id: number;
   customer: string;
+  customer_first_name: string;
+  customer_last_name: string;
+  customer_name: string;
   order_type: string;
   table: string;
-  items: number[];
+  items: OrderItem[];
   total_price: string;
-  status: string;
-  waiter: string;
-  customer_name: string;
+  status: OrderStatus;
+  waiter: string | null;
   address: string;
   customer_phone: string;
   driver: string | null;
@@ -139,7 +185,7 @@ export interface ReservationCreationResponse {
 // ---------------- Orders ----------------
 
 // GET /orders/
-const getOrders = async (token?: string): Promise<OrderResponse[]> => {
+const getOrders = async (token?: string): Promise<Order[]> => {
   const config = getConfig(`/orders/`, "GET", token);
   return bookiesAxiosInstance(config);
 };

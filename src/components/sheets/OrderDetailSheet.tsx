@@ -3,9 +3,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
+import { Order } from "@/api-services/order.service";
 
 interface OrderDetailSheetProps {
-  order: any;
+  order: Order;
   isOpen: boolean;
   onClose: () => void;
   onCancelOrder?: (orderId: string) => void;
@@ -22,23 +23,21 @@ export function OrderDetailSheet({
   const canCancel = order.status === "preparing";
 
   const statusSteps = [
-    { key: "placed", label: "Order Placed", completed: true },
+    { key: "received", label: "Order Received", completed: true },
     {
       key: "preparing",
       label: "Preparing",
-      completed: order.status !== "placed",
+      completed: ["preparing", "ready", "served"].includes(order.status),
     },
     {
       key: "ready",
       label: "Ready",
-      completed: ["ready", "served", "delivered"].includes(order.status),
+      completed: ["ready", "served"].includes(order.status),
     },
-    {
-      key: "served",
-      label: "Served",
-      completed: ["served", "delivered"].includes(order.status),
-    },
+    { key: "served", label: "Served", completed: order.status == "completed" },
   ];
+
+  const totalPrice = Number(order.total_price);
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -46,9 +45,6 @@ export function OrderDetailSheet({
         <SheetHeader className="pb-4">
           <div className="flex items-center justify-between">
             <SheetTitle>Order Details</SheetTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
           </div>
         </SheetHeader>
 
@@ -56,7 +52,9 @@ export function OrderDetailSheet({
           {/* Order Info */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="font-medium">Order {order.id}</h3>
+              <h3 className="font-medium">
+                Order #{order.id} - {order.customer_name}
+              </h3>
               <Badge
                 className={
                   order.status === "preparing"
@@ -64,10 +62,12 @@ export function OrderDetailSheet({
                     : "bg-green-100 text-green-800"
                 }
               >
-                {order.status}
+                {order.status.toUpperCase()}
               </Badge>
             </div>
-            <p className="text-muted-foreground text-sm">{order.orderTime}</p>
+            <p className="text-sm text-gray-500">
+              {new Date(order.created_at).toLocaleString()}
+            </p>
           </div>
 
           {/* Status Tracker */}
@@ -83,9 +83,7 @@ export function OrderDetailSheet({
                   />
                   <span
                     className={`text-sm ${
-                      step.completed
-                        ? "text-foreground"
-                        : "text-muted-foreground"
+                      step.completed ? "text-gray-900" : "text-gray-400"
                     }`}
                   >
                     {step.label}
@@ -99,14 +97,28 @@ export function OrderDetailSheet({
           <div>
             <h4 className="mb-3 font-medium">Items</h4>
             <div className="space-y-2">
-              {order.items.map((item: string, index: number) => (
+              {order.items.map((item) => (
                 <div
-                  key={index}
+                  key={item.id}
                   className="flex items-center justify-between rounded-lg bg-gray-50 p-2"
                 >
-                  <span className="text-sm">{item}</span>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={item.menu_item.image_url}
+                      alt={item.menu_item.name}
+                      className="h-10 w-10 rounded object-cover"
+                    />
+                    <div className="text-sm">
+                      <div className="font-medium">{item.menu_item.name}</div>
+                      <div className="text-gray-500">
+                        Qty: {item.quantity} × NGN{" "}
+                        {Number(item.menu_item.price).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
                   <span className="text-sm font-medium">
-                    ${Math.floor(order.total / order.items.length)}
+                    NGN{" "}
+                    {(Number(item.menu_item.price) * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}
@@ -116,27 +128,27 @@ export function OrderDetailSheet({
           <Separator />
 
           {/* Total */}
-          <div className="flex items-center justify-between">
-            <span className="font-medium">Total</span>
-            <span className="text-lg font-bold">${order.total}</span>
+          <div className="flex items-center justify-between text-lg font-bold">
+            <span>Total</span>
+            <span>NGN {totalPrice.toFixed(2)}</span>
           </div>
 
-          {/* Restaurant Info */}
+          {/* Customer Info */}
           <div className="rounded-lg bg-gray-50 p-3">
-            <h4 className="mb-2 font-medium">Restaurant Info</h4>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
+            <h4 className="mb-2 font-medium">Customer Info</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                <span>123 Gourmet Street, Food District</span>
+                <span>{order.address}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>(555) 123-4567</span>
+                <span>{order.customer_phone}</span>
               </div>
-              {order.estimatedTime && (
-                <div className="flex items-center gap-2 text-sm">
+              {order.order_type && (
+                <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  <span>{order.estimatedTime}</span>
+                  <span>{order.order_type.toUpperCase()}</span>
                 </div>
               )}
             </div>
@@ -148,7 +160,7 @@ export function OrderDetailSheet({
               variant="destructive"
               className="w-full"
               onClick={() => {
-                onCancelOrder(order.id);
+                onCancelOrder(String(order.id));
                 onClose();
               }}
             >
