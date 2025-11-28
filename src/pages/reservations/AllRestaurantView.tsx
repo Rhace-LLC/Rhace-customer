@@ -42,6 +42,8 @@ export const AllRestaurantsView: React.FC = () => {
           to enjoy your next meal.
         </p>
       </div>
+      <div className="p-4">
+
       <ContentHOC
         loading={loading}
         error={!!error}
@@ -66,6 +68,7 @@ export const AllRestaurantsView: React.FC = () => {
           ))}
         </div>
       </ContentHOC>
+      </div>
 
       <div className="py-[15px]" />
       {/* Pagination */}
