@@ -15,9 +15,12 @@ import { OrdersPage } from "@/pages/orders";
 import { PaymentsPage } from "@/pages/payments";
 import { Profile } from "@/pages/profile";
 import { ReservationsPage } from "@/pages/reservations";
+import { AllRestaurantsView } from "@/pages/reservations/AllRestaurantView";
+import { RestaurantDetailView } from "@/pages/reservations/RestaurantDetailView";
 import { setSelection } from "@/store/restaurant_selection.slice";
 import { RootState } from "@/store/store";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
@@ -28,6 +31,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import { toast } from "sonner";
+
 // --------------------- Scroll to top on route change ---------------------
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -35,10 +40,16 @@ const ScrollToTop = () => {
   return null;
 };
 
-/** 🔒 Protected Route Wrapper */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
-  console.log("isAuth", auth.isAuthenticated);
+  const toastShown = useRef(false); // track if toast was already shown
+
+  useEffect(() => {
+    if (!auth.isAuthenticated && !toastShown.current) {
+      toastShown.current = true;
+      toast.error("You must be logged in to access this page!");
+    }
+  }, [auth.isAuthenticated]);
 
   if (auth.loading) {
     return <div className="p-8 text-center">Loading Session...</div>;
@@ -50,6 +61,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
 // --------------------- Main Router ---------------------
 function Navigation(): React.JSX.Element {
   return (
@@ -133,14 +145,23 @@ function NavigationContent() {
     }
   }, [auth.isAuthenticated, location.pathname, navigate]);
 
+  const hideHeaderAndNav = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/resetpassword",
+    "/verify-email",
+  ].includes(location.pathname);
+
   return (
     <div className="min-h-screen">
-      {auth.isAuthenticated && (
+      {!hideHeaderAndNav && (
         <>
           <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
           <div className="py-8" />
         </>
       )}
+
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -159,38 +180,15 @@ function NavigationContent() {
             <Route path="/verify-email" Component={OtpVerification} />
 
             {/* Protected Routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<HomePage />} />
             {/* Protected Routes */}
+            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/reservations" element={<ReservationsPage />} />
+            <Route path="/all-restaurants" element={<AllRestaurantsView />} />
             <Route
-              path="/menu"
-              element={
-                <ProtectedRoute>
-                  <MenuPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/orders"
-              element={
-                <ProtectedRoute>
-                  <OrdersPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reservations"
-              element={
-                <ProtectedRoute>
-                  <ReservationsPage />
-                </ProtectedRoute>
-              }
+              path="/view-restaurant/:id"
+              element={<RestaurantDetailView />}
             />
             <Route
               path="/payments"
@@ -223,7 +221,7 @@ function NavigationContent() {
         </section>
       </main>
 
-      {auth.isAuthenticated && (
+      {!hideHeaderAndNav && (
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       )}
     </div>

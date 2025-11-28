@@ -1,4 +1,4 @@
-import { X, MapPin, Clock, Phone } from "lucide-react";
+import { Clock, Phone } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -41,7 +41,7 @@ export function OrderDetailSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className="w-full overflow-auto sm:max-w-md">
         <SheetHeader className="pb-4">
           <div className="flex items-center justify-between">
             <SheetTitle>Order Details</SheetTitle>
@@ -137,10 +137,6 @@ export function OrderDetailSheet({
           <div className="rounded-lg bg-gray-50 p-3">
             <h4 className="mb-2 font-medium">Customer Info</h4>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                <span>{order.address}</span>
-              </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
                 <span>{order.customer_phone}</span>

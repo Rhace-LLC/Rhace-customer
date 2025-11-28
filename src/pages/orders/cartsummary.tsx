@@ -25,16 +25,24 @@ import {
 import { DialogHeader } from "@/components/ui/dialog";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { clearCart } from "@/store/orderCart.slice";
+import { Label } from "@radix-ui/react-label";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
   OnCreateOrder,
 }) => {
   const auth = useAuth();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const selectedRestaurant = useSelectedRestaurant();
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+
+  const [checkoutForm, setCheckoutForm] = useState({
+    phoneNumber: "",
+  });
 
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
@@ -62,6 +70,22 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
 
   // ✅ Handle Checkout
   const handleCheckout = async () => {
+    if (!auth.isAuthenticated) {
+      toast.info("You need to be logged in to checkout");
+      navigate(`/login?next=orders`);
+      return;
+    }
+
+    if (!checkoutForm.phoneNumber) {
+      toast.info("Please add your Phone Number before you checkout");
+      return;
+    }
+
+    if (checkoutForm.phoneNumber.length < 10) {
+      toast.info("Phone Number must be up to 10 characters long");
+      return;
+    }
+
     try {
       setLoading(true);
       setLoadingText("Processing Checkout");
@@ -78,8 +102,8 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
         }),
         status: "received",
         customer_name: `${auth?.user?.last_name} ${auth?.user?.first_name}`,
-        customer_phone: "08011111111",
-        address: "Address", // optional
+        customer_phone: checkoutForm.phoneNumber,
+        address: "", // optional
       };
 
       const response = await createOrder(payload, auth.token);
@@ -99,13 +123,6 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       console.error("❌ Error creating order:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getUserOrder = async () => {
-    try {
-    } catch (error) {
-    } finally {
     }
   };
 
@@ -163,7 +180,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
     <div className="mt-10 bg-gray-50">
       {/* Header */}
       <h2 className="mb-4 text-xl font-semibold text-gray-800">
-        Order Summary
+        Checkout Summary
       </h2>
 
       <div className="my-6 border-t border-gray-200"></div>
@@ -202,6 +219,23 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
         <span className="text-lg font-semibold text-gray-900">
           ₦{totalPrice.toLocaleString()}
         </span>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        <Label htmlFor="phoneNumber">Phone Number</Label>
+        <Input
+          id="phoneNumber"
+          type="tel"
+          placeholder="Enter your phone number"
+          value={checkoutForm.phoneNumber}
+          onChange={(e) =>
+            setCheckoutForm({
+              ...checkoutForm,
+              phoneNumber: e.target.value,
+            })
+          }
+          className="w-full"
+        />
       </div>
 
       <Button

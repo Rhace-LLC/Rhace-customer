@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 
 import { ContentHOC } from "@/components/nocontent";
 import { DishDetailSheet } from "@/components/sheets/DishDetailSheet";
-import { useAuth } from "@/contexts/AuthContext";
+
 import {
   addToCart,
   increaseQuantity,

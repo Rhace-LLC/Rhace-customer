@@ -4,18 +4,14 @@ import { useSelector } from "react-redux";
 import { useRestaurantData } from "./useRestaurantData";
 import { ContentHOC } from "@/components/nocontent";
 import { Pagination } from "@/components/pagination";
-import { RestaurantProfile } from "@/api-services/restaurantProfile";
 import RestaurantCard from "./RestaurantView";
+import { useNavigate } from "react-router-dom";
 
-interface AllRestaurantsViewProps {
-  onSelectRestaurant: (restaurant: RestaurantProfile) => void;
-}
-
-export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
-  onSelectRestaurant,
-}) => {
+export const AllRestaurantsView: React.FC = () => {
   const [page, setPage] = useState(1);
   const pageSize = 8;
+
+  const navigate = useNavigate();
 
   const dataStore = useSelector((state: RootState) => state.restaurants);
   const allData = dataStore.data;
@@ -37,7 +33,7 @@ export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
 
   return (
     <>
-      <div className="mb-6">
+      <div className="mb-10 p-4 pt-10">
         <h1 className="text-2xl font-bold text-gray-900">
           Discover Amazing Restaurants
         </h1>
@@ -62,19 +58,25 @@ export const AllRestaurantsView: React.FC<AllRestaurantsViewProps> = ({
             <div key={index}>
               <RestaurantCard
                 restaurant={restaurant}
-                onRestaurantView={() => onSelectRestaurant(restaurant)}
+                onRestaurantView={() =>
+                  navigate(`/view-restaurant/${restaurant.id}`)
+                }
               />
             </div>
           ))}
         </div>
       </ContentHOC>
 
+      <div className="py-[15px]" />
       {/* Pagination */}
-      <Pagination
-        currentPage={page}
-        totalPages={total_pages}
-        onPageChange={(p) => setPage(p)}
-      />
+      <div className="px-5">
+        <Pagination
+          currentPage={page}
+          totalPages={total_pages}
+          onPageChange={(p) => setPage(p)}
+        />
+      </div>
+      <div className="py-[60px]" />
     </>
   );
 };

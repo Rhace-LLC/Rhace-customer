@@ -1,5 +1,6 @@
-import { Menu } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   title: string;
@@ -7,13 +8,28 @@ interface HeaderProps {
 }
 
 export function Header({ title, onMenuClick }: HeaderProps) {
+  const navigate = useNavigate();
   return (
     <div className="border-border fixed top-0 z-10 flex w-full items-center justify-between border-b bg-white p-4">
+      {/* Menu button */}
       <Button variant="ghost" size="icon" onClick={onMenuClick}>
         <Menu className="h-5 w-5" />
       </Button>
+
+      {/* Title */}
       <h1 className="text-lg font-medium">{title}</h1>
-      <div className="w-10" /> {/* Spacer for centering */}
+
+      {/* Notification bell on the right */}
+      <Button
+        onClick={() => {
+          navigate("/notifications");
+        }}
+        variant="ghost"
+        className="bg-gray-100 p-3"
+        size="icon"
+      >
+        <Bell className="h-5 w-5" />
+      </Button>
     </div>
   );
 }

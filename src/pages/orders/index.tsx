@@ -1,14 +1,11 @@
 import {
-  Clock,
   CheckCircle,
-  ChefHat,
   ArrowRight,
   ShoppingBag,
-  Utensils,
+  LogIn,
+  Lock,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { OrderDetailSheet } from "@/components/sheets/OrderDetailSheet";
@@ -16,7 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
 import { MenuDishData } from "@/api-services/menu.service";
-import moment from "moment";
 import {
   addToCart,
   increaseQuantity,
@@ -35,10 +31,6 @@ export function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const handleOrderClick = (order: any) => {
-    setSelectedOrder(order);
-  };
 
   const handleCancelOrder = (orderId: string) => {
     toast.success(`Order ${orderId} has been cancelled.`);
@@ -87,39 +79,6 @@ export function OrdersPage() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "received":
-        return <Utensils className="h-5 w-5 text-amber-500" />;
-      case "preparing":
-        return <ChefHat className="h-5 w-5 text-orange-500" />;
-      case "ready":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "served":
-        return <CheckCircle className="h-5 w-5 text-blue-500" />;
-      case "delivered":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "received":
-        return "bg-amber-100 text-amber-800";
-      case "preparing":
-        return "bg-orange-100 text-orange-800";
-      case "ready":
-        return "bg-green-100 text-green-800";
-      case "served":
-        return "bg-blue-100 text-blue-800";
-      case "delivered":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
 
@@ -285,22 +244,49 @@ export function OrdersPage() {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
-            <ContentHOC
-              loading={fetchUserOrdersLoading}
-              error={!!fetchUserOrdersError}
-              noContent={userOrders?.length === 0}
-              loadingText="Fetching Your Orders. Please Wait."
-              noContentMessage="Reload Your Orders List"
-              noContentBtnText="Reload Your Orders"
-              noContentAction={fetchUserOrders}
-              errMessage={fetchUserOrdersError || "Failed to load borrowers."}
-              actionFn={fetchUserOrders}
-            >
-              <OrdersOverview
-                userOrders={userOrders}
-                onOrderClick={(order) => setSelectedOrder(order)}
-              />
-            </ContentHOC>
+            {auth.isAuthenticated ? (
+              <ContentHOC
+                loading={fetchUserOrdersLoading}
+                error={!!fetchUserOrdersError}
+                noContent={userOrders?.length === 0}
+                loadingText="Fetching Your Orders. Please Wait."
+                noContentMessage="Reload Your Orders List"
+                noContentBtnText="Reload Your Orders"
+                noContentAction={fetchUserOrders}
+                errMessage={fetchUserOrdersError || "Failed to load borrowers."}
+                actionFn={fetchUserOrders}
+              >
+                <OrdersOverview
+                  userOrders={userOrders}
+                  onOrderClick={(order) => setSelectedOrder(order)}
+                />
+              </ContentHOC>
+            ) : (
+              <div className="mt-6 rounded-xl border bg-white p-6 text-center shadow-sm">
+                <div className="mb-3 flex justify-center">
+                  <Lock className="h-10 w-10 text-gray-500" />
+                </div>
+
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Login Required
+                </h2>
+
+                <p className="mt-2 px-4 text-sm text-gray-600">
+                  You need to be logged in to view your order history. Please
+                  sign in to continue.
+                </p>
+
+                <div className="mt-5">
+                  <Button
+                    onClick={() => navigate("/login?next=orders")}
+                    className="flex w-full items-center justify-center gap-2"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Login Now
+                  </Button>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

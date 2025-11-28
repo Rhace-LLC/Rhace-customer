@@ -1,10 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import RhaceLogo from "../../assets/Rhace-10.png";
 import { useState } from "react";
 import { useLoading } from "@/contexts/LoadingContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -21,6 +21,9 @@ export interface FormErrors {
 export default function Login() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [SearchParams] = useSearchParams();
+  const next = SearchParams.get("next");
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -87,6 +90,9 @@ export default function Login() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       toast.success("Login successful!");
+      if (next) {
+        navigate(`/${next}`);
+      }
     } catch (error) {
       const message = parseError(error);
       toast.error(message || "Failed to login. Please try again.");
@@ -189,6 +195,15 @@ export default function Login() {
             Sign up
           </Link>
         </p>
+        <div className="mt-4 flex justify-center">
+          <Link
+            to="/"
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:border-blue-500 hover:text-blue-600"
+          >
+            <Home className="h-4 w-4" />
+            Go to Home
+          </Link>
+        </div>
       </div>
     </div>
   );

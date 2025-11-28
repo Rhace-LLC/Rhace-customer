@@ -1,4 +1,3 @@
-import React from "react";
 import { Clock, CheckCircle, Loader2, XCircle, Badge } from "lucide-react";
 import moment from "moment";
 import { Order } from "@/api-services/order.service";

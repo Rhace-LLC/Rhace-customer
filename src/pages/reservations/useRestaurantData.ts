@@ -6,7 +6,6 @@ import {
   updateRestaurantData,
   updateRestaurantTotal,
 } from "@/store/restaurants_slice";
-import { getAllRestaurants } from "@/api-services/order.service";
 import { listRestaurantProfiles } from "@/api-services/restaurantProfile";
 
 export function useRestaurantData(page: number) {

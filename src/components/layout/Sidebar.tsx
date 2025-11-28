@@ -7,10 +7,23 @@ import {
   User,
   X,
   Utensils,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RhaceLogo from "../../assets/Rhace-Favicon.png";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useLogout } from "./useLogout";
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -25,6 +38,16 @@ export function Sidebar({
   activeTab,
   onTabChange,
 }: SidebarProps) {
+  const { logout } = useLogout();
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+  const handleLogoutConfirm = () => {
+    setLogoutDialogOpen(false); // close dialog
+    logout(); // call logout
+    onClose(); // close sidebar
+  };
   const menuItems = [
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
@@ -62,14 +85,13 @@ export function Sidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full w-80 transform bg-white shadow-lg transition-transform duration-300 ${
+        className={`fixed top-0 left-0 z-50 h-full w-80 transform overflow-auto bg-white shadow-lg transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="p-4">
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center justify-center gap-2 space-y-3 pt-2">
-              {/* Logo Container: Modern, slightly rounded square with a subtle border/shadow */}
               <div className="w-max overflow-hidden rounded-full border border-gray-100 p-2 shadow-sm">
                 <img
                   src={RhaceLogo}
@@ -77,7 +99,6 @@ export function Sidebar({
                   className="h-full w-[25px] object-contain"
                 />
               </div>
-              {/* Brand Name */}
               <span className="relative bottom-2 text-2xl font-semibold tracking-tight text-gray-900">
                 Rhace
               </span>
@@ -104,6 +125,69 @@ export function Sidebar({
               </Link>
             ))}
           </nav>
+
+          {/* Logout */}
+          {auth.isAuthenticated ? (
+            <div className="mt-6">
+              <Dialog
+                open={logoutDialogOpen}
+                onOpenChange={setLogoutDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setLogoutDialogOpen(true)}
+                  >
+                    Log Out
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-[90%]">
+                  <DialogHeader>
+                    <DialogTitle>Confirm Logout</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to log out? You will be redirected
+                      to the login page.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setLogoutDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="bg-red-600 text-white"
+                      onClick={handleLogoutConfirm}
+                    >
+                      Log Out
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          ) : (
+            <div className="mx-auto mt-10 mb-[80px] flex max-w-md flex-col items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-center">
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <h2 className="text-md font-semibold text-yellow-800">
+                You are not logged in
+              </h2>
+              <p className="text-sm text-yellow-700">
+                Login to access the full features of the app. Click the button
+                below to proceed.
+              </p>
+              <Button
+                onClick={() => {
+                  navigate("/login");
+                  onClose();
+                }}
+                className="mt-2 w-full"
+              >
+                Proceed to Login
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>

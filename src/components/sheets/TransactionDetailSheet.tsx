@@ -1,5 +1,4 @@
 import {
-  Download,
   Mail,
   CreditCard,
   Calendar,
@@ -7,7 +6,6 @@ import {
   DollarSign,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
-import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 
@@ -33,13 +31,6 @@ interface TransactionDetailSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// Mock Item Data for the receipt display, as 'items' is missing from the Payment interface.
-const MOCK_ORDER_ITEMS = [
-  { name: "Wagyu Beef Burger", price: 18.0 },
-  { name: "Truffle Fries", price: 9.5 },
-  { name: "Iced Lemonade", price: 4.0 },
-];
 
 // Helper function to format date and time from the ISO string
 const formatDateAndTime = (isoString: string) => {

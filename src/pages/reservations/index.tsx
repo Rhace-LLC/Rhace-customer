@@ -3,44 +3,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  createReservation,
   getReservations,
-  Restaurant,
 } from "@/api-services/order.service";
 //import { updateReservationData } from "@/store/reservation.slice";
 import { parseError } from "@/api-services/utils/parseError";
 import { ContentHOC } from "@/components/nocontent";
 import CreateReservationPrompt from "./createReservationPrompt";
 import { Pagination } from "@/components/pagination";
-import GenericSheet from "@/components/generic_sheet_overlay";
-import { CreateReservation, ReservationForm } from "./createReservation";
-import { useLoading } from "@/contexts/LoadingContext";
-import { toast } from "sonner";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+
 import {
   updateReservationData,
   updateReservationTotal,
 } from "@/store/reservation.slice";
 import RenderReservationCards from "./RenderReservationTable";
-import { AllRestaurantsView } from "./AllRestaurantView";
-import { RestaurantDetailView } from "./RestaurantDetailView";
-import { RestaurantProfile } from "@/api-services/restaurantProfile";
-
-type PageState =
-  | "initialState"
-  | "allRestaurantViewState"
-  | "restaurantViewState";
+import { Lock, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export function ReservationsPage() {
-  const [pageState, setPageState] = useState<PageState>("initialState");
-  console.log("Page state:", pageState);
-  const [activeRestaurant, setActiveRestaurant] =
-    useState<RestaurantProfile | null>(null);
-
-  const { setLoading, setLoadingText } = useLoading();
-  const [open, setOpen] = useState(false);
-  const selectedRestaurant = useSelectedRestaurant();
-
+  const navigate = useNavigate();
   const auth = useAuth();
   const dispatch = useDispatch();
   const [totalItems, setTotalItems] = useState(0);
@@ -77,148 +58,69 @@ export function ReservationsPage() {
     fetchAllData();
   }, []);
 
-  const handleSubmit = async (data: ReservationForm) => {
-    if (!activeRestaurant) {
-      toast.error("No Restaurant Selected. Unable to proceed with booking");
-      return;
-    }
-    try {
-      setLoading(true);
-      setLoadingText("Creating Your Reservation... Please wait");
-
-      // Call API to create reservation
-      const res = await createReservation(
-        activeRestaurant?.id || "",
-        data,
-        auth.token
-      );
-
-      // Success toast
-      toast.success("Reservation created successfully!");
-    } catch (error: any) {
-      // Parse and display error
-      const errMessage = parseError(error) || "Failed to create reservation.";
-      toast.error(errMessage);
-      console.error("Reservation creation error:", error);
-    } finally {
-      // Reset loading state
-      setLoading(false);
-      setLoadingText("");
-    }
-  };
-
-  useEffect(() => {
-    const handleUrlChange = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const view = searchParams.get("view");
-      const restaurantId = searchParams.get("id");
-
-      if (view === "restaurants") {
-        setPageState("allRestaurantViewState");
-        setActiveRestaurant(null);
-      } else if (view === "restaurant" && restaurantId) {
-        setPageState("restaurantViewState");
-        // If activeRestaurant is not the same as query, reset or fetch
-        setActiveRestaurant((prev) =>
-          prev?.id === restaurantId ? prev : null
-        );
-        // TODO: optionally fetch restaurant by ID if needed
-      } else {
-        setPageState("initialState");
-        setActiveRestaurant(null);
-      }
-    };
-
-    window.addEventListener("popstate", handleUrlChange);
-    handleUrlChange(); // initialize state from current URL
-
-    return () => window.removeEventListener("popstate", handleUrlChange);
-  }, []);
-
   const handleStartNewReservation = () => {
-    const params = new URLSearchParams();
-    params.set("view", "restaurants");
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.pushState(null, "", newUrl);
-
-    setPageState("allRestaurantViewState");
-    setActiveRestaurant(null);
-  };
-
-  const handleSelectRestaurant = (restaurant: RestaurantProfile) => {
-    const params = new URLSearchParams();
-    params.set("view", "restaurant");
-    params.set("id", restaurant.id);
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.pushState(null, "", newUrl);
-
-    setPageState("restaurantViewState");
-    setActiveRestaurant(restaurant);
+    navigate("/all-restaurants");
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div
-        className={`space-y-6 ${pageState !== "restaurantViewState" && "p-5"} `}
-      >
-        <div>
-          {pageState === "initialState" && (
-            <section>
-              <CreateReservationPrompt onStart={handleStartNewReservation} />
-              <div className="py-2" />
+      <div className={`space-y-6 p-4 pt-10`}>
+        <section>
+          <CreateReservationPrompt onStart={handleStartNewReservation} />
+          <div className="py-2" />
 
-              {/* Upcoming Reservations */}
-              <h3 className="text-lg font-semibold tracking-tighter">
-                My Reservations
-              </h3>
-              <ContentHOC
-                loading={fetchLoading}
-                error={!!fetchError}
-                noContent={toShow.length === 0}
-                loadingText="Fetching Your Reservations. Please wait..."
-                noContentMessage="No Reservations Found"
-                noContentBtnText="Reload"
-                noContentAction={fetchAllData}
-                errMessage={fetchError}
-                actionFn={fetchAllData}
-              >
-                <RenderReservationCards data={toShow} />
-              </ContentHOC>
-              <Pagination
-                totalPages={total_pages}
-                currentPage={page}
-                onPageChange={(page) => setPage(page)}
-              />
-            </section>
-          )}
+          {/* Upcoming Reservations */}
+          <h3 className="text-lg font-semibold tracking-tighter">
+            My Reservations
+          </h3>
+          {auth.isAuthenticated ? (
+            <ContentHOC
+              loading={fetchLoading}
+              error={!!fetchError}
+              noContent={toShow.length === 0}
+              loadingText="Fetching Your Reservations. Please wait..."
+              noContentMessage="No Reservations Found"
+              noContentBtnText="Reload"
+              noContentAction={fetchAllData}
+              errMessage={fetchError}
+              actionFn={fetchAllData}
+            >
+              <RenderReservationCards data={toShow} />
+            </ContentHOC>
+          ) : (
+            <div className="mt-6 rounded-xl border border-gray-500 bg-white p-6 text-center shadow-sm">
+              <div className="mb-3 flex justify-center">
+                <Lock className="h-10 w-10 text-gray-500" />
+              </div>
 
-          {pageState === "allRestaurantViewState" && (
-            <AllRestaurantsView onSelectRestaurant={handleSelectRestaurant} />
-          )}
+              <h2 className="text-lg font-semibold text-gray-800">
+                Login Required
+              </h2>
 
-          {pageState === "restaurantViewState" && activeRestaurant && (
-            <RestaurantDetailView
-              restaurant={activeRestaurant}
-              onBookReservation={() => {
-                setOpen(true);
-              }}
-            />
+              <p className="mt-2 px-4 text-sm text-gray-600">
+                You need to be logged in to view your previous reservations.
+                Please sign in to continue.
+              </p>
+
+              <div className="mt-5">
+                <Button
+                  onClick={() => navigate("/login?next=reservations")}
+                  className="flex w-full items-center justify-center gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login Now
+                </Button>
+              </div>
+            </div>
           )}
-        </div>
+          <Pagination
+            totalPages={total_pages}
+            currentPage={page}
+            onPageChange={(page) => setPage(page)}
+          />
+        </section>
       </div>
-      <GenericSheet
-        open={open}
-        onOpenChange={setOpen}
-        title="Create Reservation"
-        subtitle="Select your date, time and party size."
-      >
-        <CreateReservation
-          onSubmit={(data) => {
-            setOpen(false);
-            handleSubmit(data);
-          }}
-        />
-      </GenericSheet>
+
     </div>
   );
 }
