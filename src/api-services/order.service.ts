@@ -78,7 +78,7 @@ export interface MenuItem {
 
 export interface OrderItem {
   id: number;
-  menu_item: MenuItem;
+  menu_item_name: string;
   quantity: number;
   price: string;
 }

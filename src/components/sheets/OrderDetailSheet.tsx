@@ -103,22 +103,25 @@ export function OrderDetailSheet({
                   className="flex items-center justify-between rounded-lg bg-gray-50 p-2"
                 >
                   <div className="flex items-center gap-2">
+                    {/*
+                    
                     <img
                       src={item.menu_item.image_url}
                       alt={item.menu_item.name}
                       className="h-10 w-10 rounded object-cover"
                     />
+                    */}
                     <div className="text-sm">
-                      <div className="font-medium">{item.menu_item.name}</div>
+                      <div className="font-medium">{item.menu_item_name}</div>
                       <div className="text-gray-500">
                         Qty: {item.quantity} × NGN{" "}
-                        {Number(item.menu_item.price).toFixed(2)}
+                        {Number(item.price).toFixed(2)}
                       </div>
                     </div>
                   </div>
                   <span className="text-sm font-medium">
                     NGN{" "}
-                    {(Number(item.menu_item.price) * item.quantity).toFixed(2)}
+                    {(Number(item.price) * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}

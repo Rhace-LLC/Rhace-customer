@@ -72,7 +72,7 @@ export function OrdersOverview({
               </span>
               <div className="flex-1">
                 <p className="mb-1 line-clamp-2 text-sm text-gray-500">
-                  {order.items.map((item) => item.menu_item.name).join(", ")}
+                  {order.items.map((item) => item.menu_item_name).join(", ")}
                 </p>
                 <div className="mt-1 flex items-center justify-between">
                   <span className="flex items-center gap-1 text-xs text-gray-400">
