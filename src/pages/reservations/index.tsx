@@ -2,9 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  getReservations,
-} from "@/api-services/order.service";
+import { getReservations } from "@/api-services/order.service";
 //import { updateReservationData } from "@/store/reservation.slice";
 import { parseError } from "@/api-services/utils/parseError";
 import { ContentHOC } from "@/components/nocontent";
@@ -120,7 +118,6 @@ export function ReservationsPage() {
           />
         </section>
       </div>
-
     </div>
   );
 }

@@ -3,11 +3,6 @@ import { bookiesAxiosInstance } from "./utils/baseUrl";
 
 // ---------------- Types ----------------
 
-export interface OrderItem {
-  menu_item_id: string;
-  quantity: number;
-}
-
 export interface CreateOrderPayload {
   customer_id: string;
   order_type: string;
@@ -81,6 +76,7 @@ export interface OrderItem {
   menu_item_name: string;
   quantity: number;
   price: string;
+  menu_item_id: string;
 }
 
 export type OrderStatus = "received" | "preparing" | "completed" | "cancelled";
@@ -96,6 +92,7 @@ export interface Order {
   items: OrderItem[];
   total_price: string;
   status: OrderStatus;
+  payment: "pending" | "paid" | "confirmed";
   waiter: string | null;
   address: string;
   customer_phone: string;

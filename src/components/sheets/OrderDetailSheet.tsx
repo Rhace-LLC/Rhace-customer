@@ -120,8 +120,7 @@ export function OrderDetailSheet({
                     </div>
                   </div>
                   <span className="text-sm font-medium">
-                    NGN{" "}
-                    {(Number(item.price) * item.quantity).toFixed(2)}
+                    NGN {(Number(item.price) * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}

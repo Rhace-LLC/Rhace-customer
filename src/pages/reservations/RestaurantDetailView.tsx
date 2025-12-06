@@ -93,11 +93,7 @@ export const RestaurantDetailView: React.FC = () => {
       setLoadingText("Creating Your Reservation... Please wait");
 
       // Call API to create reservation
-      await createReservation(
-        restaurant?.id || "",
-        data,
-        auth.token
-      );
+      await createReservation(restaurant?.id || "", data, auth.token);
 
       // Success toast
       toast.success("Reservation created successfully!");

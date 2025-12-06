@@ -43,31 +43,30 @@ export const AllRestaurantsView: React.FC = () => {
         </p>
       </div>
       <div className="p-4">
-
-      <ContentHOC
-        loading={loading}
-        error={!!error}
-        noContent={toShow.length === 0}
-        loadingText="Fetching Restaurants..."
-        noContentMessage="No Restaurants Found"
-        noContentBtnText="Reload"
-        noContentAction={fetchAllData}
-        errMessage={error || undefined}
-        actionFn={fetchAllData}
-      >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {toShow.map((restaurant, index) => (
-            <div key={index}>
-              <RestaurantCard
-                restaurant={restaurant}
-                onRestaurantView={() =>
-                  navigate(`/view-restaurant/${restaurant.id}`)
-                }
-              />
-            </div>
-          ))}
-        </div>
-      </ContentHOC>
+        <ContentHOC
+          loading={loading}
+          error={!!error}
+          noContent={toShow.length === 0}
+          loadingText="Fetching Restaurants..."
+          noContentMessage="No Restaurants Found"
+          noContentBtnText="Reload"
+          noContentAction={fetchAllData}
+          errMessage={error || undefined}
+          actionFn={fetchAllData}
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {toShow.map((restaurant, index) => (
+              <div key={index}>
+                <RestaurantCard
+                  restaurant={restaurant}
+                  onRestaurantView={() =>
+                    navigate(`/view-restaurant/${restaurant.id}`)
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </ContentHOC>
       </div>
 
       <div className="py-[15px]" />
