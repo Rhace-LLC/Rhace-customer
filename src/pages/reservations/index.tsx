@@ -53,8 +53,10 @@ export function ReservationsPage() {
   const toShow = useMemo(() => allData[String(page)] ?? [], [allData, page]);
 
   useEffect(() => {
-    fetchAllData();
-  }, []);
+    if(auth.isAuthenticated){
+      fetchAllData();
+    }
+  }, [auth]);
 
   const handleStartNewReservation = () => {
     navigate("/all-restaurants");
