@@ -9,9 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import moment from "moment";
-import {
-  Order,
-} from "@/api-services/order.service";
+import { Order } from "@/api-services/order.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLoading } from "@/contexts/LoadingContext";
@@ -26,7 +24,10 @@ import {
 } from "@radix-ui/react-dialog";
 import { DialogHeader } from "@/components/ui/dialog";
 import { parseError } from "@/api-services/utils/parseError";
-import { initializePayment, verifyPayment } from "@/api-services/payments.service";
+import {
+  initializePayment,
+  verifyPayment,
+} from "@/api-services/payments.service";
 const getStatusColor = (status: string) => {
   switch (status) {
     case "received":
@@ -79,10 +80,13 @@ export function OrdersOverview({
 
     if (!paymentDetails?.reference) return;
 
-    const result = await verifyPaymentStatus(paymentDetails.reference, auth.token);
+    const result = await verifyPaymentStatus(
+      paymentDetails.reference,
+      auth.token
+    );
 
-    if (result?.status === "success" || result?.status === "paid") {
-      toast.success("✅ Payment completed successfully!");
+    if (result?.data?.payment_status === "paid") {
+      toast.success("Payment completed successfully!");
     } else {
       toast.info("Payment not complete. Please try again.");
     }
@@ -100,7 +104,7 @@ export function OrdersOverview({
       };
 
       const response = await initializePayment(payload, auth.token);
-      setPaymentDetails(response)
+      setPaymentDetails(response);
 
       toast.success("Payment initialized successfully!");
       console.log("✅ Payment Initialization Response:", response);
@@ -183,49 +187,58 @@ export function OrdersOverview({
                     })}
                   </span>
                 </div>
-
-                {/* Payment Actions */}
-                <div className="mt-3 hidden items-center gap-3">
-                  {/* Payment Pending → Show Pay Button */}
-                  {order.payment === "pending" && (
-                    <Button
-                      variant="outline"
-                      className="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      // call payment function
-                      initiaiteOrderPayment(String(order.id))
-                      }}
-                    >
-                      <CreditCard className="mr-1 h-4 w-4" />
-                      Pay
-                    </Button>
-                  )}
-
-                  {/* Paid → Show Verify Button */}
-                  {order.payment === "paid" && (
-                    <Button
-                      variant="outline"
-                      className="border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // call verify endpoint
-                      }}
-                    >
-                      <BadgeHelp className="mr-1 h-4 w-4" />
-                      Verify
-                    </Button>
-                  )}
-
-                  {/* Confirmed → Payment Verified Badge */}
-                  {order.payment === "confirmed" && (
-                    <Badge className="flex items-center gap-1 bg-green-100 text-green-700">
-                      <ShieldCheck className="h-4 w-4" />
-                      Payment Verified
-                    </Badge>
-                  )}
-                </div>
               </div>
+            </div>
+            {/* Payment Actions */}
+            <div className="mt-3 items-center gap-3 hidden">
+              {/* Payment Pending → Show Pay Button */}
+              {order.payment === "pending" && (
+                <div className="w-full space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 font-semibold text-amber-700">
+                    <BadgeHelp className="h-5 w-5" />
+                    <span>Payment Pending</span>
+                  </div>
+
+                  <p className="text-sm text-amber-800">
+                    Your payment is currently marked as pending. Click "Retry
+                    Verification" to check if the payment went through. If it
+                    still hasn't been verified, you may need to re-initiate the
+                    payment.
+                  </p>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    className="mt-2 w-full rounded-md border border-amber-300 bg-amber-100 px-4 py-2 font-medium text-amber-700 transition hover:bg-amber-200"
+                  >
+                    Retry Verification
+                  </button>
+                </div>
+              )}
+
+              {order.payment && (
+                <Button
+                  variant="outline"
+                  className="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // call payment function
+                    initiaiteOrderPayment(String(order.id));
+                  }}
+                >
+                  <CreditCard className="mr-1 h-4 w-4" />
+                  Pay
+                </Button>
+              )}
+
+              {/* Confirmed → Payment Verified Badge */}
+              {order.payment === "confirmed" && (
+                <Badge className="flex items-center gap-1 bg-green-100 text-green-700">
+                  <ShieldCheck className="h-4 w-4" />
+                  Payment Verified
+                </Badge>
+              )}
             </div>
           </CardContent>
         </Card>

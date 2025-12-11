@@ -61,8 +61,8 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
 
     const result = await verifyPayment(paymentDetails.reference, auth.token);
 
-    if (result?.status === "success" || result?.status === "paid") {
-      toast.success("✅ Payment completed successfully!");
+    if (result?.data?.payment_status === "paid") {
+      toast.success("Payment completed successfully!");
     } else {
       toast.info("Payment not complete. Please try again.");
     }
@@ -158,10 +158,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       setLoading(true);
       setLoadingText("Verifying Payment...");
 
-      const response = await verifyPaymentAPI(reference, token); // from payments.service.ts
-
-      toast.success("Payment verification completed!");
-      console.log("✅ Payment Verification Response:", response);
+      const response = await verifyPaymentAPI(reference, token); // from payments.service.ts      
 
       dispatch(clearCart());
       OnCreateOrder();
@@ -251,10 +248,13 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       <Dialog
         open={isPaymentDialogOpen}
         onOpenChange={(open) => {
-          if (!open) handlePaymentDialogClose(); // When user closes the dialog
+          if (!open) handlePaymentDialogClose(); // Only allow closing via your handler
         }}
       >
-        <DialogContent className="h-[500px] w-[80%] max-w-lg overflow-hidden rounded-2xl p-0">
+        <DialogContent
+          className="h-[500px] w-[80%] max-w-lg overflow-hidden rounded-2xl p-0"
+          onInteractOutside={(e) => e.preventDefault()} // Prevents closing on outside click
+        >
           {/* Header */}
           <DialogHeader className="flex flex-row items-center justify-between border-b px-4 py-3">
             <div className="space-y-2 py-2 text-center">

@@ -19,9 +19,16 @@ export interface PaymentInitializationResponse {
   };
 }
 
-export interface PaymentVerificationResponse {
-  status: string; // e.g. "error"
-  message: string; // e.g. "An error occurred during verification
+export interface PaymentVerificationResponse  {
+  status: "success" | "error";
+  data: {
+    payment_status: "pending" | "paid" | "failed";
+    amount: number;
+    fees: number;
+    payment_method: string;
+    order_status: string;
+    paid_at: string | null;
+  };
 }
 
 export interface Payment {

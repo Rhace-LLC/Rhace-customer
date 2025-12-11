@@ -53,7 +53,7 @@ export function ReservationsPage() {
   const toShow = useMemo(() => allData[String(page)] ?? [], [allData, page]);
 
   useEffect(() => {
-    if(auth.isAuthenticated){
+    if (auth.isAuthenticated) {
       fetchAllData();
     }
   }, [auth]);
