@@ -21,7 +21,7 @@ import {
 } from "@/store/orderCart.slice";
 import { useNavigate } from "react-router-dom";
 import OrderSummary from "./cartsummary";
-import { getOrders, Order } from "@/api-services/order.service";
+import { getOrders, getOrdersById, Order } from "@/api-services/order.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { ContentHOC } from "@/components/nocontent";
 import { OrdersOverview } from "./OrderCard";
@@ -86,6 +86,19 @@ export function OrdersPage() {
       fetchUserOrders();
     }
   }, [activeTab]);
+
+  const fetchOrderById = async (orderId: number) => {
+    try {
+      const order = await getOrdersById(orderId, auth.token);
+
+      // Replace the updated order inside the array
+      setUserOrders((prevOrders) =>
+        prevOrders.map((o) => (o.id === order.id ? order : o))
+      );
+    } catch (error) {
+      console.error("Failed to fetch order:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -258,6 +271,7 @@ export function OrdersPage() {
                 <OrdersOverview
                   userOrders={userOrders}
                   onOrderClick={(order) => setSelectedOrder(order)}
+                  refetchOrderById={(order_id) => fetchOrderById(order_id)}
                 />
               </ContentHOC>
             ) : (

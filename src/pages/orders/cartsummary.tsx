@@ -126,7 +126,6 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       const response = await initializePayment(payload, auth.token);
 
       toast.success("Payment initialized successfully!");
-      console.log("✅ Payment Initialization Response:", response);
 
       return response;
     } catch (error) {
@@ -166,13 +165,12 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
 
     const result = await verifyPayment(paymentDetails.reference, auth.token);
 
-    if (result?.data?.payment_status === "paid") {
+    if (result?.data?.payment_status === "success") {
       toast.success("Payment completed successfully!");
     } else {
       toast.info("Payment not complete. Please try again.");
     }
   };
-
 
   return (
     <div className="mt-10 bg-gray-50">

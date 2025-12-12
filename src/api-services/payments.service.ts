@@ -22,7 +22,7 @@ export interface PaymentInitializationResponse {
 export interface PaymentVerificationResponse {
   status: "success" | "error";
   data: {
-    payment_status: "pending" | "paid" | "failed";
+    payment_status: "pending" | "success" | "failed";
     amount: number;
     fees: number;
     payment_method: string;

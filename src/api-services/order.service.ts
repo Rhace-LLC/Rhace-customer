@@ -213,6 +213,22 @@ const cancelOrder = async (
   return bookiesAxiosInstance(config);
 };
 
+// GET /orders/order/{id}/
+
+// POST /orders/{order_id}/cancel/
+const getOrdersById = async (
+  order_id: number,
+  token?: string
+): Promise<Order> => {
+  const config = getConfig(
+    `/orders/order/${order_id}/`,
+    "GET",
+    token,
+    undefined
+  );
+  return bookiesAxiosInstance(config);
+};
+
 // GET /orders/{order_id}/queue/
 const getOrderQueue = async (order_id: number, token?: string) => {
   const config = getConfig(`/orders/${order_id}/queue/`, "GET", token);
@@ -466,6 +482,7 @@ const getAllRestaurants = async (
 
 // ---------------- Export ----------------
 export {
+  getOrdersById,
   getOrders,
   assignTable,
   cancelOrder,

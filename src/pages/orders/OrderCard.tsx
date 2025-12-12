@@ -19,15 +19,17 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  DialogHeader,
   DialogTitle,
-} from "@radix-ui/react-dialog";
-import { DialogHeader } from "@/components/ui/dialog";
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 import { parseError } from "@/api-services/utils/parseError";
 import {
   initializePayment,
   verifyPayment,
 } from "@/api-services/payments.service";
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case "received":
@@ -63,32 +65,44 @@ const getStatusIcon = (status: string) => {
 interface OrdersOverviewProps {
   userOrders: Order[];
   onOrderClick?: (order: Order) => void;
+  refetchOrderById: (order_id: number) => void;
 }
 
 export function OrdersOverview({
   userOrders,
   onOrderClick,
+  refetchOrderById,
 }: OrdersOverviewProps) {
   const auth = useAuth();
 
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [selectedOrderId,setSelectedOrderId] = useState<any>("")
 
-  const handlePaymentDialogClose = async (reference: string, orderId?: string) => {
+
+  const handlePaymentDialogClose = async (
+  reference: string | null,
+  orderId: number,
+  orderCloseEvent: boolean = false
+  ) => {
     setIsPaymentDialogOpen(false);
 
     if (!reference) return;
 
-    const result = await verifyPaymentStatus( reference );
+    const result = await verifyPaymentStatus(reference);
+    console.log("result", result)
 
-    if (result?.data?.payment_status === "paid") {
+    if (result?.data?.payment_status === "success") {
       toast.success("Payment completed successfully!");
     } else {
-      toast.info(`Payment ${result?.data?.payment_status.toUpperCase()}. You need to reinitialize the payment. a modal would popup with a payment modal.`);
-      if(result?.data?.payment_status === "failed"){
-        initiaiteOrderPayment(orderId || "")
+      toast.info(
+        `Payment ${result?.data?.payment_status.toUpperCase()}. You need to reinitialize the payment. a modal would popup with a payment modal.`
+      );
+      if(!orderCloseEvent){
+        initiaiteOrderPayment(String(orderId));
       }
+    
     }
   };
 
@@ -100,26 +114,24 @@ export function OrdersOverview({
 
       const payload = {
         order_id: orderId,
-        callback_url: "", // optional: dynamic callback
+        callback_url: "",
       };
 
       const response = await initializePayment(payload, auth.token);
-      setPaymentDetails(response);
+      console.log("response", response);
+
+      setPaymentDetails(response.data); // ✅ FIX
+      setIsPaymentDialogOpen(true);
 
       toast.success("Payment initialized successfully!");
-      console.log("✅ Payment Initialization Response:", response);
-
-      return response;
     } catch (error) {
       const errmsg = parseError(error);
       toast.error(errmsg || "Failed to initialize payment");
-      console.error("❌ Error initializing payment:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Verify Payment
   const verifyPaymentStatus = async (reference: string) => {
     try {
       setLoading(true);
@@ -134,6 +146,7 @@ export function OrdersOverview({
       console.error("❌ Error verifying payment:", error);
     } finally {
       setLoading(false);
+      refetchOrderById(selectedOrderId);
     }
   };
 
@@ -192,7 +205,6 @@ export function OrdersOverview({
               {/* Payment Pending && No Reference - Payment has not been initiated, initialize flow from the start */}
 
               <div className="mt-3 w-full items-center gap-3">
-
                 {order.payment === "pending" && !order.payment_reference && (
                   <div className="w-full space-y-2">
                     <div className="font-medium text-blue-700">
@@ -205,6 +217,7 @@ export function OrdersOverview({
                       onClick={(e) => {
                         e.stopPropagation();
                         initiaiteOrderPayment(String(order.id));
+                        setSelectedOrderId(order.id)
                       }}
                     >
                       <CreditCard className="mr-1 h-4 w-4" />
@@ -212,7 +225,7 @@ export function OrdersOverview({
                     </Button>
                   </div>
                 )}
-                
+
                 {order.payment === "failed" && (
                   <div className="w-full space-y-2">
                     <div className="font-medium text-blue-700">
@@ -225,6 +238,7 @@ export function OrdersOverview({
                       onClick={(e) => {
                         e.stopPropagation();
                         initiaiteOrderPayment(String(order.id));
+                        setSelectedOrderId(order.id)
                       }}
                     >
                       <CreditCard className="mr-1 h-4 w-4" />
@@ -249,8 +263,12 @@ export function OrdersOverview({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        setSelectedOrderId(order.id)
                         // run your verify logic here
-                        handlePaymentDialogClose(order?.payment_reference || "")
+                        handlePaymentDialogClose(
+                          order?.payment_reference || "",
+                          order.id,
+                        );
                       }}
                       className="mt-2 w-full rounded-md border border-amber-300 bg-amber-100 px-4 py-2 font-medium text-amber-700 transition hover:bg-amber-200"
                     >
@@ -260,14 +278,12 @@ export function OrdersOverview({
                 )}
 
                 {order.payment === "paid" && (
-                  <div className="flex w-fit items-center gap-1 bg-green-100 text-green-700 px-3 rounded p-2">
+                  <div className="flex w-fit items-center gap-1 rounded bg-green-100 p-2 px-3 text-green-700">
                     <ShieldCheck className="h-4 w-4" />
                     Payment Verified
                   </div>
                 )}
-
               </div>
-
             </div>
           </CardContent>
         </Card>
@@ -276,10 +292,18 @@ export function OrdersOverview({
       <Dialog
         open={isPaymentDialogOpen}
         onOpenChange={(open) => {
-          if (!open) handlePaymentDialogClose(paymentDetails.reference); // When user closes the dialog
+          if (!open)
+            handlePaymentDialogClose(
+              paymentDetails.reference,
+              selectedOrderId,
+              true
+            ); // Only allow closing via your handler
         }}
       >
-        <DialogContent className="h-[500px] w-[80%] max-w-lg overflow-hidden rounded-2xl p-0">
+        <DialogContent
+          className="h-[500px] w-[80%] max-w-lg overflow-hidden rounded-2xl p-0"
+          onInteractOutside={(e) => e.preventDefault()} // Prevents closing on outside click
+        >
           {/* Header */}
           <DialogHeader className="flex flex-row items-center justify-between border-b px-4 py-3">
             <div className="space-y-2 py-2 text-center">
