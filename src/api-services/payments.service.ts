@@ -19,7 +19,7 @@ export interface PaymentInitializationResponse {
   };
 }
 
-export interface PaymentVerificationResponse  {
+export interface PaymentVerificationResponse {
   status: "success" | "error";
   data: {
     payment_status: "pending" | "paid" | "failed";

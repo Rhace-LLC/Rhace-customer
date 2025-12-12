@@ -54,20 +54,6 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
     return sum + price * item.quantity;
   }, 0);
 
-  const handlePaymentDialogClose = async () => {
-    setIsPaymentDialogOpen(false);
-
-    if (!paymentDetails?.reference) return;
-
-    const result = await verifyPayment(paymentDetails.reference, auth.token);
-
-    if (result?.data?.payment_status === "paid") {
-      toast.success("Payment completed successfully!");
-    } else {
-      toast.info("Payment not complete. Please try again.");
-    }
-  };
-
   // ✅ Handle Checkout
   const handleCheckout = async () => {
     if (!auth.isAuthenticated) {
@@ -158,7 +144,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       setLoading(true);
       setLoadingText("Verifying Payment...");
 
-      const response = await verifyPaymentAPI(reference, token); // from payments.service.ts      
+      const response = await verifyPaymentAPI(reference, token); // from payments.service.ts
 
       dispatch(clearCart());
       OnCreateOrder();
@@ -172,6 +158,21 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       setLoading(false);
     }
   };
+
+  const handlePaymentDialogClose = async () => {
+    setIsPaymentDialogOpen(false);
+
+    if (!paymentDetails?.reference) return;
+
+    const result = await verifyPayment(paymentDetails.reference, auth.token);
+
+    if (result?.data?.payment_status === "paid") {
+      toast.success("Payment completed successfully!");
+    } else {
+      toast.info("Payment not complete. Please try again.");
+    }
+  };
+
 
   return (
     <div className="mt-10 bg-gray-50">

@@ -75,20 +75,20 @@ export function OrdersOverview({
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
-  const handlePaymentDialogClose = async () => {
+  const handlePaymentDialogClose = async (reference: string, orderId?: string) => {
     setIsPaymentDialogOpen(false);
 
-    if (!paymentDetails?.reference) return;
+    if (!reference) return;
 
-    const result = await verifyPaymentStatus(
-      paymentDetails.reference,
-      auth.token
-    );
+    const result = await verifyPaymentStatus( reference );
 
     if (result?.data?.payment_status === "paid") {
       toast.success("Payment completed successfully!");
     } else {
-      toast.info("Payment not complete. Please try again.");
+      toast.info(`Payment ${result?.data?.payment_status.toUpperCase()}. You need to reinitialize the payment. a modal would popup with a payment modal.`);
+      if(result?.data?.payment_status === "failed"){
+        initiaiteOrderPayment(orderId || "")
+      }
     }
   };
 
@@ -120,15 +120,12 @@ export function OrdersOverview({
   };
 
   // ✅ Verify Payment
-  const verifyPaymentStatus = async (reference: string, token: string) => {
+  const verifyPaymentStatus = async (reference: string) => {
     try {
       setLoading(true);
       setLoadingText("Verifying Payment...");
 
-      const response = await verifyPayment(reference, token); // from payments.service.ts
-
-      toast.success("Payment verification completed!");
-      console.log("✅ Payment Verification Response:", response);
+      const response = await verifyPayment(reference, auth.token); // from payments.service.ts
 
       return response;
     } catch (error) {
@@ -189,56 +186,88 @@ export function OrdersOverview({
                 </div>
               </div>
             </div>
+
             {/* Payment Actions */}
-            <div className="mt-3 items-center gap-3 hidden">
-              {/* Payment Pending → Show Pay Button */}
-              {order.payment === "pending" && (
-                <div className="w-full space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 font-semibold text-amber-700">
-                    <BadgeHelp className="h-5 w-5" />
-                    <span>Payment Pending</span>
+            <div className="mt-3 items-center gap-3">
+              {/* Payment Pending && No Reference - Payment has not been initiated, initialize flow from the start */}
+
+              <div className="mt-3 w-full items-center gap-3">
+
+                {order.payment === "pending" && !order.payment_reference && (
+                  <div className="w-full space-y-2">
+                    <div className="font-medium text-blue-700">
+                      Payment was not initialized, please start again.
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      className="w-full border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        initiaiteOrderPayment(String(order.id));
+                      }}
+                    >
+                      <CreditCard className="mr-1 h-4 w-4" />
+                      Pay
+                    </Button>
                   </div>
+                )}
+                
+                {order.payment === "failed" && (
+                  <div className="w-full space-y-2">
+                    <div className="font-medium text-blue-700">
+                      Payment failed. Please try again.
+                    </div>
 
-                  <p className="text-sm text-amber-800">
-                    Your payment is currently marked as pending. Click "Retry
-                    Verification" to check if the payment went through. If it
-                    still hasn't been verified, you may need to re-initiate the
-                    payment.
-                  </p>
+                    <Button
+                      variant="outline"
+                      className="w-full border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        initiaiteOrderPayment(String(order.id));
+                      }}
+                    >
+                      <CreditCard className="mr-1 h-4 w-4" />
+                      Pay
+                    </Button>
+                  </div>
+                )}
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                    className="mt-2 w-full rounded-md border border-amber-300 bg-amber-100 px-4 py-2 font-medium text-amber-700 transition hover:bg-amber-200"
-                  >
-                    Retry Verification
-                  </button>
-                </div>
-              )}
+                {order.payment === "pending" && order.payment_reference && (
+                  <div className="w-full space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-center">
+                    <div className="flex items-center justify-center gap-2 font-semibold text-amber-700">
+                      <BadgeHelp className="h-5 w-5" />
+                      <span>Payment Pending</span>
+                    </div>
 
-              {order.payment && (
-                <Button
-                  variant="outline"
-                  className="border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // call payment function
-                    initiaiteOrderPayment(String(order.id));
-                  }}
-                >
-                  <CreditCard className="mr-1 h-4 w-4" />
-                  Pay
-                </Button>
-              )}
+                    <p className="text-sm text-amber-800">
+                      Your payment is still pending. Click “Retry Verification”
+                      to check if the payment went through. If it hasn’t, you
+                      may need to re-initiate.
+                    </p>
 
-              {/* Confirmed → Payment Verified Badge */}
-              {order.payment === "confirmed" && (
-                <Badge className="flex items-center gap-1 bg-green-100 text-green-700">
-                  <ShieldCheck className="h-4 w-4" />
-                  Payment Verified
-                </Badge>
-              )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // run your verify logic here
+                        handlePaymentDialogClose(order?.payment_reference || "")
+                      }}
+                      className="mt-2 w-full rounded-md border border-amber-300 bg-amber-100 px-4 py-2 font-medium text-amber-700 transition hover:bg-amber-200"
+                    >
+                      Retry Verification
+                    </button>
+                  </div>
+                )}
+
+                {order.payment === "paid" && (
+                  <div className="flex w-fit items-center gap-1 bg-green-100 text-green-700 px-3 rounded p-2">
+                    <ShieldCheck className="h-4 w-4" />
+                    Payment Verified
+                  </div>
+                )}
+
+              </div>
+
             </div>
           </CardContent>
         </Card>
@@ -247,7 +276,7 @@ export function OrdersOverview({
       <Dialog
         open={isPaymentDialogOpen}
         onOpenChange={(open) => {
-          if (!open) handlePaymentDialogClose(); // When user closes the dialog
+          if (!open) handlePaymentDialogClose(paymentDetails.reference); // When user closes the dialog
         }}
       >
         <DialogContent className="h-[500px] w-[80%] max-w-lg overflow-hidden rounded-2xl p-0">

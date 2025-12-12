@@ -92,7 +92,8 @@ export interface Order {
   items: OrderItem[];
   total_price: string;
   status: OrderStatus;
-  payment: "pending" | "paid" | "confirmed";
+  payment: "pending" | "paid" | "failed";
+  payment_reference: string | null;
   waiter: string | null;
   address: string;
   customer_phone: string;

@@ -98,7 +98,7 @@ export default function Signup() {
       toast.success("Account created successfully!");
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       navigate(`/verify-email?email=${encodeURIComponent(form.email)}`);
     } catch (error: any) {
       toast.error("Failed to create account. Please try again.");
