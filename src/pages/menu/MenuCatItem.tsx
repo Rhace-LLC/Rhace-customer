@@ -21,7 +21,7 @@ export const MenuCatFilterItem: React.FC<MenuCatFilterItemProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`flex cursor-pointer items-center justify-between gap-2 rounded-full px-1 py-1 pr-6 transition-colors duration-200 ${isActive ? "bg-primary/80 text-gray-700" : "bg-gray-200 text-gray-700"} hover:brightness-95`}
+      className={`flex w-max cursor-pointer items-center justify-between gap-2 rounded-full px-1 py-1 pr-6 transition-colors duration-200 ${isActive ? "bg-primary/80 text-gray-700" : "bg-gray-200 text-gray-700"} hover:brightness-95`}
     >
       {/* Category Image */}
       <img
