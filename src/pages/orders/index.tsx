@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useDiningExperience } from "@/contexts/DiningExperienceContext";
 import { increaseQuantity, reduceQuantity } from "@/store/orderCart.slice";
 import { RootState } from "@/store/store";
-import { CreditCard} from "lucide-react";
+
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -68,16 +68,10 @@ export function OrdersPage() {
           <p className="text-foreground/70 font-medium tracking-tighter">
             Your Order List
           </p>
-          <button className="bg-foreground text-background hover:bg-foreground/90 focus:ring-foreground/40 flex hidden h-11 cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 hover:shadow-md focus:ring-2 focus:outline-none active:scale-95">
-            Settle bill
-            <CreditCard className="h-4 w-4" />
-          </button>
         </div>
 
         <div className="my-3 border-t border-gray-200" />
         {orderCart.data
-          .concat(orderCart.data)
-          .concat(orderCart.data)
           .map((item, index) => {
             const dish = item.dishData;
             const quantity: number = getDishQuantity(dish.id);
