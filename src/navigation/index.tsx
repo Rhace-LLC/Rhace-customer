@@ -8,10 +8,12 @@ import Login from "@/pages/auth/login";
 import ResetPassword from "@/pages/auth/resetpassword";
 import Signup from "@/pages/auth/signup";
 import OtpVerification from "@/pages/auth/verifyaccount";
+import BillSettlement from "@/pages/billsettlement";
 import { HomePage } from "@/pages/home";
 import { MenuPage } from "@/pages/menu";
 import { NotificationsPage } from "@/pages/notifications";
 import { OrdersPage } from "@/pages/orders";
+import { PastOrders } from "@/pages/past_orders";
 import { PaymentsPage } from "@/pages/payments";
 import { Profile } from "@/pages/profile";
 import { ReservationsPage } from "@/pages/reservations";
@@ -118,9 +120,11 @@ function NavigationContent() {
   const pathToTab: Record<string, { tab: string; title: string }> = {
     "/": { tab: "home", title: "Home" },
     "/menu": { tab: "menu", title: "Menu" },
-    "/orders": { tab: "orders", title: "Orders" },
+    "/orders": { tab: "order", title: "My Order" },
+    "/order-history": { tab: "past-orders", title: "My Past Orders" },
     "/reservations": { tab: "reservations", title: "Reservations" },
     "/payments": { tab: "payments", title: "Payments" },
+    "/bill-settlement": {tab: "bills", title: "Bill Summary"},
     "/notifications": { tab: "notifications", title: "Notifications" },
     "/profile": { tab: "profile", title: "Profile" },
     "/login": { tab: "login", title: "Login" },
@@ -184,6 +188,8 @@ function NavigationContent() {
             {/* Protected Routes */}
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/order-history" element={<PastOrders />} />
+            <Route path="/bill-settlement" element={<BillSettlement />} />
             <Route path="/reservations" element={<ReservationsPage />} />
             <Route path="/all-restaurants" element={<AllRestaurantsView />} />
             <Route

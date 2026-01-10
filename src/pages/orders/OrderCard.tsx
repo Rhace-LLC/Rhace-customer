@@ -78,20 +78,19 @@ export function OrdersOverview({
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [selectedOrderId,setSelectedOrderId] = useState<any>("")
-
+  const [selectedOrderId, setSelectedOrderId] = useState<any>("");
 
   const handlePaymentDialogClose = async (
-  reference: string | null,
-  orderId: number,
-  orderCloseEvent: boolean = false
+    reference: string | null,
+    orderId: number,
+    orderCloseEvent: boolean = false
   ) => {
     setIsPaymentDialogOpen(false);
 
     if (!reference) return;
 
     const result = await verifyPaymentStatus(reference);
-    console.log("result", result)
+    console.log("result", result);
 
     if (result?.data?.payment_status === "success") {
       toast.success("Payment completed successfully!");
@@ -99,10 +98,9 @@ export function OrdersOverview({
       toast.info(
         `Payment ${result?.data?.payment_status.toUpperCase()}. You need to reinitialize the payment. a modal would popup with a payment modal.`
       );
-      if(!orderCloseEvent){
+      if (!orderCloseEvent) {
         initiaiteOrderPayment(String(orderId));
       }
-    
     }
   };
 
@@ -217,7 +215,7 @@ export function OrdersOverview({
                       onClick={(e) => {
                         e.stopPropagation();
                         initiaiteOrderPayment(String(order.id));
-                        setSelectedOrderId(order.id)
+                        setSelectedOrderId(order.id);
                       }}
                     >
                       <CreditCard className="mr-1 h-4 w-4" />
@@ -238,7 +236,7 @@ export function OrdersOverview({
                       onClick={(e) => {
                         e.stopPropagation();
                         initiaiteOrderPayment(String(order.id));
-                        setSelectedOrderId(order.id)
+                        setSelectedOrderId(order.id);
                       }}
                     >
                       <CreditCard className="mr-1 h-4 w-4" />
@@ -263,11 +261,11 @@ export function OrdersOverview({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedOrderId(order.id)
+                        setSelectedOrderId(order.id);
                         // run your verify logic here
                         handlePaymentDialogClose(
                           order?.payment_reference || "",
-                          order.id,
+                          order.id
                         );
                       }}
                       className="mt-2 w-full rounded-md border border-amber-300 bg-amber-100 px-4 py-2 font-medium text-amber-700 transition hover:bg-amber-200"

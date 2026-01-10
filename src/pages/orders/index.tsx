@@ -1,43 +1,16 @@
-import {
-  CheckCircle,
-  ArrowRight,
-  ShoppingBag,
-  LogIn,
-  Lock,
-} from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { OrderDetailSheet } from "@/components/sheets/OrderDetailSheet";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { Button } from "@/components/ui/button";
 import { MenuDishData } from "@/api-services/menu.service";
-import {
-  addToCart,
-  increaseQuantity,
-  reduceQuantity,
-  removeFromCart,
-} from "@/store/orderCart.slice";
-import { useNavigate } from "react-router-dom";
-import OrderSummary from "./cartsummary";
-import { getOrders, getOrdersById, Order } from "@/api-services/order.service";
-import { useAuth } from "@/contexts/AuthContext";
-import { ContentHOC } from "@/components/nocontent";
-import { OrdersOverview } from "./OrderCard";
+import { Button } from "@/components/ui/button";
+import { useDiningExperience } from "@/contexts/DiningExperienceContext";
+import { increaseQuantity, reduceQuantity } from "@/store/orderCart.slice";
+import { RootState } from "@/store/store";
+import { CreditCard} from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 export function OrdersPage() {
-  const auth = useAuth();
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const dinePreference = useDiningExperience();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleCancelOrder = (orderId: string) => {
-    toast.success(`Order ${orderId} has been cancelled.`);
-  };
-
   const orderCart = useSelector((state: RootState) => state.orderCart);
-
   const handleIncrease = (dish: MenuDishData) => {
     dispatch(increaseQuantity(dish));
   };
@@ -52,265 +25,195 @@ export function OrdersPage() {
     return item ? item.quantity : 0;
   };
 
-  const isInCart = (dishId: string): boolean => {
-    return orderCart.data.some(
-      (cartItem) => cartItem.dishData.id === dishId && cartItem.added
-    );
-  };
-
-  const [fetchUserOrdersLoading, setFetchUserOrdersLoading] = useState(false);
-  const [fetchUserOrdersError, setFetchUserOrdersError] = useState("");
-  const [userOrders, setUserOrders] = useState<Order[]>([]); // ideally use OrderResponse[]
-
-  // ✅ Fetch User Orders
-  const fetchUserOrders = async () => {
-    try {
-      setFetchUserOrdersLoading(true);
-      setFetchUserOrdersError("");
-
-      const response = await getOrders(auth.token);
-
-      // Adjust based on your API response structure
-      setUserOrders(response);
-    } catch (error: any) {
-      setFetchUserOrdersError(error.message || "Failed to fetch user orders");
-    } finally {
-      setFetchUserOrdersLoading(false);
-    }
-  };
-
-  const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
-
-  useEffect(() => {
-    if (activeTab === "orders" && userOrders.length == 0) {
-      fetchUserOrders();
-    }
-  }, [activeTab]);
-
-  const fetchOrderById = async (orderId: number) => {
-    try {
-      const order = await getOrdersById(orderId, auth.token);
-
-      // Replace the updated order inside the array
-      setUserOrders((prevOrders) =>
-        prevOrders.map((o) => (o.id === order.id ? order : o))
-      );
-    } catch (error) {
-      console.error("Failed to fetch order:", error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="p-5">
-        <Tabs
-          value={activeTab}
-          onValueChange={(val) => setActiveTab(val as "cart" | "orders")}
-          className="w-full"
-        >
-          <TabsList className="mb-6 grid w-full grid-cols-2">
-            <TabsTrigger value="cart">Cart Summary</TabsTrigger>
-            <TabsTrigger value="orders">My Orders</TabsTrigger>
-          </TabsList>
-          <TabsContent value="cart">
-            {orderCart.data.length > 0 && (
-              <div className="pb-24">
-                {/* padding bottom to make space for sticky button */}
-                {orderCart.data.map((item, index) => {
-                  const dish = item.dishData;
+      <div className="space-y-5 p-4 pt-8">
+        {dinePreference.preferredDiningExperience === "group" ? (
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-foreground text-2xl font-semibold tracking-tight">
+                Group Dining
+              </h1>
 
-                  return (
-                    <div
-                      key={index}
-                      className="mb-4 cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Avatar Image */}
-                        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                          <img
-                            src={dish.image_url || "/placeholder-dish.jpg"}
-                            alt={dish.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
+              <p className="text-foreground/60 text-sm">
+                Dining together with others.
+              </p>
 
-                        {/* Dish Info */}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-800">
-                            {dish.name}
-                          </h4>
-                          <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-                            {dish.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        {/* Price & Availability */}
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="font-medium text-gray-800">
-                            ₦{parseFloat(dish.price).toLocaleString()}
-                          </span>
+              <p className="text-foreground/70 text-sm">
+                Join code{" "}
+                <span className="bg-muted text-foreground ml-1 rounded-md px-2 py-0.5 font-mono">
+                  DI938X92942
+                </span>
+              </p>
+            </div>
+            <button className="bg-primary/10 text-primary-600 h-12 cursor-pointer rounded-md px-2 text-sm font-medium">
+              Share Dine Invite
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            <h1 className="text-foreground text-2xl font-semibold tracking-tight">
+              Personal Dining
+            </h1>
 
-                          <div className="flex items-center gap-1">
-                            {dish.available ? (
-                              <>
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                <span className="text-sm text-green-500">
-                                  Available
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="h-4 w-4 text-gray-400" />
-                                <span className="text-sm text-gray-400">
-                                  Unavailable
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
+            <p className="text-foreground/60 text-sm">
+              A private dining experience, just for you.
+            </p>
+          </div>
+        )}
 
-                        <div className="my-2 border border-gray-100" />
+        <div className="my-3 border-t border-gray-200" />
 
-                        {/* Quantity & Actions */}
-                        <div className="mt-4 flex items-center justify-between gap-3">
-                          {/* Quantity Control */}
-                          <div className="flex items-center gap-2">
-                            <Button
-                              onClick={() => handleDecrease(dish)}
-                              variant="outline"
-                              className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
-                            >
-                              –
-                            </Button>
+        <div className="mb-0 flex items-center justify-center">
+          <p className="text-foreground/70 font-medium tracking-tighter">
+            Your Order List
+          </p>
+          <button className="bg-foreground text-background hover:bg-foreground/90 focus:ring-foreground/40 flex hidden h-11 cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 hover:shadow-md focus:ring-2 focus:outline-none active:scale-95">
+            Settle bill
+            <CreditCard className="h-4 w-4" />
+          </button>
+        </div>
 
-                            <span className="text-sm font-medium select-none">
-                              {getDishQuantity(dish.id)}
-                            </span>
-
-                            <Button
-                              onClick={() => handleIncrease(dish)}
-                              variant="outline"
-                              className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
-                            >
-                              +
-                            </Button>
-                          </div>
-
-                          {/* Add / Remove */}
-                          <Button
-                            onClick={() => {
-                              if (!isInCart(dish.id)) {
-                                dispatch(addToCart(dish));
-                              } else {
-                                dispatch(removeFromCart(dish.id));
-                              }
-                            }}
-                            className={`flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
-                              isInCart(dish.id)
-                                ? "bg-amber-500 text-amber-900 hover:bg-amber-600 hover:text-amber-50 active:scale-95"
-                                : "bg-black text-white hover:bg-gray-900 active:scale-95 active:bg-gray-800"
-                            }`}
-                          >
-                            {isInCart(dish.id) ? "Remove" : "Add to Order"}
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {
-                  <OrderSummary
-                    OnCreateOrder={() => {
-                      setActiveTab("orders");
-                      fetchUserOrders();
-                    }}
+        <div className="my-3 border-t border-gray-200" />
+        {orderCart.data
+          .concat(orderCart.data)
+          .concat(orderCart.data)
+          .map((item, index) => {
+            const dish = item.dishData;
+            const quantity: number = getDishQuantity(dish.id);
+            const unitPrice: number = Number(dish.price);
+            const totalPrice: number = unitPrice * quantity;
+            return (
+              <div key={index} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={dish.image_url || "/placeholder-dish.jpg"}
+                    alt={dish.name}
+                    className="h-20 w-20 rounded-full object-cover"
                   />
-                }
-              </div>
-            )}
-            {orderCart.data.length == 0 && (
-              // Empty State
-              <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-                <div className="bg-primary/10 text-primary mb-6 animate-pulse rounded-full p-6 shadow-sm">
-                  <ShoppingBag className="h-10 w-10" />
+                  <div>
+                    <p className="text-forground mb-1 font-semibold tracking-tight">
+                      {dish.name}
+                    </p>
+                    {/* Quantity Control */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => handleDecrease(dish)}
+                        variant="outline"
+                        className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
+                      >
+                        –
+                      </Button>
+
+                      <span className="text-sm font-medium select-none">
+                        {getDishQuantity(dish.id)}
+                      </span>
+
+                      <Button
+                        onClick={() => handleIncrease(dish)}
+                        variant="outline"
+                        className="text-muted-foreground hover:bg-muted/80 h-8 w-8 rounded-full transition active:scale-95"
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="mb-2 text-xl font-semibold text-gray-800">
-                  No Items in Your Orders
-                </h2>
-                <p className="mb-6 max-w-sm text-sm text-gray-500">
-                  Looks like you haven’t added anything yet. Browse our menu to
-                  find something delicious to order.
-                </p>
-                <button
-                  onClick={() => navigate("/menu")}
-                  className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all active:scale-95"
-                >
-                  Browse Menu
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="orders" className="space-y-4">
-            {auth.isAuthenticated ? (
-              <ContentHOC
-                loading={fetchUserOrdersLoading}
-                error={!!fetchUserOrdersError}
-                noContent={userOrders?.length === 0}
-                loadingText="Fetching Your Orders. Please Wait."
-                noContentMessage="Reload Your Orders List"
-                noContentBtnText="Reload Your Orders"
-                noContentAction={fetchUserOrders}
-                errMessage={fetchUserOrdersError || "Failed to load borrowers."}
-                actionFn={fetchUserOrders}
-              >
-                <OrdersOverview
-                  userOrders={userOrders}
-                  onOrderClick={(order) => setSelectedOrder(order)}
-                  refetchOrderById={(order_id) => fetchOrderById(order_id)}
-                />
-              </ContentHOC>
-            ) : (
-              <div className="mt-6 rounded-xl border bg-white p-6 text-center shadow-sm">
-                <div className="mb-3 flex justify-center">
-                  <Lock className="h-10 w-10 text-gray-500" />
-                </div>
-
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Login Required
-                </h2>
-
-                <p className="mt-2 px-4 text-sm text-gray-600">
-                  You need to be logged in to view your order history. Please
-                  sign in to continue.
-                </p>
-
-                <div className="mt-5">
-                  <Button
-                    onClick={() => navigate("/login?next=orders")}
-                    className="flex w-full items-center justify-center gap-2"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Login Now
-                  </Button>
+                <div className="text-right">
+                  <p>
+                    <span className="font-medium text-gray-800">
+                      <span className="font-medium">
+                        ₦{totalPrice.toLocaleString("en-NG")}
+                      </span>
+                    </span>
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-800">
+                      x {getDishQuantity(dish.id)}
+                    </span>
+                  </p>
                 </div>
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            );
+          })}
+        <div className="my-3 border-t border-gray-200" />
+
+        <div className="rounded-lg bg-gray-50 px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-0.5">
+              <p className="text-xs text-gray-500">Order summary</p>
+              <p className="text-sm text-gray-800">
+                Your order total comes to{" "}
+                <span className="font-medium text-gray-900">₦{`34,028`}</span>
+              </p>
+            </div>
+
+<Link to={'/bill-settlement'} >
+
+            <button className="cursor-pointer rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium whitespace-nowrap text-white transition hover:bg-gray-800 focus:ring-2 focus:ring-gray-900/30 focus:outline-none active:scale-95">
+              Proceed to settle bill
+            </button>
+</Link>
+          </div>
+        </div>
+
+        <div className="my-3 border-t border-gray-200" />
+
+        <div className="mb-0 flex items-center justify-center">
+          <p className="text-foreground/70 font-medium tracking-tighter">
+            Others on the table ordered:
+          </p>
+        </div>
+
+        <div className="my-3 border-t border-gray-200" />
+
+        <div>
+            <div className="rounded-xl bg-white p-4 shadow-sm">
+  {/* Header */}
+  <div className="flex items-center gap-3">
+    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-medium text-white">
+      AY
+    </div>
+
+    <div className="leading-tight">
+      <p className="text-sm font-medium text-gray-900">
+        Adefuye Abayomi
+      </p>
+      <p className="text-xs text-gray-500">
+        2 items ordered
+      </p>
+    </div>
+  </div>
+
+  {/* Divider */}
+  <div className="my-3 h-px bg-gray-100" />
+
+  {/* Order Items */}
+  <div className="space-y-2">
+    <div className="flex justify-between text-sm text-gray-800">
+      <span>Jollof Rice</span>
+      <span className="text-gray-600">₦3,000 × 2</span>
+    </div>
+
+    <div className="flex justify-between text-sm text-gray-800">
+      <span>Grilled Chicken</span>
+      <span className="text-gray-600">₦4,500 × 1</span>
+    </div>
+  </div>
+
+  {/* Divider */}
+  <div className="my-3 h-px bg-gray-100" />
+
+  {/* Total */}
+  <div className="flex justify-between text-sm font-medium text-gray-900">
+    <span>Total</span>
+    <span>₦10,500</span>
+  </div>
+</div>
+
+        </div>
+        <div></div>
       </div>
-      {selectedOrder && (
-        <OrderDetailSheet
-          order={selectedOrder}
-          isOpen={!!selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-          onCancelOrder={handleCancelOrder}
-        />
-      )}
     </div>
   );
 }

@@ -8,25 +8,37 @@
 
   /* === Base surfaces === */
   --background: #ffffff;
-  --foreground: oklch(0.22 0.03 260);
+  --foreground: oklch(25.26% 0.02844 82.49);
 
   /* === Cards and surfaces === */
   --card: oklch(100% 0.00011 271.152);
-  --card-foreground: oklch(0.22 0.03 260);
+  --card-foreground: oklch(25.26% 0.02844 82.49);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.03 260);
+  --popover-foreground: oklch(25.526% 0.02922 86.736);
+  /* === Primary (Brand Orange) === */
+  --primary: #ff9e28;
+  /* === Primary (Brand Orange) === */
+  --primary-50: #fff7ed;
+  --primary-100: #ffecd1;
+  --primary-200: #ffd7a3;
+  --primary-300: #ffc275;
+  --primary-400: #ffad47;
+  --primary-500: #ff9e28;
+  --primary-600: #e5891f;
+  --primary-700: #c8741a;
+  --primary-800: #9f5d14;
+  --primary-900: #7a460f;
+  --primary-950: #4a2a08;
 
-  /* === Primary (Soft Blue) === */
-  --primary: oklch(50.731% 0.25963 266.938);
-  --primary-foreground: oklch(0.99 0.01 250);
+  --primary-foreground: oklch(99.393% 0.00807 91.492);
 
   /* === Subtle Accents and Neutrals === */
-  --secondary: oklch(0.95 0.015 250);
-  --secondary-foreground: oklch(0.28 0.04 260);
-  --muted: oklch(0.96 0.012 250);
-  --muted-foreground: oklch(0.45 0.035 260);
-  --accent: oklch(0.97 0.015 250);
-  --accent-foreground: oklch(0.22 0.03 260);
+  --secondary: oklch(97.064% 0.01975 100.638);
+  --secondary-foreground: oklch(32.334% 0.0372 82.851);
+  --muted: oklch(97.741% 0.01583 99.052);
+  --muted-foreground: oklch(49.132% 0.03519 88.394);
+  --accent: oklch(99.47% 0.02214 109.626);
+  --accent-foreground: oklch(24.995% 0.02781 77.992);
 
   /* === Semantic === */
   --destructive: oklch(0.63 0.22 25);
@@ -59,44 +71,9 @@
   );
 }
 
-@theme {
-  --color-royalblue-100: #e9ecff;
-  --color-royalblue-200: #d5dcff;
-  --color-royalblue-300: #b6c4ff;
-  --color-royalblue-400: #94a8ff;
-  --color-royalblue-500: #7290ff;
-  --color-royalblue-600: #5675f5;
-  --color-royalblue-700: #3657d9;
-  --color-royalblue-800: #2244c2;
-  --color-royalblue-900: #162fa4;
-  --color-royalblue-950: #0e1f7f;
-
-  --gradient-main: linear-gradient(to right, #5675f5, #b6c4ff);
-}
-
 /* === Overrides === */
 .hamburger-react {
   width: 30px;
-}
-
-.ant-otp-input {
-  height: 40px;
-  width: 40px;
-}
-
-.ant-collapse-header {
-  padding: 0 !important;
-}
-
-.ant-collapse-content-box {
-  padding-left: 10px !important;
-}
-
-@media (min-width: 450px) {
-  .ant-otp-input {
-    width: 50px;
-    height: 50px;
-  }
 }
 
 /* === Global Styles === */
@@ -112,27 +89,43 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
+
+  /* Primary */
+  --color-primary: var(--primary-500);
+  --color-primary-foreground: #0f0f0f;
+
+  /* Secondary */
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Muted */
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+
+  /* Accent */
+  --color-accent: var(--primary-600);
+  --color-accent-foreground: #0f0f0f;
+
   --color-destructive: var(--destructive);
+
   --color-border: var(--border);
+
   --color-input: var(--input);
+
   --color-ring: var(--ring);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

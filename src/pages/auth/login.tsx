@@ -1,11 +1,9 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import RhaceLogo from "../../assets/Rhace-10.png";
 import { useState } from "react";
-import { useLoading } from "@/contexts/LoadingContext";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+
 import { toast } from "sonner";
 import {
   login,
@@ -14,6 +12,10 @@ import {
 } from "@/api-services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { parseError } from "@/api-services/utils/parseError";
+
+import imageSvg from "../../assets/login-img-svg.svg";
+const loginImg =
+  "https://res.cloudinary.com/mixam/image/upload/v1767798994/jwhqnhiqa5fpnkf0hu7f.png";
 
 export interface FormErrors {
   [key: string]: string;
@@ -24,15 +26,17 @@ export default function Login() {
   const [SearchParams] = useSearchParams();
   const next = SearchParams.get("next");
 
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const { setLoading, setLoadingText } = useLoading();
 
   const [errors, setErrors] = useState<FormErrors>({});
+
   // -------------------- VALIDATOR --------------------
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -44,11 +48,11 @@ export default function Login() {
       errors.email = "Invalid email address";
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (form.password && !passwordRegex.test(form.password)) {
+    if ((form.password && form.password.length < 6) || !form.password) {
       errors.password =
         "Password must be at least 6 characters, include one uppercase letter and one number";
     }
+
     return {
       valid: Object.keys(errors).length === 0,
       errors,
@@ -66,23 +70,17 @@ export default function Login() {
     setErrors(errors);
 
     if (!valid) {
-      Object.values(errors).forEach((err) => toast.error(err));
-      return;
-    }
-
-    if (!form.email || !form.password) {
-      toast.error("Please enter your email and password");
       return;
     }
 
     try {
-      setLoadingText("Logging in...");
       setLoading(true);
 
       const payload: LoginRequestBody = {
         email: form.email,
         password: form.password,
       };
+
       const response = await login(payload); // Await API call
 
       auth.login(response);
@@ -96,115 +94,161 @@ export default function Login() {
     } catch (error) {
       const message = parseError(error);
       toast.error(message || "Failed to login. Please try again.");
-      console.log("Message", message);
+
       if (message == "Please verify your email before logging in") {
         navigate(`/verify-email?email=${form.email}`);
         resendVerifyEmailOtp({ email: form.email });
       }
     } finally {
       setLoading(false);
-      setLoadingText("");
     }
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50 px-4">
-      {/* Background Bubbles */}
-      {/* Login Box */}
-      <div className="relative z-10 w-full max-w-lg space-y-10 rounded-[10px] bg-transparent p-8 py-[100px] bg-blend-soft-light shadow-sm">
-        <div className="text-center">
-          <img src={RhaceLogo} alt="Rhace Logo" className="mx-auto w-[150px]" />
+    <div className="grid min-h-screen grid-rows-[auto,1fr] md:grid-cols-2 md:grid-rows-1">
+      {/* SECTION 1 — FORM */}
+      <div className="flex min-h-screen flex-col justify-between space-y-8 px-4 py-4">
+        <div className="header flex justify-between">
+          <div className="text-center">
+            <img
+              src={RhaceLogo}
+              alt="Rhace Logo"
+              className="mx-auto w-[70px]"
+            />
+          </div>
+          <div className="hidden">
+            Home <ArrowRight className="inline h-4 w-4" />
+          </div>
         </div>
 
-        <div className="text-center">
-          <h3 className="text-3xl font-bold tracking-tight text-gray-800">
-            Welcome Back,
-          </h3>
-          <p className="mt-2 font-medium text-gray-500">
-            Login to your account
+        <div className="space-y-5">
+          <div className="space-y-3">
+            <h3 className="text-3xl font-bold tracking-tighter text-gray-900">
+              Hi, Welcome Back
+            </h3>
+
+            <p className="text-sm leading-relaxed text-gray-500">
+              Connecting you to the best dining experience. Please input your
+              login credentials to continue.
+            </p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-medium tracking-tight text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  onFocus={() => setErrors({})}
+                  className="h-12 w-full rounded-sm bg-gray-100 px-5 transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  value={form.email}
+                  onChange={handleChange}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+
+              {/* PASSWORD */}
+              <div className="relative space-y-2">
+                <div className="flex justify-between">
+                  <label className="text-sm font-medium tracking-tight text-gray-700">
+                    Password
+                  </label>
+                  <p className="cursor-pointer text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">
+                    <Link to={"/forgot-password"}>Forgot Password?</Link>
+                  </p>
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  onFocus={() => setErrors({})}
+                  className="h-12 w-full rounded-sm bg-gray-100 px-5 pr-12 transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  value={form.password}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-[40px] right-4 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`flex h-12 w-full items-center justify-center rounded-md bg-black font-medium tracking-tight text-white shadow-sm transition-all duration-200 hover:bg-gray-900 hover:shadow-md active:scale-[0.98] ${loading ? "cursor-not-allowed opacity-60 hover:bg-black hover:shadow-sm" : ""} `}
+              >
+                {loading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  "Login"
+                )}
+              </button>
+
+              <p className="mt-4 text-center text-sm text-gray-700">
+                Are you new to the platform ?{" "}
+                <span className="text-gray-700">If you are, then</span>{" "}
+                <Link to={"/signup"}>
+                  <span className="font-medium text-blue-600">
+                    sign up for an awesome experience
+                  </span>
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <footer>
+          <p className="text-center text-sm leading-relaxed text-gray-500">
+            &copy; Copyright Rhace {new Date().getFullYear()}
           </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-            />
-            {errors.email && (
-              <small className="text-red-500">{errors.email}</small>
-            )}
-          </div>
-
-          <div className="relative space-y-1">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={form.password}
-              onChange={handleChange}
-              placeholder="********"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute top-8 right-3 text-gray-500 hover:text-gray-700"
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-            {errors.password && (
-              <small className="text-red-500">{errors.password}</small>
-            )}
-          </div>
-
-          <div className="flex justify-end">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full rounded-[10px] bg-blue-600 hover:bg-blue-700"
-          >
-            Login
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-gray-600">
-          Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="font-medium text-blue-600 hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-        <div className="mt-4 flex justify-center">
-          <Link
-            to="/"
-            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:border-blue-500 hover:text-blue-600"
-          >
-            <Home className="h-4 w-4" />
-            Go to Home
-          </Link>
-        </div>
+        </footer>
       </div>
+
+      {/* SECTION 2 — IMAGE */}
+      <section className="relative min-h-screen md:flex">
+        <img
+          src={loginImg}
+          alt="Dining experience"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+
+        {/* Optional overlay */}
+        <div className="absolute inset-0 bg-black/40" />
+
+        {/* Optional text overlay */}
+        <div className="relative z-10 flex h-full flex-col items-start p-10">
+          <div className="header flex w-full justify-between">
+            <p className="max-w-[300px] text-sm leading-relaxed text-gray-500">
+              Where great dining begins
+            </p>
+
+            <div>
+              <ArrowRight className="inline h-4 w-4 text-white" />
+            </div>
+          </div>
+          <div className="py-10">
+            <img src={imageSvg} className="w-[80px]" />
+          </div>
+          <div className="max-w-md space-y-2 text-white">
+            <h2 className="text-2xl font-normal tracking-tight">
+              “From trusted restaurants to seamless ordering and management —
+              everything you need in one place.”
+            </h2>
+            <p className="text-sm text-white/80">
+              Discover restaurants you’ll love and experiences you’ll remember.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
