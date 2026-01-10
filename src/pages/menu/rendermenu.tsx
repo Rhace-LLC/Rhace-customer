@@ -10,10 +10,13 @@ import {
   increaseQuantity,
   reduceQuantity,
 } from "@/store/orderCart.slice";
+
 import { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
+
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { useMenuData } from "./useMenuData";
+import { MenuCatFilterItem } from "./MenuCatItem";
 
 export const RenderMenuCategoryDishes = () => {
   const dispatch = useDispatch();
@@ -67,26 +70,37 @@ export const RenderMenuCategoryDishes = () => {
   const handleIncrease = (dish: any) => dispatch(increaseQuantity(dish));
   const handleDecrease = (dish: any) => dispatch(reduceQuantity(dish));
 
+  console.log("categories", categories);
+
   return (
     <div className="px-4 pt-5">
       {/* Category filter */}
       {categories.length > 0 && (
-        <div className="mb-4 flex flex-wrap justify-center gap-2">
-          <Button
-            variant={selectedCategory === null ? "default" : "outline"}
-            onClick={() => setSelectedCategory(null)}
-          >
-            All
-          </Button>
-          {categories.map((cat) => (
-            <Button
-              key={cat.id}
-              variant={selectedCategory === cat.id ? "default" : "outline"}
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              {cat.name}
-            </Button>
-          ))}
+        <div className="overflow-x-auto pb-4">
+          <div className="flex items-center gap-3">
+            {/* All Button */}
+            <MenuCatFilterItem
+              category={{
+                id: 0,
+                name: "All Category",
+                description: "",
+                image:
+                  "https://images.unsplash.com/photo-1556742393-d75f468bfcb0",
+              }}
+              isActive={selectedCategory === null}
+              onClick={() => setSelectedCategory(null)}
+            />
+
+            {/* Category Items */}
+            {categories.map((cat) => (
+              <MenuCatFilterItem
+                key={cat.id}
+                category={cat}
+                isActive={selectedCategory === cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -105,67 +119,81 @@ export const RenderMenuCategoryDishes = () => {
           {filteredDishes.map((dish) => (
             <div
               key={dish.id}
-              className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+              className="relative min-h-84 cursor-pointer rounded bg-white p-4 transition-shadow hover:shadow-md"
             >
-              <img
-                src={dish.image_url || undefined}
-                alt={dish.name}
-                className="mb-3 h-32 w-full rounded-lg object-cover"
-              />
-              <h4 className="!my-2 font-medium">{dish.name}</h4>
-              <p className="text-muted-foreground !mb-4 line-clamp-2 text-sm">
-                {dish.description}
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">₦{dish.price}</span>
-                <div className="flex items-center gap-1">
-                  {dish.available ? (
-                    <>
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm text-green-500">Available</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-400">Unavailable</span>
-                    </>
-                  )}
-                </div>
+              <div className="absolute top-0 left-0 z-1 w-full">
+                <img
+                  src={dish.image_url || undefined}
+                  alt={dish.name}
+                  className="absolute z-1 mb-3 h-84 w-full rounded-3xl object-cover"
+                />
+                <div className="absolute z-2 mb-3 h-84 w-full rounded-3xl bg-gradient-to-b from-transparent via-black/50 to-black" />
               </div>
+              <div className="absolute bottom-0 left-0 z-2 w-full p-4">
+                <h4 className="!my-2 truncate text-3xl font-bold tracking-tighter text-white">
+                  {dish.name}
+                </h4>
 
-              <div className="mt-4 flex items-center gap-3">
-                {/* Quantity Control */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => handleDecrease(dish)}
-                    variant="outline"
-                    className="text-muted-foreground hover:bg-muted/80 h-8 w-8 cursor-pointer rounded-full p-5 transition active:scale-95"
-                  >
-                    –
-                  </Button>
-                  <span className="text-sm font-medium select-none">
-                    {getDishQuantity(dish.id)}
+                <p className="!mb-4 line-clamp-2 text-sm text-white">
+                  {dish.description}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-semibold tracking-tight text-white">
+                    ₦{dish.price}
                   </span>
+                  <div className="flex items-center gap-1">
+                    {dish.available ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-green-500">
+                          Available
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-gray-400">
+                          Unavailable
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  {/* Quantity Control */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => handleDecrease(dish)}
+                      variant="outline"
+                      className="h-9 w-8 cursor-pointer rounded-full border border-white/80 bg-transparent text-white transition hover:bg-white/10 active:scale-95"
+                    >
+                      –
+                    </Button>
+                    <span className="text-sm font-medium text-white select-none">
+                      {getDishQuantity(dish.id)}
+                    </span>
+                    <Button
+                      onClick={() => handleIncrease(dish)}
+                      variant="outline"
+                      className="h-9 w-8 cursor-pointer rounded-full border border-white/80 bg-transparent text-white transition hover:bg-white/10 active:scale-95"
+                    >
+                      +
+                    </Button>
+                  </div>
                   <Button
-                    variant="outline"
-                    className="text-muted-foreground hover:bg-muted/80 h-8 w-8 cursor-pointer rounded-full p-5 transition active:scale-95"
-                    onClick={() => handleIncrease(dish)}
+                    disabled={isInCart(dish.id)}
+                    onClick={() => !isInCart(dish.id) && handleAddToCart(dish)}
+                    className={`flex h-10 w-max cursor-pointer items-center justify-center gap-2 rounded-full transition active:scale-95 ${
+                      isInCart(dish.id)
+                        ? "cursor-not-allowed bg-gray-200 text-gray-700"
+                        : "bg-white text-black hover:bg-gray-100"
+                    }`}
                   >
-                    +
+                    {isInCart(dish.id) ? "Added" : "Add To Order"}
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button
-                  disabled={isInCart(dish.id)}
-                  onClick={() => !isInCart(dish.id) && handleAddToCart(dish)}
-                  className={`flex w-full cursor-pointer items-center justify-center gap-2 transition active:scale-95 ${
-                    isInCart(dish.id)
-                      ? "cursor-not-allowed bg-gray-300 text-gray-600"
-                      : "bg-black text-white hover:bg-gray-800"
-                  }`}
-                >
-                  {isInCart(dish.id) ? "Added" : "Add To Order"}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           ))}

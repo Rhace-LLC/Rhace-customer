@@ -9,6 +9,7 @@ interface HeaderProps {
 
 export function Header({ title, onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
+
   return (
     <div className="border-border fixed top-0 z-10 flex w-full items-center justify-between border-b bg-white p-4">
       {/* Menu button */}
@@ -25,7 +26,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           navigate("/notifications");
         }}
         variant="ghost"
-        className="bg-gray-100 p-3"
+        className="bg-primary/10 cursor-pointer rounded-full p-3"
         size="icon"
       >
         <Bell className="h-5 w-5" />

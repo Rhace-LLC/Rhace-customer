@@ -10,13 +10,9 @@ import { RenderMenuCategoryDishes } from "./rendermenu";
 
 export function MenuPage() {
   const [isQRScanOpen, setIsQRScanOpen] = useState(false);
-
   const handleQRScan = () => setIsQRScanOpen(true);
-
   const dispatch = useDispatch();
-
   const selectedRestaurant = useSelectedRestaurant();
-
   const shouldProceed = !selectedRestaurant.restaurantId;
 
   const handleScanSuccess = (data: string) => {
@@ -94,8 +90,8 @@ export function MenuPage() {
 function ScanRequiredUI({ onScan }: { onScan: () => void }) {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center bg-white px-6 text-center">
-      <div className="mb-6 animate-pulse rounded-full bg-blue-50 p-10">
-        <ScanLine className="h-20 w-20 text-blue-600" />
+      <div className="bg-foreground-50 mb-6 animate-pulse rounded-full p-10">
+        <ScanLine className="text-foreground-600 h-15 w-15" />
       </div>
 
       <h2 className="mb-3 text-[18px] font-bold text-gray-800">
@@ -110,7 +106,7 @@ function ScanRequiredUI({ onScan }: { onScan: () => void }) {
 
       <Button
         onClick={onScan}
-        className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-lg text-white hover:bg-blue-700"
+        className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all active:scale-95"
       >
         <QrCode className="h-5 w-5" />
         Scan QR to Continue

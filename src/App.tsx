@@ -6,6 +6,8 @@ import { store } from "./store/store";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { Toaster } from "sonner";
+import { DiningExperienceProvider } from "./contexts/DiningExperienceContext";
+import { DiningPreferencePrompt } from "./contexts/DiningPromptContext";
 function App() {
   return (
     <>
@@ -14,7 +16,10 @@ function App() {
           <ToastProvider>
             <LoadingProvider>
               <AuthProvider>
-                <Navigation />
+                <DiningExperienceProvider>
+                  <DiningPreferencePrompt />
+                  <Navigation />
+                </DiningExperienceProvider>
               </AuthProvider>
             </LoadingProvider>
           </ToastProvider>

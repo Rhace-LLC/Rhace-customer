@@ -8,6 +8,7 @@ import {
   X,
   Utensils,
   AlertCircle,
+  PowerOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -51,19 +52,31 @@ export function Sidebar({
   const menuItems = [
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
+    { id: "orders", label: "My Order", icon: ShoppingBag, path: "/orders" },
     {
       id: "reservations",
       label: "Reservations",
       icon: CalendarDays,
       path: "/reservations",
     },
-    { id: "orders", label: "Orders", icon: ShoppingBag, path: "/orders" },
     { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },
     {
       id: "notifications",
       label: "Notifications",
       icon: Bell,
       path: "/notifications",
+    },
+    {
+      id: "bills-settlement",
+      label: "Bill Summary",
+      icon: Bell,
+      path: "/bill-settlement",
+    },
+    {
+      id: "order-history",
+      label: "Past Orders",
+      icon: ShoppingBag,
+      path: "/order-history",
     },
     { id: "profile", label: "Profile", icon: User, path: "/profile" },
   ];
@@ -92,14 +105,14 @@ export function Sidebar({
         <div className="p-4">
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center justify-center gap-2 space-y-3 pt-2">
-              <div className="w-max overflow-hidden rounded-full border border-gray-100 p-2 shadow-sm">
+              <div className="border-foreground-100 w-max overflow-hidden rounded-full border p-2 shadow-sm">
                 <img
                   src={RhaceLogo}
                   alt="Rhace Logo"
-                  className="h-full w-[25px] object-contain"
+                  className="h-full w-[15px] object-contain"
                 />
               </div>
-              <span className="relative bottom-2 text-2xl font-semibold tracking-tight text-gray-900">
+              <span className="text-foreground-900 relative bottom-2 text-[20px] font-bold tracking-tighter">
                 Rhace
               </span>
             </div>
@@ -108,7 +121,7 @@ export function Sidebar({
             </Button>
           </div>
 
-          <nav className="space-y-2">
+          <nav className="mb-10 space-y-2">
             {menuItems.map(({ id, label, icon: Icon, path }) => (
               <Link
                 key={id}
@@ -117,7 +130,7 @@ export function Sidebar({
                 className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
                   activeTab === id
                     ? "bg-primary text-white"
-                    : "hover:bg-gray-100"
+                    : "hover:bg-foreground-100"
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -128,7 +141,7 @@ export function Sidebar({
 
           {/* Logout */}
           {auth.isAuthenticated ? (
-            <div className="mt-6">
+            <div className="mt-6 mb-20">
               <Dialog
                 open={logoutDialogOpen}
                 onOpenChange={setLogoutDialogOpen}
@@ -136,10 +149,10 @@ export function Sidebar({
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full cursor-pointer border-0 bg-red-50 text-red-500"
                     onClick={() => setLogoutDialogOpen(true)}
                   >
-                    Log Out
+                    Log Out <PowerOff className="inline h-4 w-4" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="w-[90%]">
