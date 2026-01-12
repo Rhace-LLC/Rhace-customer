@@ -124,7 +124,7 @@ function NavigationContent() {
     "/order-history": { tab: "past-orders", title: "My Past Orders" },
     "/reservations": { tab: "reservations", title: "Reservations" },
     "/payments": { tab: "payments", title: "Payments" },
-    "/bill-settlement": {tab: "bills", title: "Bill Summary"},
+    "/bill-settlement": { tab: "bills", title: "Bill Summary" },
     "/notifications": { tab: "notifications", title: "Notifications" },
     "/profile": { tab: "profile", title: "Profile" },
     "/login": { tab: "login", title: "Login" },

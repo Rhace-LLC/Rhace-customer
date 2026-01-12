@@ -73,11 +73,11 @@ export const RenderMenuCategoryDishes = () => {
   console.log("categories", categories);
 
   return (
-    <div className="px-4 pt-5 ">
+    <div className="px-4 pt-5">
       {/* Category filter */}
       {categories.length > 0 && (
-<div className="min-w-0 overflow-x-auto pb-4">
-  <div className="flex flex-wrap justify-center items-center gap-3">
+        <div className="min-w-0 overflow-x-auto pb-4">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {/* All Button */}
             <MenuCatFilterItem
               category={{
