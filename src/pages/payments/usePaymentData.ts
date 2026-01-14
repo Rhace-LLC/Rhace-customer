@@ -22,7 +22,7 @@ export function usePaymentData(page: number) {
       setError("");
 
       // Fetch payments from API
-      const res = await getPaymentHistory(auth.token); // assuming API takes token and page
+      const res = await getPaymentHistory(auth.token, {page, pageSize: 8}); // assuming API takes token and page
 
       // store paginated data
       dispatch(

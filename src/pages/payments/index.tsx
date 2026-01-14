@@ -9,6 +9,7 @@ import { RootState } from "@/store/store";
 import { ContentHOC } from "@/components/nocontent";
 import { TransactionDetailSheet } from "@/components/sheets/TransactionDetailSheet";
 import { usePaymentData } from "./usePaymentData";
+import { Pagination } from "@/components/pagination";
 
 // Re-defining Payment interface for context, assuming it's available globally or imported
 export interface Payment {
@@ -44,15 +45,14 @@ export function PaymentsPage() {
   const [selectedTransaction, setSelectedTransaction] =
     useState<Payment | null>(null);
   const [page, setPage] = useState(1);
-  const pageSize = 8;
-
+  
   // Assuming RootState and Redux logic works as intended
   const dataStore = useSelector(
     (state: RootState) => state.paymentTransactions
   );
   const paginatedData = dataStore.data;
-  const totalItems = dataStore.total || 0;
-  const totalPages = Math.ceil(totalItems / pageSize);
+  
+  console.log("page", page)
 
   // Assuming usePaymentData hook works as intended
   const { fetchAllData, loading, error } = usePaymentData(page);
@@ -157,23 +157,11 @@ export function PaymentsPage() {
         </ContentHOC>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex justify-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i + 1)}
-                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                  page === i + 1
-                    ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-        )}
+        <Pagination
+          currentPage={page}
+          totalPages={page + 1}
+          onPageChange={(p) => setPage(p)}
+        />
       </div>
       {selectedTransaction && (
         <TransactionDetailSheet

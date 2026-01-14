@@ -63,9 +63,9 @@ export const Pagination: React.FC<PaginationProps> = ({
       {/* Left Arrow */}
       <div
         onClick={handlePrevious}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white hover:cursor-pointer hover:opacity-80"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-white hover:cursor-pointer hover:opacity-80"
       >
-        <ChevronLeft className="h-5 w-5" />
+        <ChevronLeft className="h-4 w-4" />
       </div>
 
       {/* Page Numbers */}
@@ -79,7 +79,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <div
               key={page}
               onClick={() => onPageChange(page)}
-              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+              className={`flex h-7 w-7 text-sm items-center justify-center rounded-full transition-colors ${
                 page === currentPage
                   ? "bg-black text-white"
                   : "cursor-pointer bg-gray-200 text-black hover:bg-gray-300"
@@ -94,9 +94,9 @@ export const Pagination: React.FC<PaginationProps> = ({
       {/* Right Arrow */}
       <div
         onClick={handleNext}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white hover:cursor-pointer hover:opacity-80"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-white hover:cursor-pointer hover:opacity-80"
       >
-        <ChevronRight className="h-5 w-5" />
+        <ChevronRight className="h-4 w-4" />
       </div>
     </div>
   );
