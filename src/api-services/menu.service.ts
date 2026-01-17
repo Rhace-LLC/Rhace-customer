@@ -473,6 +473,50 @@ const deleteTable = async (restaurantId: string, id: string, token: string) => {
   return bookiesAxiosInstance(config);
 };
 
+const joinTable = async (
+  token: string,
+  payload: {
+    table_id: string;
+    access_code: string;
+  }
+): Promise<any> => {
+  const config = getConfig("/menu/tables/join-table/", "POST", token, payload);
+
+  const response = await bookiesAxiosInstance(config);
+  return response.data;
+};
+
+const leaveTable = async (
+  token: string,
+  payload: {
+    table_id: string;
+    access_code: string;
+  }
+): Promise<any> => {
+  const config = getConfig("/menu/tables/leave-table/", "POST", token, payload);
+
+  const response = await bookiesAxiosInstance(config);
+  return response.data;
+};
+
+const sitAtTable = async (
+  token: string,
+  payload: {
+    table_id: string;
+    access_code: string;
+  }
+): Promise<any> => {
+  const config = getConfig(
+    "/menu/tables/sit-at-table/",
+    "POST",
+    token,
+    payload
+  );
+
+  const response = await bookiesAxiosInstance(config);
+  return response.data;
+};
+
 // ========== EXPORTS ==========
 export {
   // Categories
@@ -513,4 +557,7 @@ export {
   updateTable,
   patchTable,
   deleteTable,
+  joinTable,
+  leaveTable,
+  sitAtTable,
 };

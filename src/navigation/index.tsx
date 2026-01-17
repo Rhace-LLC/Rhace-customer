@@ -102,6 +102,7 @@ function NavigationContent() {
     const restaurantId = searchParams.get("rid");
     const restaurantName = searchParams.get("r");
     const tableNo = searchParams.get("tno") || "";
+    const access_code = searchParams.get("access_code") || "";
 
     // Only dispatch if all required fields exist
     if (tableId && restaurantId && restaurantName) {
@@ -111,6 +112,7 @@ function NavigationContent() {
           restaurantId,
           restaurantName,
           tableNo,
+          access_code,
         })
       );
     }
@@ -184,14 +186,63 @@ function NavigationContent() {
             <Route path="/verify-email" Component={OtpVerification} />
 
             {/* Protected Routes */}
-            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
             {/* Protected Routes */}
-            <Route path="/menu" element={<MenuPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/order-history" element={<PastOrders />} />
-            <Route path="/bill-settlement" element={<BillSettlement />} />
-            <Route path="/reservations" element={<ReservationsPage />} />
-            <Route path="/all-restaurants" element={<AllRestaurantsView />} />
+            <Route
+              path="/menu"
+              element={
+                <ProtectedRoute>
+                  <MenuPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/order-history"
+              element={
+                <ProtectedRoute>
+                  <PastOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bill-settlement"
+              element={
+                <ProtectedRoute>
+                  <BillSettlement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reservations"
+              element={
+                <ProtectedRoute>
+                  <ReservationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/all-restaurants"
+              element={
+                <ProtectedRoute>
+                  <AllRestaurantsView />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/view-restaurant/:id"
               element={<RestaurantDetailView />}

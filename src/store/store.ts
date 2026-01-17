@@ -8,6 +8,7 @@ import paymentTranxReducer from "./paymentTranxSlice";
 import notificationReducer from "./notification.slice";
 import menuUpdatedReducer from "./menuupdated.slice";
 import restaurantReducer from "./restaurant.slice";
+import tableOrderReducer from "./table_order.slice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     notifications: notificationReducer,
     menuUpdated: menuUpdatedReducer,
     restaurant: restaurantReducer,
+    table_order: tableOrderReducer,
   },
   devTools: import.meta.env.MODE !== "production",
 });

@@ -8,7 +8,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getMyCurrentBill } from "@/api-services/billsettlement.service";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Diner = {
   id: number;
@@ -26,6 +28,7 @@ const OTHER_DINERS: Diner[] = [
 
 const MY_TOTAL = 10500;
 const BillSettlement = () => {
+  const auth = useAuth();
   const [addedDiners, setAddedDiners] = useState<Diner[]>([]);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -46,6 +49,14 @@ const BillSettlement = () => {
       : `You’ll be billed for yourself and ${addedDiners
           .map((d) => d.name)
           .join(", ")}.`;
+
+  const fetchMyBill = async () => {
+    return await getMyCurrentBill(auth.token);
+  };
+
+  useEffect(() => {
+    fetchMyBill();
+  }, []);
 
   return (
     <div className="mx-auto max-w-xl space-y-6 px-4 py-6">

@@ -43,7 +43,7 @@ export function BottomNavigation({
           >
             <div className="relative">
               <Icon className="mb-1 h-5 w-5" />
-              {id === "orders" && totalCartItems > 0 && (
+              {id === "order" && totalCartItems > 0 && (
                 <span className="absolute -top-1.5 -right-2 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-[5px] text-[10px] font-semibold text-white shadow-md">
                   {totalCartItems}
                 </span>

@@ -64,7 +64,13 @@ const getPaymentHistory = async (
   token?: string,
   params?: any
 ): Promise<PaymentHistoryResponse> => {
-  const config = getConfig(`/payments/history/`, "GET", token,undefined, params);
+  const config = getConfig(
+    `/payments/history/`,
+    "GET",
+    token,
+    undefined,
+    params
+  );
   return bookiesAxiosInstance(config);
 };
 

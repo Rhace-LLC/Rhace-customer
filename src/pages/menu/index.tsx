@@ -43,6 +43,7 @@ export function MenuPage() {
       const tableNo = url.searchParams.get("tno") || "";
       const restaurantId = url.searchParams.get("rid") || "";
       const restaurantName = url.searchParams.get("r") || "";
+      const access_code = url.searchParams.get("accessCode") || "";
 
       if (tableId && restaurantId && restaurantName) {
         dispatch(
@@ -51,6 +52,7 @@ export function MenuPage() {
             restaurantId,
             restaurantName,
             tableNo,
+            access_code,
           })
         );
 

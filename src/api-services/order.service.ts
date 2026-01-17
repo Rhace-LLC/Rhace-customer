@@ -79,27 +79,44 @@ export interface OrderItem {
   menu_item_id: string;
 }
 
-export type OrderStatus = "received" | "preparing" | "completed" | "cancelled";
+export type PaymentStatus = "pending" | "paid" | "failed";
+
+export type OrderStatus =
+  | "received"
+  | "preparing"
+  | "delivered"
+  | "completed"
+  | "cancelled";
 
 export interface Order {
   id: number;
   customer: string;
-  customer_first_name: string;
-  customer_last_name: string;
-  customer_name: string;
-  order_type: string;
+  customer_name_display: string;
+  restaurant_name: string;
+  paid_by: string | null;
+  paid_by_name: string | null;
+  group: string | null;
+  order_type: "dine-in" | "takeaway" | "delivery";
   table: string;
+  table_number: string;
   items: OrderItem[];
   total_price: string;
   status: OrderStatus;
-  payment: "pending" | "paid" | "failed";
-  payment_reference: string | null;
   waiter: string | null;
+  waiter_name: string | null;
+  customer_name: string;
   address: string;
   customer_phone: string;
   driver: string | null;
+  driver_name: string | null;
   delay_reason: string | null;
   created_at: string;
+  payment: PaymentStatus;
+  payment_reference: string | null;
+  estimated_wait_minutes: number;
+  ready_at: string | null;
+  paid_at: string | null;
+  is_paid: boolean;
 }
 
 // ---------------- Reservations ----------------
@@ -180,6 +197,36 @@ export interface ReservationCreationResponse {
   restaurant: Restaurant;
   status: string;
 }
+
+export interface Diner {
+  customer_id: string;
+  customer_name: string;
+  order_count: number;
+  total_amount: number;
+  order_ids: number[];
+}
+
+export interface OrderItem {
+  id: number;
+  menu_item_name: string;
+  menu_item_id: string;
+  quantity: number;
+  price: string;
+}
+
+export interface TableOrderData {
+  table_id: string;
+  table_number: string;
+  orders: Order[];
+  total_amount: number;
+  diners: Diner[];
+}
+
+export interface GetActiveTableOrderResponse {
+  status: "success";
+  data: TableOrderData;
+}
+
 // ---------------- Orders ----------------
 
 // GET /orders/
@@ -480,6 +527,21 @@ const getAllRestaurants = async (
   return bookiesAxiosInstance(config);
 };
 
+// GET /orders/reservations/all-restaurant
+const getTableOrder = async (
+  table_id: string,
+  token?: string
+): Promise<any> => {
+  const config = getConfig(`/orders/table/${table_id}/`, "GET", token);
+  return bookiesAxiosInstance(config);
+};
+
+// GET /orders/reservations/all-restaurant
+const getActiveOrder = async (token?: string): Promise<any> => {
+  const config = getConfig(`/orders/active/`, "GET", token);
+  return bookiesAxiosInstance(config);
+};
+
 // ---------------- Export ----------------
 export {
   getOrdersById,
@@ -510,4 +572,6 @@ export {
   createReservation,
   getTableReservation,
   getAllRestaurants,
+  getTableOrder,
+  getActiveOrder,
 };

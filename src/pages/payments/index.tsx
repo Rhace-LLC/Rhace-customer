@@ -45,14 +45,14 @@ export function PaymentsPage() {
   const [selectedTransaction, setSelectedTransaction] =
     useState<Payment | null>(null);
   const [page, setPage] = useState(1);
-  
+
   // Assuming RootState and Redux logic works as intended
   const dataStore = useSelector(
     (state: RootState) => state.paymentTransactions
   );
   const paginatedData = dataStore.data;
-  
-  console.log("page", page)
+
+  console.log("page", page);
 
   // Assuming usePaymentData hook works as intended
   const { fetchAllData, loading, error } = usePaymentData(page);

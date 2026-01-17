@@ -75,7 +75,6 @@ export function DiningPreferencePrompt() {
           disabled={!preferredDiningExperience}
           className="w-full"
           onClick={() => {
-            // dialog will close automatically because shouldPrompt becomes false
             setShouldPrompt(false);
           }}
         >

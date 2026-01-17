@@ -17,7 +17,7 @@ export function NotificationsPage() {
 
   const dataStore = useSelector((state: RootState) => state.notifications);
   const allData = dataStore.data;
-  
+
   // Hook for fetching notifications
   const {
     fetchAllData,
