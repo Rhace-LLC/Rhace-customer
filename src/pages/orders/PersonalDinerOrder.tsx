@@ -159,7 +159,7 @@ const PersonalDineOrder = () => {
     }
   };
 
-  console.log('cancel', cancelUserOrder)
+  console.log("cancel", cancelUserOrder);
 
   // ✅ Initiate Order Payment
   const initiaiteOrderPayment = async (): Promise<any> => {
@@ -355,7 +355,7 @@ const PersonalDineOrder = () => {
         uncompletedOrders.length == 0 && <NoCartItem />}
 
       {/* Create Order Functional Section */}
-      {(unpaidOrders.length == 0) && orderCart.data.length > 0 && (
+      {unpaidOrders.length == 0 && orderCart.data.length > 0 && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
           <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
