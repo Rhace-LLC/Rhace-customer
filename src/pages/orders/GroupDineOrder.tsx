@@ -112,7 +112,6 @@ const GroupDineOrder = () => {
 
   const cartItems = orderCart.data || [];
 
-  // 🧮 Calculate total
   const totalPrice = cartItems.reduce((sum, item) => {
     const price = parseFloat(item.dishData.price || "0");
     return sum + price * item.quantity;

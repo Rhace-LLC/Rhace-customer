@@ -3,7 +3,6 @@ import { bookiesAxiosInstance } from "./utils/baseUrl";
 
 export interface InitializePaymentPayload {
   order_id: string;
-  callback_url: string;
 }
 
 export interface PaymentInitializationResponse {

@@ -21,8 +21,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
+  DialogHeader,
 } from "@/components/ui/dialog";
-import { DialogHeader } from "@/components/ui/dialog";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { clearCart } from "@/store/orderCart.slice";
 import { useNavigate } from "react-router-dom";
@@ -207,7 +207,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
         }}
         className="rounded-11px] bg-primary hover:bg-foreground/50 mt-4 flex h-11 w-full cursor-pointer items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 active:scale-95 active:bg-blue-700"
       >
-        Settle Bill
+        Submit Order
         <ArrowRight className="h-4 w-4" />
       </Button>
 

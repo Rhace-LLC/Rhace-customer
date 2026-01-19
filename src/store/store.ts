@@ -9,6 +9,7 @@ import notificationReducer from "./notification.slice";
 import menuUpdatedReducer from "./menuupdated.slice";
 import restaurantReducer from "./restaurant.slice";
 import tableOrderReducer from "./table_order.slice";
+import unpaiduncompletedReducer from "./unpaidanduncompletedorder.slice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     menuUpdated: menuUpdatedReducer,
     restaurant: restaurantReducer,
     table_order: tableOrderReducer,
+    unpaid_uncompleted_orders: unpaiduncompletedReducer,
   },
   devTools: import.meta.env.MODE !== "production",
 });

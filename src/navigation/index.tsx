@@ -13,6 +13,8 @@ import { HomePage } from "@/pages/home";
 import { MenuPage } from "@/pages/menu";
 import { NotificationsPage } from "@/pages/notifications";
 import { OrdersPage } from "@/pages/orders";
+import ActiveOrderPage from "@/pages/orders/ActiveOrderPage";
+import { useUnpaidUncompleted } from "@/pages/orders/hook/useUnpaidUncompleted";
 import { PastOrders } from "@/pages/past_orders";
 import { PaymentsPage } from "@/pages/payments";
 import { Profile } from "@/pages/profile";
@@ -75,6 +77,19 @@ function Navigation(): React.JSX.Element {
 }
 
 function NavigationContent() {
+  const {
+    unpaidOrders,
+    uncompletedOrders,
+    getUserUnpaidOrder,
+    getUserActiveOrder,
+  } = useUnpaidUncompleted();
+
+  useEffect(() => {
+    if (uncompletedOrders.length == 0 && unpaidOrders.length == 0) {
+      getUserActiveOrder();
+      getUserUnpaidOrder();
+    }
+  }, []);
   const auth = useAuth();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -208,6 +223,14 @@ function NavigationContent() {
               element={
                 <ProtectedRoute>
                   <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/active"
+              element={
+                <ProtectedRoute>
+                  <ActiveOrderPage />
                 </ProtectedRoute>
               }
             />

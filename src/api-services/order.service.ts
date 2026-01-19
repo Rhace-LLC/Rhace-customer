@@ -1,8 +1,6 @@
 import { getConfig } from "./utils/reqConfig";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
 
-// ---------------- Types ----------------
-
 export interface CreateOrderPayload {
   customer_id: string;
   order_type: string;
@@ -83,6 +81,7 @@ export type PaymentStatus = "pending" | "paid" | "failed";
 
 export type OrderStatus =
   | "received"
+  | "paid"
   | "preparing"
   | "delivered"
   | "completed"
@@ -161,7 +160,6 @@ export interface Restaurant {
   updated_at: string;
 }
 
-// CancelledBy interface
 export interface CancelledBy {
   id: string;
   email: string;
@@ -227,6 +225,18 @@ export interface GetActiveTableOrderResponse {
   data: TableOrderData;
 }
 
+export interface ActiveOrderResponse {
+  status: "success";
+  count: number;
+  orders: Order[];
+}
+
+export interface UnpaidOrdersResponse {
+  count: number;
+  total_pending_amount: string;
+  orders: Order[];
+}
+
 // ---------------- Orders ----------------
 
 // GET /orders/
@@ -235,7 +245,6 @@ const getOrders = async (token?: string): Promise<Order[]> => {
   return bookiesAxiosInstance(config);
 };
 
-// POST /orders/{order_id}/assign-table/
 const assignTable = async (
   order_id: number,
   data: UpdateOrderPayload,
@@ -537,8 +546,50 @@ const getTableOrder = async (
 };
 
 // GET /orders/reservations/all-restaurant
-const getActiveOrder = async (token?: string): Promise<any> => {
+const getActiveOrder = async (token?: string): Promise<ActiveOrderResponse> => {
   const config = getConfig(`/orders/active/`, "GET", token);
+  return bookiesAxiosInstance(config);
+};
+
+// GET /orders/reservations/all-restaurant
+const getUnpaidOrder = async (
+  token?: string
+): Promise<UnpaidOrdersResponse> => {
+  const config = getConfig(`/orders/pending-payment/`, "GET", token);
+  return bookiesAxiosInstance(config);
+};
+// PUT /orders/{order_id}/add-items/
+interface AddItemsBody {
+  items: {
+    menu_item_id: string;
+    quantity: number;
+  }[];
+}
+
+const addItemsToOrder = async (
+  orderId: number,
+  body: AddItemsBody,
+  token?: string
+) => {
+  const config = getConfig(`/orders/${orderId}/add-items/`, "PUT", token, body);
+  return bookiesAxiosInstance(config);
+};
+// PUT /orders/{order_id}/remove-items/
+interface RemoveItemsBody {
+  items: number[]; // IDs of the items to remove
+}
+
+const removeItemsFromOrder = async (
+  orderId: number,
+  body: RemoveItemsBody,
+  token?: string
+) => {
+  const config = getConfig(
+    `/orders/${orderId}/remove-items/`,
+    "PUT",
+    token,
+    body
+  );
   return bookiesAxiosInstance(config);
 };
 
@@ -574,4 +625,7 @@ export {
   getAllRestaurants,
   getTableOrder,
   getActiveOrder,
+  getUnpaidOrder,
+  addItemsToOrder,
+  removeItemsFromOrder,
 };

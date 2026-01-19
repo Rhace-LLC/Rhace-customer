@@ -38,7 +38,6 @@ export function MenuPage() {
   function parseAndDispatchSelection(fullUrl: string) {
     try {
       const url = new URL(fullUrl);
-
       const tableId = url.searchParams.get("tid") || "";
       const tableNo = url.searchParams.get("tno") || "";
       const restaurantId = url.searchParams.get("rid") || "";

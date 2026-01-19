@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { useMenuData } from "./useMenuData";
 import { MenuCatFilterItem } from "./MenuCatItem";
+import { useUnpaidUncompleted } from "../orders/hook/useUnpaidUncompleted";
 
 export const RenderMenuCategoryDishes = () => {
   const dispatch = useDispatch();
@@ -49,6 +50,7 @@ export const RenderMenuCategoryDishes = () => {
     ? menuItems.filter((dish) => dish.category.id === selectedCategory)
     : menuItems;
 
+  const { unpaidOrders, uncompletedOrders } = useUnpaidUncompleted();
   // Cart selectors/helpers
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
@@ -63,6 +65,15 @@ export const RenderMenuCategoryDishes = () => {
     orderCart.data.some(
       (cartItem) => cartItem.dishData.id === dishId && cartItem.added
     );
+
+  const isInOrder = (menuItemId: string) => {
+    console.log("uncompleteOrders", uncompletedOrders);
+    let item = unpaidOrders[0];
+    if (!item) {
+      return false;
+    }
+    return item.items.some((item) => item.menu_item_id === menuItemId);
+  };
 
   const handleAddToCart = (dish: any) => {
     dispatch(addToCart(dish));
@@ -164,6 +175,7 @@ export const RenderMenuCategoryDishes = () => {
                   {/* Quantity Control */}
                   <div className="flex items-center gap-2">
                     <Button
+                      disabled={isInOrder(dish.id)}
                       onClick={() => handleDecrease(dish)}
                       variant="outline"
                       className="h-9 w-8 cursor-pointer rounded-full border border-white/80 bg-transparent text-white transition hover:bg-white/10 active:scale-95"
@@ -174,6 +186,7 @@ export const RenderMenuCategoryDishes = () => {
                       {getDishQuantity(dish.id)}
                     </span>
                     <Button
+                      disabled={isInOrder(dish.id)}
                       onClick={() => handleIncrease(dish)}
                       variant="outline"
                       className="h-9 w-8 cursor-pointer rounded-full border border-white/80 bg-transparent text-white transition hover:bg-white/10 active:scale-95"
@@ -182,15 +195,20 @@ export const RenderMenuCategoryDishes = () => {
                     </Button>
                   </div>
                   <Button
-                    disabled={isInCart(dish.id)}
-                    onClick={() => !isInCart(dish.id) && handleAddToCart(dish)}
+                    disabled={isInCart(dish.id) || isInOrder(dish.id)}
+                    onClick={() =>
+                      !(isInCart(dish.id) || isInOrder(dish.id)) &&
+                      handleAddToCart(dish)
+                    }
                     className={`flex h-10 w-max cursor-pointer items-center justify-center gap-2 rounded-full transition active:scale-95 ${
-                      isInCart(dish.id)
+                      isInCart(dish.id) || isInOrder(dish.id)
                         ? "cursor-not-allowed bg-gray-200 text-gray-700"
                         : "bg-white text-black hover:bg-gray-100"
                     }`}
                   >
-                    {isInCart(dish.id) ? "Added" : "Add To Order"}
+                    {isInCart(dish.id) || isInOrder(dish.id)
+                      ? "Added"
+                      : "Add To Order"}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
