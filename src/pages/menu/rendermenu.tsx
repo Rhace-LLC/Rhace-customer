@@ -18,11 +18,21 @@ import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { useMenuData } from "./useMenuData";
 import { MenuCatFilterItem } from "./MenuCatItem";
 import { useUnpaidUncompleted } from "../orders/hook/useUnpaidUncompleted";
+import { useDiningExperience } from "@/contexts/DiningExperienceContext";
+import { useGroupOrder } from "@/hooks/useDineGroupOrder";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const RenderMenuCategoryDishes = () => {
+  const auth = useAuth();
   const dispatch = useDispatch();
 
   const selectedRestaurant = useSelectedRestaurant();
+  const diningPreference = useDiningExperience();
+
+  const { groupOrder } = useGroupOrder();
+
+  const groupOrderForMe =
+    groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
   // Redux store
   const menuStore = useSelector((state: RootState) => state.menuUpdated);
@@ -50,7 +60,7 @@ export const RenderMenuCategoryDishes = () => {
     ? menuItems.filter((dish) => dish.category.id === selectedCategory)
     : menuItems;
 
-  const { unpaidOrders, uncompletedOrders } = useUnpaidUncompleted();
+  const { unpaidOrders } = useUnpaidUncompleted();
   // Cart selectors/helpers
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
@@ -67,8 +77,12 @@ export const RenderMenuCategoryDishes = () => {
     );
 
   const isInOrder = (menuItemId: string) => {
-    console.log("uncompleteOrders", uncompletedOrders);
-    let item = unpaidOrders[0];
+    let item;
+    if (diningPreference.preferredDiningExperience == "personal") {
+      item = unpaidOrders[0];
+    } else {
+      item = groupOrderForMe[0];
+    }
     if (!item) {
       return false;
     }

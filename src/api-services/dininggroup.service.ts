@@ -1,19 +1,27 @@
 /* ================================
    Types
 ================================ */
-
+import { Order } from "./order.service";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
 import { getConfig } from "./utils/reqConfig";
+
+export interface DiningGroupCustomer {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
 
 export interface DiningGroup {
   id: string;
   access_code: string;
   active: boolean;
-  created: string; // ISO date string
-  updated: string; // ISO date string
+  created: string;
+  updated: string;
   created_by: string;
   table: string;
-  customers: string[];
+
+  customers: DiningGroupCustomer[];
+  orders: Order[];
 }
 
 export interface JoinDiningGroupPayload {
@@ -73,6 +81,12 @@ export const joinDiningGroup = async (
   token?: string
 ): Promise<{ message: string }> => {
   const config = getConfig(`/menu/dining-groups/join/`, "POST", token, payload);
+
+  return bookiesAxiosInstance(config);
+};
+
+export const getCurrentGroup = async (token?: string): Promise<DiningGroup> => {
+  const config = getConfig(`/menu/dining-groups/current/`, "GET", token);
 
   return bookiesAxiosInstance(config);
 };

@@ -1,16 +1,9 @@
 import { DollarSign, Users } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
 import { useEffect, useState } from "react";
 import { getMyCurrentBill } from "@/api-services/billsettlement.service";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 type Diner = {
   id: number;
@@ -30,7 +23,6 @@ const MY_TOTAL = 10500;
 const BillSettlement = () => {
   const auth = useAuth();
   const [addedDiners, setAddedDiners] = useState<Diner[]>([]);
-  const [showDialog, setShowDialog] = useState(false);
 
   const toggleDiner = (diner: Diner) => {
     setAddedDiners((prev) =>
@@ -59,179 +51,132 @@ const BillSettlement = () => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
-      {/* Intro */}
-      <p className="text-foreground/60 text-sm">
-        Review your order and choose how you’d like to settle the bill.
-      </p>
+<div className="mx-auto max-w-2xl space-y-12 px-4 py-8">
+  {/* SECTION: INTRO */}
+  <div className="space-y-2 mb-4">
+    <h1 className="text-3xl font-semibold tracking-tighter text-gray-900">Checkout</h1>
+    <p className="text-[15px] leading-relaxed text-gray-400">
+      Review your selection and choose how you’d like to settle the bill.
+    </p>
+  </div>
 
-      {/* Your Order Card */}
-      <div className="rounded-xl bg-white p-4 shadow-sm">
-        {/* Card Header */}
-        <div className="mb-4 flex items-center gap-3">
-          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-white">
-            <DollarSign className="h-4 w-4" />
-          </div>
-          <h3 className="text-foreground text-sm font-semibold">Your Order</h3>
+  {/* SECTION: THE BILL (YOUR ORDER) */}
+  <div className="relative rounded-[0.5rem] border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+    <div className="mb-8 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gray-50 text-gray-900">
+          <DollarSign size={18} strokeWidth={2} />
         </div>
-
-        {/* Items */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Jollof Rice</span>
-            <span className="text-foreground/70">₦3,000 × 2</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>Grilled Chicken</span>
-            <span className="text-foreground/70">₦4,500 × 1</span>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="my-4 h-px bg-gray-100" />
-
-        {/* Charges */}
-        <div className="text-foreground/70 space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span>Subtotal</span>
-            <span>₦10,500</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Tax</span>
-            <span>₦0</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Service charge</span>
-            <span>₦0</span>
-          </div>
-        </div>
-
-        {/* Footer Total */}
-        <div className="text-foreground mt-4 flex justify-between text-sm font-semibold">
-          <span>Total</span>
-          <span>₦10,500</span>
-        </div>
+        <h3 className="text-[15px] font-semibold tracking-tight text-gray-900">Your Summary</h3>
       </div>
-
-      {/* Pay for my bill */}
-      <div className="rounded-xl bg-white p-4 shadow-sm">
-        <button
-          onClick={() => setShowDialog(true)}
-          className="bg-primary hover:bg-primary/90 h-12 w-full rounded-lg text-sm font-medium text-white transition active:scale-95"
-        >
-          Pay for my bill
-        </button>
-        <p className="text-foreground/60 mt-2 text-center text-xs">
-          {billingText}
-        </p>
-      </div>
-
-      {/* Other Diners */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h5 className="text-foreground text-sm font-semibold">
-              Other diners
-            </h5>
-            <p className="text-foreground/60 text-xs">
-              You can choose to cover another diner’s bill or keep payments
-              separate.
-            </p>
-          </div>
-          <Users className="text-foreground/40 h-5 w-5" />
-        </div>
-
-        {OTHER_DINERS.map((diner) => {
-          const isAdded = addedDiners.some((d) => d.id === diner.id);
-
-          return (
-            <div
-              key={diner.id}
-              className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-xs font-medium text-white">
-                  {diner.initials}
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{diner.name}</p>
-                  <p className="text-foreground/60 text-xs">
-                    {diner.items} items ordered
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <p className="text-sm font-medium">
-                  ₦{diner.total.toLocaleString("en-NG")}
-                </p>
-                <button
-                  onClick={() => toggleDiner(diner)}
-                  className={`mt-1 text-xs font-medium ${
-                    isAdded ? "text-green-600" : "text-primary hover:underline"
-                  }`}
-                >
-                  {isAdded ? "Added to my bill" : "Add to my bill"}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Cover Everyone */}
-      <div className="rounded-xl bg-white p-4 shadow-sm">
-        <p className="text-foreground mb-3 text-sm">
-          Feeling generous? You can settle the bill for everyone at once.
-        </p>
-        <button className="border-primary text-primary hover:bg-primary w-full rounded-lg border px-4 py-2 text-sm font-medium transition hover:text-white">
-          I’d like to cover everyone’s bill
-        </button>
-      </div>
-
-      <div className="py-6" />
-
-      {/* Confirm Payment Dialog */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="w-[90%] max-w-[400px] rounded-md">
-          <DialogHeader>
-            <DialogTitle>Confirm payment</DialogTitle>
-            <DialogDescription>
-              You’re about to pay for the following:
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between font-medium">
-              <span>Your order</span>
-              <span>₦{MY_TOTAL.toLocaleString("en-NG")}</span>
-            </div>
-
-            {addedDiners.map((diner) => (
-              <div
-                key={diner.id}
-                className="text-foreground/80 flex justify-between"
-              >
-                <span>{diner.name}</span>
-                <span>₦{diner.total.toLocaleString("en-NG")}</span>
-              </div>
-            ))}
-
-            <div className="flex justify-between border-t pt-2 font-semibold">
-              <span>Total to pay</span>
-              <span>₦{totalToPay.toLocaleString("en-NG")}</span>
-            </div>
-          </div>
-
-          <DialogFooter className="flex flex-col gap-2">
-            <Button>Confirm payment</Button>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <span className="rounded-full bg-blue-50 px-4 py-1.5 text-[13px] font-semibold text-blue-600">
+        Personal
+      </span>
     </div>
+
+    {/* ITEMS LIST */}
+    <div className="space-y-4">
+      <div className="flex justify-between text-[14px]">
+        <span className="text-gray-600">Jollof Rice <span className="ml-2 text-[13px] text-gray-400 font-medium">× 2</span></span>
+        <span className="font-semibold text-gray-900">₦6,000</span>
+      </div>
+      <div className="flex justify-between text-[14px]">
+        <span className="text-gray-600">Grilled Chicken <span className="ml-2 text-[13px] text-gray-400 font-medium">× 1</span></span>
+        <span className="font-semibold text-gray-900">₦4,500</span>
+      </div>
+    </div>
+
+    {/* CHARGES DOCK */}
+    <div className="pt-3 mt-3 space-y-3 border-t border-gray-200">
+      <div className="flex justify-between text-[14px] text-gray-500">
+        <span>Subtotal</span>
+        <span className="font-medium tabular-nums">₦10,500</span>
+      </div>
+      <div className="flex justify-between text-[14px] text-gray-500">
+        <span>Tax & Service</span>
+        <span className="font-medium tabular-nums">₦0</span>
+      </div>
+      <div className="mt-2 border-t border-gray-100 pt-3 flex justify-between text-[16px] font-semibold text-gray-900">
+        <span>Total Due</span>
+        <span className="tracking-tight tabular-nums">₦10,500</span>
+      </div>
+    </div>
+  </div>
+
+  {/* SECTION: OTHER DINERS */}
+  <div className="space-y-6">
+    <div className="flex items-end justify-between px-2">
+      <div className="space-y-1">
+        <h4 className="text-[16px] font-semibold tracking-tight text-gray-900">Other Diners</h4>
+        <p className="text-[14px] text-gray-400">Cover a friend’s bill or keep it separate.</p>
+      </div>
+      <Users size={20} className="mb-1 text-gray-300" />
+    </div>
+
+    <div className="space-y-4">
+      {OTHER_DINERS.map((diner) => {
+        const isAdded = addedDiners.some((d) => d.id === diner.id);
+        return (
+          <div
+            key={diner.id}
+            className={cn(
+              "flex items-center justify-between rounded-[2rem] border p-5 transition-all duration-300",
+              isAdded ? "border-black bg-black text-white shadow-xl shadow-black/10" : "border-gray-100 bg-white"
+            )}
+          >
+            <div className="flex items-center gap-4">
+              <div className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-2xl text-[13px] font-semibold",
+                isAdded ? "bg-white/10 text-white" : "bg-gray-900 text-white"
+              )}>
+                {diner.initials}
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold tracking-tight">{diner.name}</p>
+                <p className={cn("text-[13px]", isAdded ? "text-white/60" : "text-gray-400")}>
+                  {diner.items} items ordered
+                </p>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <p className="text-[15px] font-semibold tabular-nums tracking-tight">
+                ₦{diner.total.toLocaleString("en-NG")}
+              </p>
+              <button
+                onClick={() => toggleDiner(diner)}
+                className={cn(
+                  "mt-1 text-[13px] font-semibold underline-offset-4 hover:underline transition-all",
+                  isAdded ? "text-emerald-400" : "text-blue-600"
+                )}
+              >
+                {isAdded ? "Added to bill" : "Add to bill"}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  {/* SECTION: STICKY FOOTER / ACTION AREA */}
+  <div className="space-y-4 rounded-[2.5rem] bg-gray-50 p-8">
+    <button
+      className="flex h-16 w-full items-center justify-center rounded-[1.5rem] bg-black text-[15px] font-semibold tracking-tight text-white shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
+    >
+      Proceed to Payment • ₦{totalToPay.toLocaleString("en-NG")}
+    </button>
+    
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+       <p className="text-[13px] text-center sm:text-left text-gray-400 leading-tight max-w-[200px]">
+        {billingText}
+      </p>
+      <button className="text-[14px] font-semibold text-gray-900 underline underline-offset-8 transition-opacity hover:opacity-60">
+        Cover everyone’s bill
+      </button>
+    </div>
+  </div>
+</div>
   );
 };
 

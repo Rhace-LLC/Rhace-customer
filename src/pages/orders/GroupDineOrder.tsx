@@ -1,13 +1,13 @@
 import { RootState } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 
-import UserOrder from "./userorder";
 import { useEffect, useState } from "react";
 import { ShareDineDialog } from "./shareDialog";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 
 import {
+  addItemsToOrder,
   createOrder,
   CreateOrderPayload,
   OrderItem,
@@ -18,34 +18,45 @@ import { useLoading } from "@/contexts/LoadingContext";
 import { toast } from "sonner";
 import { parseError } from "@/api-services/utils/parseError";
 import { formatNumberWithDecimals } from "@/utils/utils";
-import { useTableOrder } from "@/hooks/useTableOrder";
-import MyTableOrders from "./myTableOrder";
+
 import { clearCart } from "@/store/orderCart.slice";
+import { useGroupOrder } from "@/hooks/useDineGroupOrder";
+import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+import FullScreenError, {
+  FullScreenLoader,
+  NoCartItem,
+  UnpaidOrderCard,
+  UserCart,
+} from "./components/utils";
 
 const GroupDineOrder = () => {
   const auth = useAuth();
   const dispatch = useDispatch();
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const orderCart = useSelector((state: RootState) => state.orderCart);
-  const selectedRestaurant = useSelector(
-    (state: RootState) => state.selectedRestaurant
-  );
+  const selectedRestaurant = useSelectedRestaurant();
+
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
 
-  const { tableOrder } = useTableOrder();
+  const { groupOrder, fetchGroupOrder, loading, error } = useGroupOrder();
 
-  const tableOrderForMe =
-    tableOrder.orders.filter((x) => x.customer == auth?.user?.id) || [];
+  const iAmAdmin = auth?.user?.id === groupOrder?.created_by;
+  console.log("isAdmin", iAmAdmin);
+  const billGenerated = true;
+  // bill generated is ideally going to be a field. if false.
 
-  const tableOrderForOthers =
-    tableOrder.orders.filter((x) => x.customer !== auth?.user?.id) || [];
-  const groupedOrdersForOthers = tableOrderForOthers.reduce<
+  const groupOrderForMe =
+    groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
+
+  const groupOrderForOthers =
+    groupOrder?.orders?.filter((x) => x.customer !== auth?.user?.id) || [];
+  const groupedOrdersForOthers = groupOrderForOthers.reduce<
     Record<
       string,
       {
         customerName: string;
-        orders: typeof tableOrderForOthers;
+        orders: typeof groupOrderForOthers;
       }
     >
   >((acc, order) => {
@@ -61,12 +72,10 @@ const GroupDineOrder = () => {
   }, {});
 
   const hasCartItems = orderCart.data.length > 0;
-  const hasActiveOrders = tableOrderForMe.length > 0;
-
-  const { fetchTableOrder } = useTableOrder();
+  const hasActiveOrders = groupOrderForMe.length > 0;
 
   useEffect(() => {
-    fetchTableOrder();
+    fetchGroupOrder();
   }, []);
 
   const handleSubmitOrder = async () => {
@@ -100,11 +109,41 @@ const GroupDineOrder = () => {
       toast.info(
         "Order Submitted Successfully, You may now proceed to settle bill"
       );
-      fetchTableOrder();
+
+      fetchGroupOrder();
       dispatch(clearCart());
     } catch (error) {
       const errmsg = parseError(error);
       toast.error(errmsg || "Failed to create order");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateOrder = async () => {
+    const addOrderPayload = orderCart.data.map((x) => {
+      return { menu_item_id: x.dishData.id, quantity: x.quantity };
+    });
+
+    try {
+      setLoading(true);
+      setLoadingText("Updating Order");
+      if (!groupOrderForMe[0]) {
+        toast.error("No pending order found to update.");
+        return;
+      }
+
+      await addItemsToOrder(
+        groupOrderForMe[0]?.id,
+        { items: addOrderPayload },
+        auth.token
+      );
+      fetchGroupOrder();
+      dispatch(clearCart());
+    } catch (error) {
+      const errorMessage = parseError(error);
+      toast.error(errorMessage);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -118,34 +157,73 @@ const GroupDineOrder = () => {
   }, 0);
 
   useEffect(() => {
-    fetchTableOrder();
+    fetchGroupOrder();
   }, []);
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
+
+  if (error) {
+    return <FullScreenError message={error} onRetry={fetchGroupOrder} />;
+  }
+  // Header
+  // No Content UI
+  // Loading Group Order
+  // Load Error UI
+  // Render Cart
+  // Submit Order
+  // Render Order
+  // Update Order
+  // Render Get Bill (If you are the one that created the group)
+  // Render Settle Bill UI
+  // Integrate payment to this.
 
   return (
     <>
-      {orderCart.data.length > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-foreground text-2xl font-bold tracking-tight">
-              Group Dining
-            </h1>
-
-            <p className="text-foreground/60 text">
-              Dining together with others.
-            </p>
+      {(orderCart.data.length > 0 || groupOrderForMe.length > 0) && (
+        <>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-foreground text-2xl font-bold tracking-tight">
+                Group Dining
+              </h1>
+              <p className="text-foreground/60 text">
+                Dining together with others.
+              </p>
+            </div>
+            <button
+              onClick={() => setShareDialogOpen(true)}
+              className="bg-primary/10 text-primary-600 text h-12 cursor-pointer rounded-md px-2 font-medium"
+            >
+              Share Dine Invite
+            </button>
           </div>
-          <button
-            onClick={() => setShareDialogOpen(true)}
-            className="bg-primary/10 text-primary-600 text h-12 cursor-pointer rounded-md px-2 font-medium"
-          >
-            Share Dine Invite
-          </button>
-        </div>
-      )}
-      <MyTableOrders />
-      <UserOrder />
 
-      {(hasCartItems || hasActiveOrders) && (
+          {/* Render user Order */}
+          {groupOrderForMe.length > 0 && (
+            <>
+              {/* Here we show you your order and prompt you to pay, you would also see your cart and if there is any stuff in your cart, you can update the order */}
+              <UnpaidOrderCard data={groupOrderForMe} />
+            </>
+          )}
+
+          {groupOrderForMe.length == 0 && (
+            <>
+              <UserCart />
+              {/* there isnt any unpaid orders and no uncoompleted order, so show the cart and the functionality would be to to submit order*/}
+            </>
+          )}
+        </>
+      )}
+
+      {orderCart.data.length == 0 && groupOrderForMe.length == 0 && (
+        <NoCartItem />
+      )}
+
+      {/* Submit Order*/}
+
+      {hasCartItems && !hasActiveOrders && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
           <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
@@ -153,51 +231,108 @@ const GroupDineOrder = () => {
           <div className="group rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               {/* SUBMIT CART ORDER */}
-              {hasCartItems && (
-                <>
-                  <div className="space-y-1 text-center">
-                    <p className="text-[16px] font-medium tracking-[0.2em] text-gray-400 uppercase">
-                      Your Cart Order Totals To:
-                    </p>
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="font-bold text-gray-900">₦</span>
-                      <span className="text-3xl font-medium tracking-tighter text-gray-900">
-                        {formatNumberWithDecimals(totalPrice)}
-                      </span>
-                    </div>
-                  </div>
 
-                  <button
-                    onClick={handleSubmitOrder}
-                    className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-black px-8 text-[16px] font-semibold tracking-[0.2em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-900 active:scale-95"
-                  >
-                    Submit Order
+              <>
+                <div className="space-y-1 text-center">
+                  <p className="text-[16px] font-medium tracking-[0.2em] text-gray-400 uppercase">
+                    Your Cart Order Totals To:
+                  </p>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="font-bold text-gray-900">₦</span>
+                    <span className="text-3xl font-medium tracking-tighter text-gray-900">
+                      {formatNumberWithDecimals(totalPrice)}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSubmitOrder}
+                  className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-black px-8 text-[16px] font-semibold tracking-[0.2em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-900 active:scale-95"
+                >
+                  Submit Order
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </button>
+              </>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Function*/}
+      {hasCartItems && hasActiveOrders && (
+        <>
+          <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
+            {/* Divider */}
+            <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+            <div className="group rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                {/* SUBMIT CART ORDER */}
+                <button
+                  onClick={handleUpdateOrder}
+                  className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-black px-8 text-[16px] font-semibold tracking-[0.2em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-900 active:scale-95"
+                >
+                  Update Order
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {hasActiveOrders && !hasCartItems && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
+          {/* Divider */}
+          <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+          <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              {/* GET BILL */}
+              {iAmAdmin && !billGenerated && (
+                <div className="flex w-full flex-col gap-3 sm:w-auto">
+                  <p className="text-center text-[11px] font-medium tracking-wide text-gray-400 sm:text-left">
+                    Only get the bill after everyone has finished ordering.
+                    <br className="hidden sm:block" />
+                    This will send the bill to the entire group.
+                  </p>
+
+                  <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-black px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-900 active:scale-95">
+                    Get Bill
                     <ArrowRight
                       size={16}
                       className="transition-transform group-hover:translate-x-1"
                     />
                   </button>
-                </>
+                </div>
               )}
 
-              {/* SETTLE BILL */}
-              {hasActiveOrders && (
-                <Link to="/bill-settlement" className="w-full sm:w-auto">
-                  <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-black px-8 text-[16px] font-semibold tracking-[0.2em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-900 active:scale-95">
-                    Settle Bill
-                    <ArrowRight
-                      size={16}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </button>
-                </Link>
+              {billGenerated && (
+                <>
+                  {/* SETTLE BILL */}
+                  <Link to="/bill-settlement" className="w-full sm:w-auto">
+                    <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95">
+                      Settle Bill
+                      <ArrowRight
+                        size={16}
+                        className="transition-transform group-hover:translate-x-1"
+                      />
+                    </button>
+                  </Link>
+                </>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* --- SECTION HEADER --- */}
+      {/* --- GROUP ORDER OVERVIEW --- */}
       <div className="mt-8 mb-6 flex items-center gap-4">
         <div className="h-px flex-1 bg-gray-100" />
         <p className="text-[16px] font-medium tracking-tight text-gray-400">
@@ -274,6 +409,37 @@ const GroupDineOrder = () => {
             </div>
           );
         })}
+
+        {groupOrderForOthers.length === 0 && (
+          <div className="group animate-in fade-in zoom-in-95 flex flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white p-6 px-6 py-16 text-center shadow-sm transition-all duration-700 hover:shadow-md">
+            {/* Minimalist Graphic Element */}
+            <div className="relative mb-6 flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-gray-50/50 ring-1 ring-gray-100/50 ring-inset">
+              <div className="absolute h-12 w-12 animate-pulse rounded-full bg-blue-50/50" />
+              <Users
+                size={32}
+                strokeWidth={1.5}
+                className="relative text-gray-300"
+              />
+            </div>
+
+            {/* Typography */}
+            <div className="max-w-[240px] space-y-2">
+              <h4 className="text-[16px] font-semibold tracking-[0em] text-gray-600 uppercase">
+                Group Activity
+              </h4>
+              <p className="text-md font-semibold tracking-tight text-gray-900">
+                No other orders yet
+              </p>
+              <p className="text-[12px] leading-relaxed text-gray-400/80">
+                When your friends adds to their orders, they’ll appear here in
+                real-time.
+              </p>
+            </div>
+
+            {/* Subtle Decorative Line */}
+            <div className="mt-10 h-px w-12 bg-gray-100" />
+          </div>
+        )}
       </div>
 
       <ShareDineDialog

@@ -4,6 +4,7 @@ import { parseError } from "@/api-services/utils/parseError";
 import {
   createDiningGroup,
   DiningGroup,
+  getCurrentGroup,
   getDiningGroupsByTable,
   joinDiningGroup,
 } from "@/api-services/dininggroup.service";
@@ -14,19 +15,55 @@ import { useAuth } from "./AuthContext";
 export const useDiningGroup = () => {
   const auth = useAuth();
   const { preferredDiningExperience, shouldPrompt } = useDiningExperience();
-
   const selectedRestaurant = useSelectedRestaurant();
 
   const [groups, setGroups] = useState<DiningGroup[]>([]);
   const [userGroup, setUserGroup] = useState<DiningGroup | null>(null);
-
   const [showDiningGroups, setShowDiningGroups] = useState<boolean>(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
   const isGroupDining = preferredDiningExperience === "group";
+
+  //const [userCurrentGroup, setUserCurrentGroup] = useState<DiningGroup | null>(null);
+  const [userCurrentGroupLoading, setUserCurrentGroupLoading] = useState(false);
+  const [userCurrentGroupError, setUserCurrentGroupError] = useState<
+    string | null
+  >(null);
+
+  const fetchUserCurrentGroup = async () => {
+    if (!auth.token || !isGroupDining) return;
+
+    setUserCurrentGroupLoading(true);
+    setUserCurrentGroupError(null);
+
+    try {
+      const activeGroup = await getCurrentGroup(auth.token);
+      if (activeGroup) {
+        setUserGroup(activeGroup); // user is already in a group
+        setShowDiningGroups(false); // close the dialog automatically
+        toast.info("Your active dining group has been rejoined. Happy dining.");
+      } else {
+        setUserGroup(null); // no active group → user can join or create
+        fetchGroups(); // fetch available groups to join
+      }
+    } catch (err) {
+      const message = parseError(err);
+      if (message == "No DiningGroup matches the given query.") {
+        fetchGroups();
+        return;
+      }
+      setUserCurrentGroupError(message);
+      toast.error(message);
+      throw err;
+    } finally {
+      setUserCurrentGroupLoading(false);
+    }
+  };
 
   const fetchGroups = async () => {
     if (!auth.token || !isGroupDining) return;
@@ -67,9 +104,6 @@ export const useDiningGroup = () => {
     }
   };
 
-  const [joinLoading, setJoinLoading] = useState(false);
-  const [joinError, setJoinError] = useState<string | null>(null);
-
   const joinGroup = async (group: DiningGroup) => {
     const { id: group_id, access_code } = group;
     setJoinLoading(true);
@@ -94,27 +128,26 @@ export const useDiningGroup = () => {
     }
   };
 
+  // Auto-load groups or check current group when user selects "group" dining
   useEffect(() => {
-    // User is in group dining mode but not in any group yet
-    if (isGroupDining && !userGroup) {
-      fetchGroups();
-      return;
-    }
-
-    // User has joined or created a group → close dialog & cleanup
-    if (userGroup) {
-      setGroups([]);
-      setError(null);
-      setShowDiningGroups(false); // 🔑 close DiningGroupView dialog
-      return;
-    }
-
-    // User switched away from group dining
     if (!isGroupDining) {
       setGroups([]);
       setUserGroup(null);
-      setError(null);
       setShowDiningGroups(false);
+      return;
+    }
+
+    if (!userGroup) {
+      // First, check if the user is already in a group
+      fetchUserCurrentGroup();
+      return;
+    }
+
+    // User has a group → close dialog
+    if (userGroup) {
+      setGroups([]);
+      setShowDiningGroups(false);
+      setError(null);
     }
   }, [isGroupDining, userGroup]);
 
@@ -131,19 +164,22 @@ export const useDiningGroup = () => {
   }, [shouldPrompt, preferredDiningExperience]);
 
   return {
+    fetchUserCurrentGroup,
+    refreshGroups: fetchGroups,
+    joinGroup,
+    createGroup,
     isGroupDining,
     groups,
     loading,
     error,
     creating,
-    refreshGroups: fetchGroups,
-    createGroup,
     userGroup,
     setUserGroup,
     showDiningGroups,
     setShowDiningGroups,
     joinError,
     joinLoading,
-    joinGroup,
+    userCurrentGroupError,
+    userCurrentGroupLoading,
   };
 };

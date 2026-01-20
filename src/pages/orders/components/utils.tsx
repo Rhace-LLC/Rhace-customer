@@ -178,28 +178,49 @@ export const CartUpdate = () => {
 export const NoCartItem = () => {
   const navigate = useNavigate();
   return (
-    <>
-      {/* No Existing Order */}
-      <div className="flex min-h-[40vh] flex-col items-center justify-center px-6 text-center">
-        <div className="bg-primary/10 text-primary mb-6 animate-pulse rounded-full p-6 shadow-sm">
-          <ShoppingBag className="h-10 w-10" />
-        </div>
-        <h2 className="mb-2 text-xl font-semibold text-gray-800">
-          You haven’t selected any dish.
+    <div className="animate-in fade-in mb-0 flex min-h-[25vh] flex-col items-center justify-center text-center duration-1000">
+      {/* MINIMALIST ICON CONTAINER */}
+      <div className="relative mb-10 flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-gray-50 ring-1 ring-gray-100 ring-inset">
+        <div className="absolute inset-0 animate-pulse rounded-[2.5rem] bg-gray-100/40" />
+        <ShoppingBag
+          size={32}
+          strokeWidth={1.2}
+          className="relative text-gray-400"
+        />
+      </div>
+
+      {/* TYPOGRAPHY BLOCK */}
+      <div className="max-w-[280px] space-y-3">
+        <h4 className="text-[10px] font-semibold tracking-[0.4em] text-blue-500 uppercase">
+          Empty Cart
+        </h4>
+        <h2 className="text-2xl leading-tight font-semibold tracking-tighter text-gray-900">
+          Your selection <br /> is empty
         </h2>
-        <p className="mb-6 max-w-sm text-sm text-gray-500">
-          Looks like you haven’t added anything yet. Browse our menu to find
-          something delicious to order.
+        <p className="text-[13px] leading-relaxed text-gray-400">
+          Explore our menu to discover curated dishes crafted for your taste
+          buds.
         </p>
+      </div>
+
+      {/* ACTION BUTTON */}
+      <div className="mt-12 w-full max-w-[200px]">
         <button
           onClick={() => navigate("/menu")}
-          className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all active:scale-95"
+          className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-4 text-[11px] font-semibold tracking-[0.2em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
         >
-          Browse Menu
-          <ArrowRight className="h-4 w-4" />
+          Explore Menu
+          <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
         </button>
       </div>
-    </>
+
+      {/* SUBTLE DECORATIVE ELEMENT */}
+      <div className="mt-16 flex gap-1">
+        <div className="h-1 w-1 rounded-full bg-gray-200" />
+        <div className="h-1 w-8 rounded-full bg-gray-100" />
+        <div className="h-1 w-1 rounded-full bg-gray-200" />
+      </div>
+    </div>
   );
 };
 
@@ -450,13 +471,10 @@ export const ActiveOrderView = ({ orders }: ActiveOrderViewProps) => {
 
 import { Clock } from "lucide-react";
 import moment from "moment";
-import { useUnpaidUncompleted } from "../hook/useUnpaidUncompleted";
 
-export const UnpaidOrderCard = () => {
-  const { unpaidOrders } = useUnpaidUncompleted();
+export const UnpaidOrderCard = ({ data }: { data: Order[] }) => {
   const orderCart = useSelector((state: RootState) => state.orderCart);
-  const order = unpaidOrders[0];
-  console.log("order", order, "wholeStore", unpaidOrders);
+  const order = data[0];
 
   const cartItems = orderCart.data || [];
 

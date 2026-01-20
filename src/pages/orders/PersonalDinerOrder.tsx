@@ -159,8 +159,6 @@ const PersonalDineOrder = () => {
     }
   };
 
-  console.log("cancel", cancelUserOrder);
-
   // ✅ Initiate Order Payment
   const initiaiteOrderPayment = async (): Promise<any> => {
     if (!auth.isAuthenticated) {
@@ -279,6 +277,9 @@ const PersonalDineOrder = () => {
           setShowConfirmation(val);
         }}
       />
+      <button className="hidden" onClick={() => cancelUserOrder(3)}>
+        Cancel Order
+      </button>
 
       {uncompletedOrders.length > 0 && (
         <div className="animate-in fade-in slide-in-from-top-2 flex flex-col gap-5 rounded-[1.5rem] border border-blue-100/50 bg-blue-50/40 p-5 duration-500 sm:flex-row sm:items-center sm:justify-between">
@@ -322,6 +323,7 @@ const PersonalDineOrder = () => {
           </Link>
         </div>
       )}
+
       {(orderCart.data.length > 0 || unpaidOrders.length > 0) && (
         <>
           {/* Page Header */}
@@ -339,7 +341,7 @@ const PersonalDineOrder = () => {
       {unpaidOrders.length > 0 && (
         <>
           {/* Here we show you your order and prompt you to pay, you would also see your cart and if there is any stuff in your cart, you can update the order */}
-          <UnpaidOrderCard />
+          <UnpaidOrderCard data={unpaidOrders} />
         </>
       )}
 
