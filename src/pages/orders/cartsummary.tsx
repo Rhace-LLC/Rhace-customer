@@ -21,12 +21,10 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
+  DialogHeader,
 } from "@/components/ui/dialog";
-import { DialogHeader } from "@/components/ui/dialog";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { clearCart } from "@/store/orderCart.slice";
-import { Label } from "@radix-ui/react-label";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 
 const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
@@ -39,10 +37,6 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-
-  const [checkoutForm, setCheckoutForm] = useState({
-    phoneNumber: "",
-  });
 
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
@@ -62,16 +56,6 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       return;
     }
 
-    if (!checkoutForm.phoneNumber) {
-      toast.info("Please add your Phone Number before you checkout");
-      return;
-    }
-
-    if (checkoutForm.phoneNumber.length < 10) {
-      toast.info("Phone Number must be up to 10 characters long");
-      return;
-    }
-
     try {
       setLoading(true);
       setLoadingText("Processing Checkout");
@@ -88,7 +72,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
         }),
         status: "received",
         customer_name: `${auth?.user?.last_name} ${auth?.user?.first_name}`,
-        customer_phone: checkoutForm.phoneNumber,
+        customer_phone: "",
         address: "", // optional
       };
 
@@ -176,7 +160,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
     <div className="mt-10 bg-gray-50">
       {/* Header */}
       <h2 className="mb-4 text-xl font-semibold text-gray-800">
-        Checkout Summary
+        Order Summary
       </h2>
 
       <div className="my-6 border-t border-gray-200"></div>
@@ -217,30 +201,13 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
         </span>
       </div>
 
-      <div className="mt-4 space-y-2">
-        <Label htmlFor="phoneNumber">Phone Number</Label>
-        <Input
-          id="phoneNumber"
-          type="tel"
-          placeholder="Enter your phone number"
-          value={checkoutForm.phoneNumber}
-          onChange={(e) =>
-            setCheckoutForm({
-              ...checkoutForm,
-              phoneNumber: e.target.value,
-            })
-          }
-          className="w-full"
-        />
-      </div>
-
       <Button
         onClick={() => {
           handleCheckout();
         }}
-        className="rounded-11px] mt-4 flex h-11 w-full items-center justify-center gap-2 bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-600 active:scale-95 active:bg-blue-700"
+        className="rounded-11px] bg-primary hover:bg-foreground/50 mt-4 flex h-11 w-full cursor-pointer items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 active:scale-95 active:bg-blue-700"
       >
-        Checkout
+        Submit Order
         <ArrowRight className="h-4 w-4" />
       </Button>
 
@@ -271,7 +238,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
           <iframe
             src={paymentDetails?.authorization_url}
             title="Payment"
-            className="h-[600px] w-full border-0"
+            className="h-[600px] w-full overflow-y-auto border-0"
           ></iframe>
         </DialogContent>
       </Dialog>

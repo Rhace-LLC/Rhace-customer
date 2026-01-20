@@ -8,6 +8,7 @@ import { ToastProvider } from "./contexts/ToastContext";
 import { Toaster } from "sonner";
 import { DiningExperienceProvider } from "./contexts/DiningExperienceContext";
 import { DiningPreferencePrompt } from "./contexts/DiningPromptContext";
+import { DiningGroupView } from "./contexts/GroupDiningView";
 function App() {
   return (
     <>
@@ -18,6 +19,7 @@ function App() {
               <AuthProvider>
                 <DiningExperienceProvider>
                   <DiningPreferencePrompt />
+                  <DiningGroupView />
                   <Navigation />
                 </DiningExperienceProvider>
               </AuthProvider>

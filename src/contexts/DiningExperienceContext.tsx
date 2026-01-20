@@ -1,6 +1,8 @@
+import { sitAtTable } from "@/api-services/menu.service";
 import { RootState } from "@/store/store";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useAuth } from "./AuthContext";
 
 export type DiningExperience = "personal" | "group";
 
@@ -20,28 +22,52 @@ export const DiningExperienceProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const restaurantId = useSelector(
-    (state: RootState) => state.selectedRestaurant.restaurantId
+  const auth = useAuth();
+  const selectedRestaurant = useSelector(
+    (state: RootState) => state.selectedRestaurant
   );
+  const restaurantId = selectedRestaurant.restaurantId;
 
   const [preferredDiningExperience, setPreferredDiningExperience] =
     useState<DiningExperience | null>(null);
 
   const [shouldPrompt, setShouldPrompt] = useState(false);
 
-  // Trigger prompt when QR scan succeeds (restaurantId becomes available)
+  const [hasSeatedUser, setHasSeatedUser] = useState(false);
+
+  const seatUserToTable = async () => {
+    try {
+      await sitAtTable(auth.token, {
+        table_id: selectedRestaurant.tableId || "",
+        access_code: selectedRestaurant.access_code || "",
+      });
+      setHasSeatedUser(true);
+    } catch (err) {
+      // handle error
+    }
+  };
+
   useEffect(() => {
-    if (restaurantId && !preferredDiningExperience) {
+    if (restaurantId && !preferredDiningExperience && auth.isAuthenticated) {
       setShouldPrompt(true);
     }
-  }, [restaurantId, preferredDiningExperience]);
+  }, [restaurantId, preferredDiningExperience, auth]);
+
+  useEffect(() => {
+    if (
+      restaurantId &&
+      preferredDiningExperience === "group" &&
+      !shouldPrompt &&
+      !hasSeatedUser
+    ) {
+      seatUserToTable();
+    }
+  }, [restaurantId, preferredDiningExperience, shouldPrompt, hasSeatedUser]);
 
   const resetDiningExperience = () => {
     setPreferredDiningExperience(null);
     setShouldPrompt(false);
   };
-
-  console.log("shouldPromptInContext", shouldPrompt, preferredDiningExperience);
 
   return (
     <DiningExperienceContext.Provider

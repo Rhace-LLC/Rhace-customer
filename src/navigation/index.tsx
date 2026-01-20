@@ -13,6 +13,8 @@ import { HomePage } from "@/pages/home";
 import { MenuPage } from "@/pages/menu";
 import { NotificationsPage } from "@/pages/notifications";
 import { OrdersPage } from "@/pages/orders";
+import ActiveOrderPage from "@/pages/orders/ActiveOrderPage";
+import { useUnpaidUncompleted } from "@/pages/orders/hook/useUnpaidUncompleted";
 import { PastOrders } from "@/pages/past_orders";
 import { PaymentsPage } from "@/pages/payments";
 import { Profile } from "@/pages/profile";
@@ -75,6 +77,19 @@ function Navigation(): React.JSX.Element {
 }
 
 function NavigationContent() {
+  const {
+    unpaidOrders,
+    uncompletedOrders,
+    getUserUnpaidOrder,
+    getUserActiveOrder,
+  } = useUnpaidUncompleted();
+
+  useEffect(() => {
+    if (uncompletedOrders.length == 0 && unpaidOrders.length == 0) {
+      getUserActiveOrder();
+      getUserUnpaidOrder();
+    }
+  }, []);
   const auth = useAuth();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -102,6 +117,7 @@ function NavigationContent() {
     const restaurantId = searchParams.get("rid");
     const restaurantName = searchParams.get("r");
     const tableNo = searchParams.get("tno") || "";
+    const access_code = searchParams.get("access_code") || "";
 
     // Only dispatch if all required fields exist
     if (tableId && restaurantId && restaurantName) {
@@ -111,6 +127,7 @@ function NavigationContent() {
           restaurantId,
           restaurantName,
           tableNo,
+          access_code,
         })
       );
     }
@@ -124,7 +141,7 @@ function NavigationContent() {
     "/order-history": { tab: "past-orders", title: "My Past Orders" },
     "/reservations": { tab: "reservations", title: "Reservations" },
     "/payments": { tab: "payments", title: "Payments" },
-    "/bill-settlement": {tab: "bills", title: "Bill Summary"},
+    "/bill-settlement": { tab: "bills", title: "Bill Summary" },
     "/notifications": { tab: "notifications", title: "Notifications" },
     "/profile": { tab: "profile", title: "Profile" },
     "/login": { tab: "login", title: "Login" },
@@ -184,14 +201,71 @@ function NavigationContent() {
             <Route path="/verify-email" Component={OtpVerification} />
 
             {/* Protected Routes */}
-            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
             {/* Protected Routes */}
-            <Route path="/menu" element={<MenuPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/order-history" element={<PastOrders />} />
-            <Route path="/bill-settlement" element={<BillSettlement />} />
-            <Route path="/reservations" element={<ReservationsPage />} />
-            <Route path="/all-restaurants" element={<AllRestaurantsView />} />
+            <Route
+              path="/menu"
+              element={
+                <ProtectedRoute>
+                  <MenuPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/active"
+              element={
+                <ProtectedRoute>
+                  <ActiveOrderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/order-history"
+              element={
+                <ProtectedRoute>
+                  <PastOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bill-settlement"
+              element={
+                <ProtectedRoute>
+                  <BillSettlement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reservations"
+              element={
+                <ProtectedRoute>
+                  <ReservationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/all-restaurants"
+              element={
+                <ProtectedRoute>
+                  <AllRestaurantsView />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/view-restaurant/:id"
               element={<RestaurantDetailView />}

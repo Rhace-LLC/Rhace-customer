@@ -17,11 +17,22 @@ import { Button } from "@/components/ui/button";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { useMenuData } from "./useMenuData";
 import { MenuCatFilterItem } from "./MenuCatItem";
+import { useUnpaidUncompleted } from "../orders/hook/useUnpaidUncompleted";
+import { useDiningExperience } from "@/contexts/DiningExperienceContext";
+import { useGroupOrder } from "@/hooks/useDineGroupOrder";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const RenderMenuCategoryDishes = () => {
+  const auth = useAuth();
   const dispatch = useDispatch();
 
   const selectedRestaurant = useSelectedRestaurant();
+  const diningPreference = useDiningExperience();
+
+  const { groupOrder } = useGroupOrder();
+
+  const groupOrderForMe =
+    groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
   // Redux store
   const menuStore = useSelector((state: RootState) => state.menuUpdated);
@@ -49,6 +60,7 @@ export const RenderMenuCategoryDishes = () => {
     ? menuItems.filter((dish) => dish.category.id === selectedCategory)
     : menuItems;
 
+  const { unpaidOrders } = useUnpaidUncompleted();
   // Cart selectors/helpers
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
@@ -64,6 +76,19 @@ export const RenderMenuCategoryDishes = () => {
       (cartItem) => cartItem.dishData.id === dishId && cartItem.added
     );
 
+  const isInOrder = (menuItemId: string) => {
+    let item;
+    if (diningPreference.preferredDiningExperience == "personal") {
+      item = unpaidOrders[0];
+    } else {
+      item = groupOrderForMe[0];
+    }
+    if (!item) {
+      return false;
+    }
+    return item.items.some((item) => item.menu_item_id === menuItemId);
+  };
+
   const handleAddToCart = (dish: any) => {
     dispatch(addToCart(dish));
   };
@@ -73,11 +98,11 @@ export const RenderMenuCategoryDishes = () => {
   console.log("categories", categories);
 
   return (
-    <div className="px-4 pt-5 ">
+    <div className="px-4 pt-5">
       {/* Category filter */}
       {categories.length > 0 && (
-<div className="min-w-0 overflow-x-auto pb-4">
-  <div className="flex flex-wrap justify-center items-center gap-3">
+        <div className="min-w-0 overflow-x-auto pb-4">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {/* All Button */}
             <MenuCatFilterItem
               category={{
@@ -164,6 +189,7 @@ export const RenderMenuCategoryDishes = () => {
                   {/* Quantity Control */}
                   <div className="flex items-center gap-2">
                     <Button
+                      disabled={isInOrder(dish.id)}
                       onClick={() => handleDecrease(dish)}
                       variant="outline"
                       className="h-9 w-8 cursor-pointer rounded-full border border-white/80 bg-transparent text-white transition hover:bg-white/10 active:scale-95"
@@ -174,6 +200,7 @@ export const RenderMenuCategoryDishes = () => {
                       {getDishQuantity(dish.id)}
                     </span>
                     <Button
+                      disabled={isInOrder(dish.id)}
                       onClick={() => handleIncrease(dish)}
                       variant="outline"
                       className="h-9 w-8 cursor-pointer rounded-full border border-white/80 bg-transparent text-white transition hover:bg-white/10 active:scale-95"
@@ -182,15 +209,20 @@ export const RenderMenuCategoryDishes = () => {
                     </Button>
                   </div>
                   <Button
-                    disabled={isInCart(dish.id)}
-                    onClick={() => !isInCart(dish.id) && handleAddToCart(dish)}
+                    disabled={isInCart(dish.id) || isInOrder(dish.id)}
+                    onClick={() =>
+                      !(isInCart(dish.id) || isInOrder(dish.id)) &&
+                      handleAddToCart(dish)
+                    }
                     className={`flex h-10 w-max cursor-pointer items-center justify-center gap-2 rounded-full transition active:scale-95 ${
-                      isInCart(dish.id)
+                      isInCart(dish.id) || isInOrder(dish.id)
                         ? "cursor-not-allowed bg-gray-200 text-gray-700"
                         : "bg-white text-black hover:bg-gray-100"
                     }`}
                   >
-                    {isInCart(dish.id) ? "Added" : "Add To Order"}
+                    {isInCart(dish.id) || isInOrder(dish.id)
+                      ? "Added"
+                      : "Add To Order"}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>

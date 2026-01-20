@@ -3,7 +3,6 @@ import { bookiesAxiosInstance } from "./utils/baseUrl";
 
 export interface InitializePaymentPayload {
   order_id: string;
-  callback_url: string;
 }
 
 export interface PaymentInitializationResponse {
@@ -61,9 +60,16 @@ export interface PaymentHistoryResponse {
 
 // GET /payments/history/
 const getPaymentHistory = async (
-  token?: string
+  token?: string,
+  params?: any
 ): Promise<PaymentHistoryResponse> => {
-  const config = getConfig(`/payments/history/`, "GET", token);
+  const config = getConfig(
+    `/payments/history/`,
+    "GET",
+    token,
+    undefined,
+    params
+  );
   return bookiesAxiosInstance(config);
 };
 

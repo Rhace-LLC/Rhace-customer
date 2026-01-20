@@ -6,6 +6,7 @@ export interface SelectionState {
   restaurantId: string | null;
   restaurantName: string | undefined;
   tableNo: string | undefined;
+  access_code: string | undefined;
 }
 
 const initialState: SelectionState = {
@@ -13,6 +14,7 @@ const initialState: SelectionState = {
   tableNo: undefined,
   restaurantId: null,
   restaurantName: undefined,
+  access_code: undefined,
 };
 
 const selectionSlice = createSlice({
@@ -26,12 +28,14 @@ const selectionSlice = createSlice({
         restaurantId: string;
         restaurantName: string;
         tableNo: string;
+        access_code: string;
       }>
     ) => {
       state.tableId = action.payload.tableId;
       state.restaurantId = action.payload.restaurantId;
       state.restaurantName = action.payload.restaurantName;
       state.tableNo = action.payload.tableNo;
+      state.access_code = action.payload.access_code;
     },
 
     clearSelection: (state) => {

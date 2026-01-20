@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { MenuDishData } from "@/api-services/menu.service";
+import { Order } from "@/api-services/order.service";
 
 export interface CategoryData {
   id: number;
@@ -21,10 +22,12 @@ export interface CartItemData {
 
 interface CartItemState {
   data: CartItemData[];
+  activeOrder: Order[] | null;
 }
 
 const initialState: CartItemState = {
   data: [],
+  activeOrder: null,
 };
 
 const CartItemSlice = createSlice({
@@ -91,6 +94,9 @@ const CartItemSlice = createSlice({
     clearCart: (state) => {
       state.data = [];
     },
+    setActiveOrder: (state, action: PayloadAction<Order[]>) => {
+      state.activeOrder = action.payload;
+    },
   },
 });
 
@@ -100,6 +106,7 @@ export const {
   increaseQuantity,
   reduceQuantity,
   clearCart,
+  setActiveOrder,
 } = CartItemSlice.actions;
 
 export default CartItemSlice.reducer;

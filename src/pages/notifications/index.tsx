@@ -17,9 +17,6 @@ export function NotificationsPage() {
 
   const dataStore = useSelector((state: RootState) => state.notifications);
   const allData = dataStore.data;
-  const totalItems = dataStore.total;
-
-  const total_pages = Math.ceil(totalItems / page_size);
 
   // Hook for fetching notifications
   const {
@@ -136,7 +133,7 @@ export function NotificationsPage() {
         {/* Pagination */}
         <Pagination
           currentPage={page}
-          totalPages={total_pages}
+          totalPages={page + 1}
           onPageChange={(p) => setPage(p)}
         />
       </div>

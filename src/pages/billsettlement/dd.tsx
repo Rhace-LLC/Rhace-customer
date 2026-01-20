@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { DollarSign, Users } from "lucide-react"
+import { useState } from "react";
+import { DollarSign, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -7,59 +7,59 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type Diner = {
-  id: number
-  name: string
-  initials: string
-  items: number
-  total: number
-}
+  id: number;
+  name: string;
+  initials: string;
+  items: number;
+  total: number;
+};
 
 const OTHER_DINERS: Diner[] = [
   { id: 1, name: "John Doe", initials: "JD", items: 3, total: 7200 },
   { id: 2, name: "Mary Obi", initials: "MO", items: 3, total: 7200 },
   { id: 3, name: "Kemi Ade", initials: "KA", items: 3, total: 7200 },
-]
+];
 
-const MY_TOTAL = 10500
+const MY_TOTAL = 10500;
 
 const BillSettlement = () => {
-  const [addedDiners, setAddedDiners] = useState<Diner[]>([])
-  const [showDialog, setShowDialog] = useState(false)
+  const [addedDiners, setAddedDiners] = useState<Diner[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
 
   const toggleDiner = (diner: Diner) => {
-    setAddedDiners(prev =>
-      prev.some(d => d.id === diner.id)
-        ? prev.filter(d => d.id !== diner.id)
+    setAddedDiners((prev) =>
+      prev.some((d) => d.id === diner.id)
+        ? prev.filter((d) => d.id !== diner.id)
         : [...prev, diner]
-    )
-  }
+    );
+  };
 
   const totalToPay =
-    MY_TOTAL + addedDiners.reduce((sum, d) => sum + d.total, 0)
+    MY_TOTAL + addedDiners.reduce((sum, d) => sum + d.total, 0);
 
   const billingText =
     addedDiners.length === 0
       ? "You’ll only be charged for what you ordered."
       : `You’ll be billed for yourself and ${addedDiners
-          .map(d => d.name)
-          .join(", ")}.`
+          .map((d) => d.name)
+          .join(", ")}.`;
 
   return (
     <>
       <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
         {/* Intro */}
-        <p className="text-sm text-foreground/60">
+        <p className="text-foreground/60 text-sm">
           Review your order and choose how you’d like to settle the bill.
         </p>
 
         {/* Your Order */}
         <div className="rounded-xl bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white">
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-white">
               <DollarSign className="h-4 w-4" />
             </div>
             <h3 className="text-sm font-semibold">Your Order</h3>
@@ -75,11 +75,11 @@ const BillSettlement = () => {
         <div className="rounded-xl bg-white p-4 shadow-sm">
           <button
             onClick={() => setShowDialog(true)}
-            className="h-12 w-full rounded-lg bg-primary text-sm font-medium text-white transition hover:bg-primary/90 active:scale-95"
+            className="bg-primary hover:bg-primary/90 h-12 w-full rounded-lg text-sm font-medium text-white transition active:scale-95"
           >
             Pay for my bill
           </button>
-          <p className="mt-2 text-center text-xs text-foreground/60">
+          <p className="text-foreground/60 mt-2 text-center text-xs">
             {billingText}
           </p>
         </div>
@@ -89,16 +89,16 @@ const BillSettlement = () => {
           <div className="flex items-center justify-between">
             <div>
               <h5 className="text-sm font-semibold">Other diners</h5>
-              <p className="text-xs text-foreground/60">
+              <p className="text-foreground/60 text-xs">
                 You can choose to cover another diner’s bill or keep payments
                 separate.
               </p>
             </div>
-            <Users className="h-5 w-5 text-foreground/40" />
+            <Users className="text-foreground/40 h-5 w-5" />
           </div>
 
-          {OTHER_DINERS.map(diner => {
-            const isAdded = addedDiners.some(d => d.id === diner.id)
+          {OTHER_DINERS.map((diner) => {
+            const isAdded = addedDiners.some((d) => d.id === diner.id);
 
             return (
               <div
@@ -111,7 +111,7 @@ const BillSettlement = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium">{diner.name}</p>
-                    <p className="text-xs text-foreground/60">
+                    <p className="text-foreground/60 text-xs">
                       {diner.items} items ordered
                     </p>
                   </div>
@@ -133,7 +133,7 @@ const BillSettlement = () => {
                   </button>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -156,17 +156,17 @@ const BillSettlement = () => {
               <span>₦{MY_TOTAL.toLocaleString("en-NG")}</span>
             </div>
 
-            {addedDiners.map(diner => (
+            {addedDiners.map((diner) => (
               <div
                 key={diner.id}
-                className="flex justify-between text-foreground/80"
+                className="text-foreground/80 flex justify-between"
               >
                 <span>{diner.name}</span>
                 <span>₦{diner.total.toLocaleString("en-NG")}</span>
               </div>
             ))}
 
-            <div className="pt-2 border-t flex justify-between font-semibold">
+            <div className="flex justify-between border-t pt-2 font-semibold">
               <span>Total to pay</span>
               <span>₦{totalToPay.toLocaleString("en-NG")}</span>
             </div>
@@ -181,7 +181,7 @@ const BillSettlement = () => {
         </DialogContent>
       </Dialog>
     </>
-  )
-}
+  );
+};
 
-export default BillSettlement
+export default BillSettlement;

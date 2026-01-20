@@ -67,6 +67,7 @@ export function HomePage() {
       const tableNo = url.searchParams.get("tno") || "";
       const restaurantId = url.searchParams.get("rid") || "";
       const restaurantName = url.searchParams.get("r") || "";
+      const access_code = url.searchParams.get("r") || "";
 
       // Only dispatch if values exist
       if (tableId && restaurantId && restaurantName) {
@@ -76,6 +77,7 @@ export function HomePage() {
             restaurantId,
             restaurantName,
             tableNo,
+            access_code,
           })
         );
         return {
