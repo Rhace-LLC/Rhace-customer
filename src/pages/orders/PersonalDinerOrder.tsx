@@ -226,6 +226,7 @@ const PersonalDineOrder = () => {
       toast.info("Payment not complete. Please try again.");
     }
   };
+
   useEffect(() => {
     if (uncompletedOrders.length == 0 && unpaidOrders.length == 0) {
       getUserActiveOrder();

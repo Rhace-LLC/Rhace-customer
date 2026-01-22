@@ -26,7 +26,6 @@ interface BillSplitterModalProps {
   onSubmit: (data: BillSubmission) => void;
 }
 
-
 export interface DiningGroupCustomer {
   id: string;
   first_name: string;
@@ -39,7 +38,7 @@ export interface BillSubmission {
 
 interface Allocation {
   customer_id: string;
-  amount: number;
+  amount_to_pay: number;
 }
 
 export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
@@ -63,8 +62,12 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
   // LOGIC PRESERVED: initialize allocations
   useEffect(() => {
     if (open) {
-      const initial = customers.map((c) => ({ customer_id: c.id, amount: 0 }));
-      if (initial.length > 0) initial[initial.length - 1].amount = totalAmount;
+      const initial = customers.map((c) => ({
+        customer_id: c.id,
+        amount_to_pay: 0,
+      }));
+      if (initial.length > 0)
+        initial[initial.length - 1].amount_to_pay = totalAmount;
       setAllocations(initial);
       setError(null);
     }
@@ -77,14 +80,17 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
 
     setAllocations((prev) => {
       const updated = prev.map((a) =>
-        a.customer_id === customer_id ? { ...a, amount: num } : a
+        a.customer_id === customer_id ? { ...a, amount_to_pay: num } : a
       );
       const lastIndex = updated.length - 1;
       if (lastIndex >= 0) {
         const sumExcludingLast = updated
           .slice(0, lastIndex)
-          .reduce((acc, a) => acc + a.amount, 0);
-        updated[lastIndex].amount = Math.max(totalAmount - sumExcludingLast, 0);
+          .reduce((acc, a) => acc + a.amount_to_pay, 0);
+        updated[lastIndex].amount_to_pay = Math.max(
+          totalAmount - sumExcludingLast,
+          0
+        );
       }
       return updated;
     });
@@ -92,7 +98,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
 
   // LOGIC PRESERVED: submit
   const handleSubmit = () => {
-    const sum = allocations.reduce((acc, a) => acc + a.amount, 0);
+    const sum = allocations.reduce((acc, a) => acc + a.amount_to_pay, 0);
     if (Math.round(sum * 100) / 100 !== Math.round(totalAmount * 100) / 100) {
       setError(
         `Total allocated amount must equal ${totalAmount.toFixed(2)}. Current sum: ${sum.toFixed(
@@ -101,7 +107,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
       );
       return;
     }
-    const payload: BillSubmission = {split_amounts: allocations}
+    const payload: BillSubmission = { split_amounts: allocations };
     setError(null);
     onSubmit(payload);
     onOpenChange(false);
@@ -178,7 +184,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
                 <p className="text-[14px] font-semibold tracking-[0.2em] text-blue-500 uppercase">
                   Bill Allocation
                 </p>
-                <DialogTitle className="w-full text-md leading-tight font-semibold tracking-tighter text-gray-900">
+                <DialogTitle className="text-md w-full leading-tight font-semibold tracking-tighter text-gray-900">
                   Assign payment <br /> for each member
                 </DialogTitle>
               </DialogHeader>
@@ -239,7 +245,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
                                   customers.length > 1 &&
                                   "cursor-not-allowed border-transparent bg-gray-100/50 text-gray-500"
                               )}
-                              value={String(alloc?.amount) || 0}
+                              value={String(alloc?.amount_to_pay) || 0}
                               onChange={(e) =>
                                 handleChange(customer.id, e.target.value)
                               }

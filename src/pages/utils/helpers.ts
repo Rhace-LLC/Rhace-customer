@@ -1,3 +1,4 @@
+import { SplitRecord } from "@/api-services/billsettlement.service";
 import { Order, OrderStatus } from "@/api-services/order.service";
 
 export const formatCurrency = (value: string) =>
@@ -33,4 +34,11 @@ export const getOrderStatusText = (status: OrderStatus) => {
     default:
       return "We’ll update you about your order status shortly.";
   }
+};
+
+export const getCustomerSplitRecord = (
+  splits: SplitRecord[],
+  customerId: string
+): SplitRecord | undefined => {
+  return splits.find((split) => split.customer === customerId);
 };

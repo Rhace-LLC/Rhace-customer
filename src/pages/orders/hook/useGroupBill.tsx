@@ -2,6 +2,7 @@ import {
   Bill,
   getDiningGroupBillSummary,
 } from "@/api-services/billsettlement.service";
+import { parseError } from "@/api-services/utils/parseError";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
 import { useState, useCallback } from "react"; // adjust your import
@@ -27,8 +28,8 @@ export const useGroupBill = () => {
       setGroupBillResponse(response.bill);
       setGroupBillLoading(false);
     } catch (error: any) {
-      console.error("Error fetching group bill:", error);
-      setGroupBillError(error?.message || "Something went wrong");
+      const errorMessage = parseError(error);
+      setGroupBillError(errorMessage || "Something went wrong");
       setGroupBillLoading(false);
     }
   }, [groupOrder, auth.token]);
