@@ -217,5 +217,5 @@ export const DiningGroupView = () => {
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
