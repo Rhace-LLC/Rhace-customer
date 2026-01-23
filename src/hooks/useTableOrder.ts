@@ -1,15 +1,18 @@
 import { getTableOrder } from "@/api-services/order.service";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSetupContext } from "@/contexts/SetupContext";
 import { RootState } from "@/store/store";
 import { setTableOrder } from "@/store/table_order.slice";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+
 import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export const useTableOrder = () => {
   const dispatch = useDispatch();
   const { token } = useAuth();
-  const selectedRestaurant = useSelectedRestaurant();
+
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
 
   const tableOrder = useSelector((state: RootState) => state.table_order);
 

@@ -21,30 +21,43 @@ import { formatNumberWithDecimals } from "@/utils/utils";
 
 import { clearCart } from "@/store/orderCart.slice";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import FullScreenError, {
   FullScreenLoader,
   NoCartItem,
   UnpaidOrderCard,
   UserCart,
 } from "./components/utils";
+import { GetBillConfirmation } from "./components/BillSettlementModal";
+import {
+  requestDiningGroupBill,
+  submitSplitAmounts,
+} from "@/api-services/billsettlement.service";
+import { useGroupBill } from "./hook/useGroupBill";
+import {
+  BillSplitterModal,
+  BillSubmission,
+} from "./components/AllocationModal";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 const GroupDineOrder = () => {
   const auth = useAuth();
   const dispatch = useDispatch();
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [showAllocationModal, setShowAllocationModal] = useState(false);
   const orderCart = useSelector((state: RootState) => state.orderCart);
-  const selectedRestaurant = useSelectedRestaurant();
+
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
+
+  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
+    useGroupBill();
 
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
 
   const { groupOrder, fetchGroupOrder, loading, error } = useGroupOrder();
 
-  const iAmAdmin = auth?.user?.id === groupOrder?.created_by;
-  console.log("isAdmin", iAmAdmin);
-  const billGenerated = true;
-  // bill generated is ideally going to be a field. if false.
+  const notYetProcessedBillSplit = groupBill?.split_records?.length == 0;
 
   const groupOrderForMe =
     groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
@@ -74,8 +87,18 @@ const GroupDineOrder = () => {
   const hasCartItems = orderCart.data.length > 0;
   const hasActiveOrders = groupOrderForMe.length > 0;
 
+  const iAmAdmin = auth?.user?.id === groupOrder?.created_by;
+  const billGenerated = !!groupBill;
+  const isBillPending =
+    groupBillError === "Field error: No bill found for this dining group";
+
+  useEffect(() => {
+    fetchGroupBill();
+  }, [fetchGroupBill]);
+
   useEffect(() => {
     fetchGroupOrder();
+    fetchGroupBill();
   }, []);
 
   const handleSubmitOrder = async () => {
@@ -92,7 +115,7 @@ const GroupDineOrder = () => {
       const payload: CreateOrderPayload = {
         customer_id: auth?.user?.id || "", // adjust as needed
         order_type: "dine-in", // or "takeaway", etc.
-        table_id: selectedRestaurant.tableId,
+        table_id: selectedRestaurant?.tableId,
         items: orderCart.data.map((cartItem) => {
           return {
             menu_item_id: cartItem.dishData.id,
@@ -146,6 +169,52 @@ const GroupDineOrder = () => {
       throw error;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const [openGetBillModal, setOpenGetBillModal] = useState(false);
+
+  const handleProceedGetBill = async (option: "individual" | "split") => {
+    if (!groupOrder?.id || !auth.token) return;
+
+    try {
+      setLoading(true);
+      setLoadingText("Getting bill...");
+
+      await requestDiningGroupBill(groupOrder.id, option, auth.token);
+
+      // optional: close modal here if needed
+      if (option == "split") {
+        setShowAllocationModal(true);
+      } else {
+        fetchGroupBill();
+      }
+    } catch (error: any) {
+      const errorMessage = parseError(error);
+      // optional: show toast / notification
+      toast.error(errorMessage || "Unable to get bill. Please try again.");
+    } finally {
+      setLoading(false);
+      setLoadingText("");
+    }
+  };
+
+  const handleSubmitBillSplit = async (data: BillSubmission) => {
+    try {
+      setLoading(true);
+      setLoadingText("Allocating user bills...");
+
+      await submitSplitAmounts(groupOrder?.id || "", data, auth.token);
+      fetchGroupBill();
+      setShowAllocationModal(false);
+    } catch (error: any) {
+      const errorMessage = parseError(error);
+      toast.error(
+        errorMessage || "Unable to allocate bills bill. Please try again."
+      );
+    } finally {
+      setLoading(false);
+      setLoadingText("");
     }
   };
 
@@ -287,6 +356,7 @@ const GroupDineOrder = () => {
         </>
       )}
 
+      {/* Updated Function Area*/}
       {hasActiveOrders && !hasCartItems && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
@@ -294,37 +364,128 @@ const GroupDineOrder = () => {
 
           <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              {/* GET BILL */}
-              {iAmAdmin && !billGenerated && (
-                <div className="flex w-full flex-col gap-3 sm:w-auto">
-                  <p className="text-center text-[11px] font-medium tracking-wide text-gray-400 sm:text-left">
-                    Only get the bill after everyone has finished ordering.
-                    <br className="hidden sm:block" />
-                    This will send the bill to the entire group.
-                  </p>
-
-                  <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-black px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-900 active:scale-95">
-                    Get Bill
-                    <ArrowRight
-                      size={16}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </button>
+              {/* --------- Loading / Error State --------- */}
+              {groupBillLoading && (
+                <div className="flex w-full items-center justify-center gap-3 py-4">
+                  <span className="text-gray-500">Loading bill...</span>
                 </div>
               )}
 
-              {billGenerated && (
+              {groupBillError && (
                 <>
-                  {/* SETTLE BILL */}
-                  <Link to="/bill-settlement" className="w-full sm:w-auto">
-                    <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95">
+                  {!isBillPending ? (
+                    <>
+                      {/* Normal Error */}
+                      <div className="flex w-full flex-col items-center justify-center gap-3 py-4">
+                        <p className="text-center text-[14px] font-medium text-red-500">
+                          Unable to load group bill.
+                        </p>
+
+                        <button
+                          onClick={fetchGroupBill}
+                          className="w-full rounded-2xl bg-black px-6 py-3 text-[13px] font-semibold text-white uppercase shadow transition-all hover:bg-gray-900 active:scale-95"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {iAmAdmin ? (
+                        <>
+                          <button
+                            onClick={() => {
+                              if (billGenerated && notYetProcessedBillSplit) {
+                                setShowAllocationModal(true);
+                                return;
+                              }
+                              setOpenGetBillModal(true);
+                            }}
+                            className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto"
+                          >
+                            Get Bill
+                            <ArrowRight
+                              size={16}
+                              className="transition-transform group-hover:translate-x-1"
+                            />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex w-full flex-col items-center justify-center gap-3 py-4">
+                            <p className="text-center text-[14px] font-medium text-gray-500">
+                              The group bill hasn’t been generated yet.
+                            </p>
+
+                            <button
+                              onClick={fetchGroupBill}
+                              className="w-full cursor-pointer rounded-2xl bg-gray-900 px-6 py-3 text-[13px] font-semibold text-white uppercase shadow transition-all hover:bg-black active:scale-95"
+                            >
+                              Check again
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {!groupBillLoading && !groupBillError && (
+                <>
+                  {iAmAdmin ? (
+                    <>
+                      {!billGenerated || notYetProcessedBillSplit ? (
+                        // Admin sees Get Bill button if bill hasn't been generated
+                        <button
+                          onClick={() => {
+                            if (
+                              billGenerated &&
+                              groupBill?.payment_method == "split" &&
+                              notYetProcessedBillSplit
+                            ) {
+                              setShowAllocationModal(true);
+                              return;
+                            }
+                            setOpenGetBillModal(true);
+                          }}
+                          className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto"
+                        >
+                          Get Bill
+                          <ArrowRight
+                            size={16}
+                            className="transition-transform group-hover:translate-x-1"
+                          />
+                        </button>
+                      ) : (
+                        // Admin sees Settle Bill only after bill generated
+                        <Link
+                          to="/bill-settlement"
+                          className="w-full sm:w-auto"
+                        >
+                          <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto">
+                            Settle Bill
+                            <ArrowRight
+                              size={16}
+                              className="transition-transform group-hover:translate-x-1"
+                            />
+                          </button>
+                        </Link>
+                      )}
+                    </>
+                  ) : (
+                    // Non-admin users always see Settle Bill
+                    <button
+                      onClick={() => navigate("/bill-settlement")}
+                      className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto"
+                    >
                       Settle Bill
                       <ArrowRight
                         size={16}
                         className="transition-transform group-hover:translate-x-1"
                       />
                     </button>
-                  </Link>
+                  )}
                 </>
               )}
             </div>
@@ -445,6 +606,18 @@ const GroupDineOrder = () => {
       <ShareDineDialog
         open={shareDialogOpen}
         onOpenChange={setShareDialogOpen}
+      />
+      <GetBillConfirmation
+        open={openGetBillModal}
+        onOpenChange={setOpenGetBillModal}
+        onProceed={handleProceedGetBill}
+      />
+      <BillSplitterModal
+        open={showAllocationModal}
+        onOpenChange={setShowAllocationModal}
+        onSubmit={(data) => {
+          handleSubmitBillSplit(data);
+        }}
       />
     </>
   );

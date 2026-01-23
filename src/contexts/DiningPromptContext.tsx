@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useDiningExperience } from "@/contexts/DiningExperienceContext";
 import { Users, User } from "lucide-react";
+import { useSetupContext } from "./SetupContext";
 
 export function DiningPreferencePrompt() {
   const {
@@ -16,7 +16,7 @@ export function DiningPreferencePrompt() {
     setPreferredDiningExperience,
     shouldPrompt,
     setShouldPrompt,
-  } = useDiningExperience();
+  } = useSetupContext();
 
   return (
     <Dialog open={shouldPrompt}>

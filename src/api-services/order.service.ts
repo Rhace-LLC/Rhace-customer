@@ -92,6 +92,7 @@ export interface Order {
   customer: string;
   customer_name_display: string;
   restaurant_name: string;
+  restaurant_id: string;
   paid_by: string | null;
   paid_by_name: string | null;
   group: string | null;

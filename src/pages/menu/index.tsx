@@ -1,26 +1,27 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
-import { setSelection } from "@/store/restaurant_selection.slice";
 import { Button } from "@/components/ui/button";
 import { QrCode, ScanLine } from "lucide-react";
 import { QRScanDialog } from "@/components/dialogs/QRScanDialog";
 import { toast } from "sonner";
 import { RenderMenuCategoryDishes } from "./rendermenu";
+import { useSetupContext } from "@/contexts/SetupContext";
+import { useParseSelection } from "@/hooks/useParseSelection";
 
 export function MenuPage() {
   const [isQRScanOpen, setIsQRScanOpen] = useState(false);
+  const { parseAndSetSelection } = useParseSelection();
   const handleQRScan = () => setIsQRScanOpen(true);
-  const dispatch = useDispatch();
-  const selectedRestaurant = useSelectedRestaurant();
-  const shouldProceed = !selectedRestaurant.restaurantId;
+
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
+
+  const shouldProceed = !selectedRestaurant?.restaurantId;
 
   const handleScanSuccess = (data: string) => {
     try {
-      const parsed = parseAndDispatchSelection(data);
-
-      if (parsed && parsed.tableId) {
-        toast.success(`Welcome! You're now seated at Table ${parsed.tableId}`);
+      const parsed = parseAndSetSelection(data);
+      if (parsed && parsed.tableNo) {
+        toast.success(`Welcome! You're now seated at Table ${parsed.tableNo}`);
       } else {
         toast.error("Invalid QR — table information missing.");
       }
@@ -34,40 +35,6 @@ export function MenuPage() {
   const handleDialogClose = () => {
     setIsQRScanOpen(false);
   };
-
-  function parseAndDispatchSelection(fullUrl: string) {
-    try {
-      const url = new URL(fullUrl);
-      const tableId = url.searchParams.get("tid") || "";
-      const tableNo = url.searchParams.get("tno") || "";
-      const restaurantId = url.searchParams.get("rid") || "";
-      const restaurantName = url.searchParams.get("r") || "";
-      const access_code = url.searchParams.get("accessCode") || "";
-
-      if (tableId && restaurantId && restaurantName) {
-        dispatch(
-          setSelection({
-            tableId,
-            restaurantId,
-            restaurantName,
-            tableNo,
-            access_code,
-          })
-        );
-
-        return {
-          tableId,
-          restaurantId,
-          restaurantName,
-        };
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Invalid URL:", error);
-      return null;
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -90,28 +57,54 @@ export function MenuPage() {
 
 function ScanRequiredUI({ onScan }: { onScan: () => void }) {
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center bg-white px-6 text-center">
-      <div className="bg-foreground-50 mb-6 animate-pulse rounded-full p-10">
-        <ScanLine className="text-foreground-600 h-15 w-15" />
+    <div className="animate-in fade-in flex min-h-[70vh] flex-col items-center justify-center bg-white px-8 text-center duration-1000">
+      {/* BREATHING ICON ARCHITECTURE */}
+      <div className="relative mb-12 flex h-32 w-32 items-center justify-center">
+        {/* Subtle breathing rings */}
+        <div className="absolute inset-0 animate-ping rounded-full bg-blue-50/50 [animation-duration:3s]" />
+        <div className="absolute inset-4 rounded-full bg-blue-50/80" />
+
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-2xl ring-1 shadow-blue-200/50 ring-blue-100">
+          <ScanLine className="h-10 w-10 text-blue-600" strokeWidth={1.5} />
+        </div>
       </div>
 
-      <h2 className="mb-3 text-[18px] font-bold text-gray-800">
-        Scan Your Table QR Code
-      </h2>
+      {/* TEXT ARCHITECTURE */}
+      <div className="space-y-4 px-2">
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-[12px] font-bold tracking-[0.3em] text-blue-500/80 uppercase">
+            Scan Table QR
+          </span>
+          <h2 className="text-3xl font-bold tracking-[-0.04em] text-gray-900">
+            Scan to access Menu
+          </h2>
+        </div>
 
-      <p className="mb-8 max-w-sm text-gray-600">
-        To access this restaurant’s menu, please scan the QR code on your table.
-        This helps us identify your table and provide a smooth ordering
-        experience.
-      </p>
+        <p className="mx-auto max-w-[300px] text-[15px] leading-relaxed font-medium text-gray-400">
+          Please scan the QR code located on your table to unlock the menu and
+          start your experience.
+        </p>
+      </div>
 
-      <Button
-        onClick={onScan}
-        className="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-full px-5 py-2.5 text-white shadow-md transition-all active:scale-95"
-      >
-        <QrCode className="h-5 w-5" />
-        Scan QR to Continue
-      </Button>
+      {/* ACTION ARCHITECTURE */}
+      <div className="mt-12 w-full max-w-[280px]">
+        <Button
+          onClick={onScan}
+          className="group relative h-16 w-full overflow-hidden rounded-[2rem] bg-black text-[15px] font-bold tracking-tight text-white shadow-2xl shadow-black/20 transition-all hover:bg-gray-900 active:scale-[0.97]"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <QrCode className="h-5 w-5 opacity-50 transition-transform group-hover:scale-110" />
+            <span>Open Table Scanner</span>
+          </div>
+
+          {/* Subtle light sweep effect on hover */}
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+        </Button>
+
+        <p className="mt-6 text-[12px] font-bold tracking-widest text-gray-300 uppercase">
+          Step 1 of 2
+        </p>
+      </div>
     </div>
   );
 }

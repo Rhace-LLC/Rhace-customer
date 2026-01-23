@@ -2,6 +2,10 @@ import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { DiningPreferencePrompt } from "@/contexts/DiningPromptContext";
+import { DiningGroupView } from "@/contexts/GroupDiningView";
+import { SetupProvider } from "@/contexts/SetupContext";
+
 import NotFound from "@/pages/404";
 import ForgotPassword from "@/pages/auth/forgotpassword";
 import Login from "@/pages/auth/login";
@@ -9,11 +13,13 @@ import ResetPassword from "@/pages/auth/resetpassword";
 import Signup from "@/pages/auth/signup";
 import OtpVerification from "@/pages/auth/verifyaccount";
 import BillSettlement from "@/pages/billsettlement";
+
 import { HomePage } from "@/pages/home";
 import { MenuPage } from "@/pages/menu";
 import { NotificationsPage } from "@/pages/notifications";
 import { OrdersPage } from "@/pages/orders";
 import ActiveOrderPage from "@/pages/orders/ActiveOrderPage";
+import { FullScreenLoader } from "@/pages/orders/components/utils";
 import { useUnpaidUncompleted } from "@/pages/orders/hook/useUnpaidUncompleted";
 import { PastOrders } from "@/pages/past_orders";
 import { PaymentsPage } from "@/pages/payments";
@@ -21,11 +27,8 @@ import { Profile } from "@/pages/profile";
 import { ReservationsPage } from "@/pages/reservations";
 import { AllRestaurantsView } from "@/pages/reservations/AllRestaurantView";
 import { RestaurantDetailView } from "@/pages/reservations/RestaurantDetailView";
-import { setSelection } from "@/store/restaurant_selection.slice";
-import { RootState } from "@/store/store";
 import React, { useEffect, useState, useRef } from "react";
 
-import { useDispatch, useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
   Route,
@@ -56,7 +59,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [auth.isAuthenticated]);
 
   if (auth.loading) {
-    return <div className="p-8 text-center">Loading Session...</div>;
+    return <FullScreenLoader />;
   }
 
   if (!auth.isAuthenticated) {
@@ -71,7 +74,11 @@ function Navigation(): React.JSX.Element {
   return (
     <Router>
       <ScrollToTop />
-      <NavigationContent />
+      <SetupProvider>
+        <DiningPreferencePrompt />
+        <DiningGroupView />
+        <NavigationContent />
+      </SetupProvider>
     </Router>
   );
 }
@@ -90,6 +97,7 @@ function NavigationContent() {
       getUserUnpaidOrder();
     }
   }, []);
+
   const auth = useAuth();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -98,40 +106,6 @@ function NavigationContent() {
   const [activeTab, setActiveTab] = useState("home");
   const [title, setTitle] = useState("");
   const location = useLocation();
-  const dispatch = useDispatch();
-
-  const selectedRestaurant = useSelector(
-    (state: RootState) => state.selectedRestaurant
-  );
-
-  useEffect(() => {
-    // Ensure only runs on base route "/"
-    if (location.pathname !== "/") return;
-
-    // If Redux store already has data, don't override it
-    if (selectedRestaurant.restaurantId) return;
-
-    const searchParams = new URLSearchParams(location.search);
-
-    const tableId = searchParams.get("tid");
-    const restaurantId = searchParams.get("rid");
-    const restaurantName = searchParams.get("r");
-    const tableNo = searchParams.get("tno") || "";
-    const access_code = searchParams.get("access_code") || "";
-
-    // Only dispatch if all required fields exist
-    if (tableId && restaurantId && restaurantName) {
-      dispatch(
-        setSelection({
-          tableId,
-          restaurantId,
-          restaurantName,
-          tableNo,
-          access_code,
-        })
-      );
-    }
-  }, [location, dispatch, selectedRestaurant]);
 
   // Map pathname to tab key and title
   const pathToTab: Record<string, { tab: string; title: string }> = {
@@ -164,7 +138,7 @@ function NavigationContent() {
     if (auth.isAuthenticated && location.pathname === "/login") {
       navigate("/");
     }
-  }, [auth.isAuthenticated, location.pathname, navigate]);
+  }, [auth.isAuthenticated, location.pathname]);
 
   const hideHeaderAndNav = [
     "/login",

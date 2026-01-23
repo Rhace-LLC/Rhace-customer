@@ -22,6 +22,7 @@ export interface DiningGroup {
 
   customers: DiningGroupCustomer[];
   orders: Order[];
+  orders_completed: boolean;
 }
 
 export interface JoinDiningGroupPayload {

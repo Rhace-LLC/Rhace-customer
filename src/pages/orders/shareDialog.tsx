@@ -8,8 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 interface ShareDineDialogProps {
   open: boolean;
@@ -17,17 +16,14 @@ interface ShareDineDialogProps {
 }
 
 export function ShareDineDialog({ open, onOpenChange }: ShareDineDialogProps) {
-  const selectedRestaurant = useSelector(
-    (state: RootState) => state.selectedRestaurant
-  );
+  const { selectedRestaurant } = useSetupContext();
 
-  const tableId = selectedRestaurant.tableId;
-  const access_code = selectedRestaurant.access_code;
-  const restaurantId = selectedRestaurant.restaurantId;
+  const tableId = selectedRestaurant?.tableId;
+  const restaurantId = selectedRestaurant?.restaurantId;
 
   const [copied, setCopied] = useState(false);
 
-  const inviteLink = `https://bookies-customer.onrender.com?tid=${tableId}&rid=${restaurantId}&r=${selectedRestaurant.restaurantName}&tno=${selectedRestaurant.tableNo}&access_code=${access_code}`;
+  const inviteLink = `https://bookies-customer.onrender.com?tid=${tableId}&rid=${restaurantId}&r=${selectedRestaurant?.restaurantName}&tno=${selectedRestaurant?.tableNo}`;
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(inviteLink);
@@ -57,12 +53,8 @@ export function ShareDineDialog({ open, onOpenChange }: ShareDineDialogProps) {
             <p>
               <span className="font-medium text-gray-500">Table No:</span>{" "}
               <span className="font-semibold">
-                {selectedRestaurant.tableNo}
+                {selectedRestaurant?.tableNo}
               </span>
-            </p>
-            <p>
-              <span className="font-medium text-gray-500">Access Code:</span>{" "}
-              <span className="font-semibold">{access_code}</span>
             </p>
           </div>
 

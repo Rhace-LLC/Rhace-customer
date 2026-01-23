@@ -1,3 +1,4 @@
+import { Bill, SplitRecord } from "@/api-services/billsettlement.service";
 import { Order, OrderStatus } from "@/api-services/order.service";
 
 export const formatCurrency = (value: string) =>
@@ -33,4 +34,58 @@ export const getOrderStatusText = (status: OrderStatus) => {
     default:
       return "We’ll update you about your order status shortly.";
   }
+};
+
+export const getCustomerSplitRecord = (
+  splits: SplitRecord[],
+  customerId: string
+): SplitRecord | undefined => {
+  return splits.find((split) => split.customer === customerId);
+};
+
+export const getMyIndividualBillBreakdown = (
+  customerId: string,
+  bill: Bill | null
+) => {
+  if (!bill) {
+    return null;
+  }
+  // 1️⃣ My orders
+  const myOrders = bill.orders.filter((order) => order.customer === customerId);
+
+  const myOrderIds = myOrders.map((o) => o.id);
+
+  // 2️⃣ My bill total
+  const myBillTotal = myOrders.reduce(
+    (sum, order) => sum + Number(order.total_price),
+    0
+  );
+
+  // 3️⃣ Who paid for ANY of my orders?
+  const paymentThatPaidForMe =
+    bill.individual_payments.find((payment) =>
+      payment.paying_for_orders.some((orderId) => myOrderIds.includes(orderId))
+    ) || null;
+
+  // 4️⃣ Payment status
+  const myBillPaymentStatus: "paid" | "pending" = paymentThatPaidForMe?.is_paid
+    ? "paid"
+    : "pending";
+
+  // 5️⃣ Who paid?
+  let paidBy: "me" | string | null = null;
+
+  if (paymentThatPaidForMe) {
+    paidBy =
+      paymentThatPaidForMe.customer === customerId
+        ? "me"
+        : paymentThatPaidForMe.customer;
+  }
+
+  return {
+    myBillTotal,
+    myBillPaymentStatus,
+    paidBy,
+    paidByData: paymentThatPaidForMe,
+  };
 };

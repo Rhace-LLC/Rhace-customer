@@ -1,15 +1,13 @@
-import { useDiningExperience } from "@/contexts/DiningExperienceContext";
 import PersonalDineOrder from "./PersonalDinerOrder";
 import GroupDineOrder from "./GroupDineOrder";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 export function OrdersPage() {
-  const dinePreference = useDiningExperience();
-
+  const { preferredDiningExperience } = useSetupContext();
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="space-y-5 p-4 pt-8">
-        {dinePreference.preferredDiningExperience == "group" &&
-        !!dinePreference.preferredDiningExperience ? (
+        {preferredDiningExperience == "group" && !!preferredDiningExperience ? (
           <GroupDineOrder />
         ) : (
           <PersonalDineOrder />
