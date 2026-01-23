@@ -40,6 +40,7 @@ import {
 import { useSetupContext } from "@/contexts/SetupContext";
 
 import {
+  calculateOrderTotal,
   formatCurrency,
   getCustomerSplitRecord,
   getMyIndividualBillBreakdown,
@@ -106,10 +107,14 @@ const GroupDineOrder = () => {
     auth?.user?.id || ""
   );
 
-   const MY_INDIVIDUAL_BILL = getMyIndividualBillBreakdown(
+  const MY_INDIVIDUAL_BILL = getMyIndividualBillBreakdown(
     auth?.user?.id || "",
     groupBill
   );
+
+  const MY_TOTAL = groupOrderForMe.reduce((sum, order) => {
+    return sum + calculateOrderTotal(order);
+  }, 0);
 
   useEffect(() => {
     if (groupBill) return;
@@ -422,9 +427,14 @@ const GroupDineOrder = () => {
 
                     {MY_INDIVIDUAL_BILL.paidByData?.paying_for_orders.length! >
                       1 && (
-                      <p className="mt-2 text-[13px] opacity-80">
-                        You also covered other diners’ orders. Thank you 🙏
-                      </p>
+                      <>
+                        <p className="mt-2 text-[13px] opacity-80">
+                          You also covered other diners’ orders. Thank you 🙏
+                        </p>
+                        <p className="mt-2 text-[13px] opacity-80">
+                          Total Paid: {MY_INDIVIDUAL_BILL.myBillTotal}
+                        </p>
+                      </>
                     )}
                   </div>
                 )}
@@ -442,6 +452,10 @@ const GroupDineOrder = () => {
 
                     <p className="mt-1 text-[16px] font-semibold">
                       Your bill was paid for you
+                    </p>
+
+                    <p className="mt-1 text-[16px] font-semibold">
+                      Total : {MY_TOTAL}
                     </p>
 
                     <p className="mt-2 text-[13px] opacity-80">
@@ -567,7 +581,10 @@ const GroupDineOrder = () => {
                           className="w-full sm:w-auto"
                         >
                           <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto">
-                            {MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.paidBy ? "View" : "Settle"} Bill
+                            {MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.paidBy
+                              ? "View"
+                              : "Settle"}{" "}
+                            Bill
                             <ArrowRight
                               size={16}
                               className="transition-transform group-hover:translate-x-1"
@@ -582,7 +599,10 @@ const GroupDineOrder = () => {
                       onClick={() => navigate("/bill-settlement")}
                       className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto"
                     >
-                      {MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.paidBy ? "View" : "Settle"} Bill
+                      {MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.paidBy
+                        ? "View"
+                        : "Settle"}{" "}
+                      Bill
                       <ArrowRight
                         size={16}
                         className="transition-transform group-hover:translate-x-1"

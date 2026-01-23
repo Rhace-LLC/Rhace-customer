@@ -24,6 +24,7 @@ export const DiningGroupView = () => {
     userCurrentGroupLoading,
     fetchUserCurrentGroup,
     creating,
+    refreshGroups,
   } = useDiningGroup();
 
   if (!isGroupDining || !!userGroup) return null;
@@ -93,6 +94,13 @@ export const DiningGroupView = () => {
                     No active groups found at this table. Start a new session to
                     dine with others.
                   </p>
+                  <button
+                    onClick={refreshGroups}
+                    className="hover:bg-red mt-5 inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full bg-blue-900 px-8 text-[10px] font-semibold tracking-[0.2em] text-white uppercase shadow-sm transition-all active:scale-95"
+                  >
+                    <RotateCw size={12} className="text-white/70" />
+                    Search Again
+                  </button>
                 </div>
               ) : (
                 <div className="custom-scrollbar max-h-[50vh] space-y-4 overflow-y-auto pr-2">

@@ -5,9 +5,16 @@ import {
   getOrderStatusText,
 } from "../utils/helpers";
 import { OrderStatusBadge } from "./components/utils";
+import { useEffect } from "react";
 
 const ActiveOrderPage = () => {
-  const { uncompletedOrders } = useUnpaidUncompleted();
+  const { uncompletedOrders, getUserActiveOrder } = useUnpaidUncompleted();
+
+  useEffect(()=>{
+    if(uncompletedOrders.length == 0){
+      getUserActiveOrder()
+    }
+  },[])
 
   return (
     <div className="mx-auto max-w-3xl space-y-12 p-6 py-12">
