@@ -23,9 +23,10 @@ import {
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+
 import { clearCart } from "@/store/orderCart.slice";
 import { useNavigate } from "react-router-dom";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
   OnCreateOrder,
@@ -33,7 +34,9 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
   const auth = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const selectedRestaurant = useSelectedRestaurant();
+
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
@@ -63,7 +66,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       const payload: CreateOrderPayload = {
         customer_id: auth?.user?.id || "", // adjust as needed
         order_type: "dine-in", // or "takeaway", etc.
-        table_id: selectedRestaurant.tableId,
+        table_id: selectedRestaurant?.tableId,
         items: orderCart.data.map((cartItem) => {
           return {
             menu_item_id: cartItem.dishData.id,

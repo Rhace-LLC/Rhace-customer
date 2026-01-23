@@ -16,8 +16,7 @@ interface ShareDineDialogProps {
 }
 
 export function ShareDineDialog({ open, onOpenChange }: ShareDineDialogProps) {
-
-    const {selectedRestaurant} = useSetupContext()
+  const { selectedRestaurant } = useSetupContext();
 
   const tableId = selectedRestaurant?.tableId;
   const restaurantId = selectedRestaurant?.restaurantId;

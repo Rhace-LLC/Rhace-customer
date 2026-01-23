@@ -14,6 +14,7 @@ export function MenuPage() {
 
   const setup = useSetupContext();
   const selectedRestaurant = setup.selectedRestaurant;
+
   const shouldProceed = !selectedRestaurant?.restaurantId;
 
   const handleScanSuccess = (data: string) => {

@@ -21,7 +21,6 @@ import { formatNumberWithDecimals } from "@/utils/utils";
 
 import { clearCart } from "@/store/orderCart.slice";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import FullScreenError, {
   FullScreenLoader,
   NoCartItem,
@@ -38,6 +37,7 @@ import {
   BillSplitterModal,
   BillSubmission,
 } from "./components/AllocationModal";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 const GroupDineOrder = () => {
   const auth = useAuth();
@@ -45,7 +45,9 @@ const GroupDineOrder = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [showAllocationModal, setShowAllocationModal] = useState(false);
   const orderCart = useSelector((state: RootState) => state.orderCart);
-  const selectedRestaurant = useSelectedRestaurant();
+
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
 
   const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
     useGroupBill();
@@ -113,7 +115,7 @@ const GroupDineOrder = () => {
       const payload: CreateOrderPayload = {
         customer_id: auth?.user?.id || "", // adjust as needed
         order_type: "dine-in", // or "takeaway", etc.
-        table_id: selectedRestaurant.tableId,
+        table_id: selectedRestaurant?.tableId,
         items: orderCart.data.map((cartItem) => {
           return {
             menu_item_id: cartItem.dishData.id,

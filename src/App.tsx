@@ -14,7 +14,7 @@ function App() {
           <ToastProvider>
             <LoadingProvider>
               <AuthProvider>
-                  <Navigation />
+                <Navigation />
               </AuthProvider>
             </LoadingProvider>
           </ToastProvider>

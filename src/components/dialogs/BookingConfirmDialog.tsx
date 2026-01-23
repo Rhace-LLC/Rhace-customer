@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { ReservationForm } from "@/pages/reservations/createReservation";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 interface BookingConfirmDialogProps {
   reservation: ReservationForm;
@@ -20,7 +20,8 @@ export function BookingConfirmDialog({
 }: BookingConfirmDialogProps) {
   if (!reservation) return null;
 
-  const selectedRestaurant = useSelectedRestaurant();
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -32,7 +33,7 @@ export function BookingConfirmDialog({
         <div className="space-y-4">
           <div className="rounded-lg bg-gray-50 p-4 text-center">
             <h3 className="mb-2 text-lg font-medium">
-              Restaurant Venue - {selectedRestaurant.restaurantName}
+              Restaurant Venue - {selectedRestaurant?.restaurantName}
             </h3>
             <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
               <MapPin className="h-4 w-4" />

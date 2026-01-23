@@ -38,6 +38,7 @@ import {
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { useSetupContext } from "@/contexts/SetupContext";
 
 const PersonalDineOrder = () => {
   const navigate = useNavigate();
@@ -49,9 +50,8 @@ const PersonalDineOrder = () => {
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
-  const selectedRestaurant = useSelector(
-    (state: RootState) => state.selectedRestaurant
-  );
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
 
   const orderCart = useSelector((state: RootState) => state.orderCart);
 
@@ -88,7 +88,7 @@ const PersonalDineOrder = () => {
       const payload: CreateOrderPayload = {
         customer_id: auth?.user?.id || "", // adjust as needed
         order_type: "dine-in", // or "takeaway", etc.
-        table_id: selectedRestaurant.tableId,
+        table_id: selectedRestaurant?.tableId,
         items: orderCart.data.map((cartItem) => {
           return {
             menu_item_id: cartItem.dishData.id,

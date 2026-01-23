@@ -188,7 +188,6 @@ export const SetupProvider: React.FC<Props> = ({ children }) => {
     };
   }, [unpaidOrders]);
 
-
   const resetDiningExperience = () => {
     setPreferredDiningExperience(null);
     setShouldPrompt(false);
@@ -205,12 +204,17 @@ export const SetupProvider: React.FC<Props> = ({ children }) => {
   }, [smartResumeData]);
   // Prompt user to pick dining experience if no unpaid orders exist
   useEffect(() => {
-    if (selectedRestaurant?.restaurantId && selectedRestaurant.tableId && unpaidOrdersHasLoaded && unpaidOrders.length === 0) {
+    if (
+      selectedRestaurant?.restaurantId &&
+      selectedRestaurant.tableId &&
+      unpaidOrdersHasLoaded &&
+      unpaidOrders.length === 0
+    ) {
       setShouldPrompt(true);
     } else {
       setShouldPrompt(false); // auto-hide if unpaid order exists
     }
-  }, [unpaidOrdersHasLoaded, unpaidOrders.length,selectedRestaurant]);
+  }, [unpaidOrdersHasLoaded, unpaidOrders.length, selectedRestaurant]);
 
   const value: SetupContextState = {
     activeOrders,

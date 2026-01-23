@@ -8,14 +8,15 @@ import {
   getDiningGroupsByTable,
   joinDiningGroup,
 } from "@/api-services/dininggroup.service";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
 import { useAuth } from "./AuthContext";
 import { useSetupContext } from "./SetupContext";
 
 export const useDiningGroup = () => {
   const auth = useAuth();
-  const { preferredDiningExperience, shouldPrompt } = useSetupContext();
-  const selectedRestaurant = useSelectedRestaurant();
+  const setup = useSetupContext();
+  const { preferredDiningExperience, shouldPrompt } = setup;
+
+  const selectedRestaurant = setup.selectedRestaurant;
 
   const [groups, setGroups] = useState<DiningGroup[]>([]);
   const [userGroup, setUserGroup] = useState<DiningGroup | null>(null);
@@ -91,7 +92,7 @@ export const useDiningGroup = () => {
     setCreating(true);
     try {
       const response = await createDiningGroup(
-        { table: selectedRestaurant.tableId || "" },
+        { table: selectedRestaurant?.tableId || "" },
         auth.token
       );
       setUserGroup(response);

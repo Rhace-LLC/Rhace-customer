@@ -1,16 +1,17 @@
 import { getActiveOrder, Order } from "@/api-services/order.service";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSetupContext } from "@/contexts/SetupContext";
 import { setActiveOrder } from "@/store/orderCart.slice";
 import { RootState } from "@/store/store";
-import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
+
 import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export const useActiveOrder = () => {
   const dispatch = useDispatch();
   const { token } = useAuth();
-
-  const selectedRestaurant = useSelectedRestaurant();
+  const setup = useSetupContext();
+  const selectedRestaurant = setup.selectedRestaurant;
 
   let activeOrder = useSelector(
     (state: RootState) => state.orderCart.activeOrder
@@ -19,7 +20,7 @@ export const useActiveOrder = () => {
   activeOrder =
     activeOrder && activeOrder.length > 0
       ? activeOrder?.filter(
-          (x) => x.restaurant_name === selectedRestaurant.restaurantName
+          (x) => x.restaurant_name === selectedRestaurant?.restaurantName
         )
       : [];
 

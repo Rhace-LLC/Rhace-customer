@@ -75,7 +75,7 @@ function Navigation(): React.JSX.Element {
     <Router>
       <ScrollToTop />
       <SetupProvider>
-        <DiningPreferencePrompt />        
+        <DiningPreferencePrompt />
         <DiningGroupView />
         <NavigationContent />
       </SetupProvider>
