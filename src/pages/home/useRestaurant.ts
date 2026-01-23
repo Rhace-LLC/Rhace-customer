@@ -14,10 +14,9 @@ export const useRestaurant = () => {
 
   const restaurantId = setup.selectedRestaurant?.restaurantId;
 
-  const restaurant = useSelector((state: RootState) =>{
-   return  restaurantId ? (state.restaurant[restaurantId] ?? null) : null
-  }
-  );
+  const restaurant = useSelector((state: RootState) => {
+    return restaurantId ? (state.restaurant[restaurantId] ?? null) : null;
+  });
 
   const [loading, setLoading] = useState(false);
 

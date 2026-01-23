@@ -59,7 +59,7 @@ const BillSettlement = () => {
     auth?.user?.id || "",
     groupBill
   );
-  console.log("my individualbill", MY_INDIVIDUAL_BILL);
+
   /*  
   const GROUP_TOTAL = (groupOrder?.orders || []).reduce((sum, order) => {
     return sum + calculateOrderTotal(order);

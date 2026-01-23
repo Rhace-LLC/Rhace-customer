@@ -38,6 +38,11 @@ import {
   BillSubmission,
 } from "./components/AllocationModal";
 import { useSetupContext } from "@/contexts/SetupContext";
+import {
+  formatCurrency,
+  getCustomerSplitRecord,
+  getMyIndividualBillBreakdown,
+} from "../utils/helpers";
 
 const GroupDineOrder = () => {
   const auth = useAuth();
@@ -56,8 +61,6 @@ const GroupDineOrder = () => {
   const navigate = useNavigate();
 
   const { groupOrder, fetchGroupOrder, loading, error } = useGroupOrder();
-
-  const notYetProcessedBillSplit = groupBill?.split_records?.length == 0;
 
   const groupOrderForMe =
     groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
@@ -84,6 +87,9 @@ const GroupDineOrder = () => {
     return acc;
   }, {});
 
+  const notYetProcessedBillSplit =
+    groupBill?.payment_method === "split" &&
+    groupBill?.split_records?.length == 0;
   const hasCartItems = orderCart.data.length > 0;
   const hasActiveOrders = groupOrderForMe.length > 0;
 
@@ -92,22 +98,33 @@ const GroupDineOrder = () => {
   const isBillPending =
     groupBillError === "Field error: No bill found for this dining group";
 
+  const isBillSplitting = groupBill?.payment_method == "split";
+
+  const MY_SPLIT = getCustomerSplitRecord(
+    groupBill?.split_records || [],
+    auth?.user?.id || ""
+  );
+
+   const MY_INDIVIDUAL_BILL = getMyIndividualBillBreakdown(
+    auth?.user?.id || "",
+    groupBill
+  );
+
   useEffect(() => {
+    if (groupBill) return;
     fetchGroupBill();
   }, [fetchGroupBill]);
 
   useEffect(() => {
-    fetchGroupOrder();
-    fetchGroupBill();
-  }, []);
+    if (!groupBill) {
+      fetchGroupBill();
+    }
+    if (!groupOrder) {
+      fetchGroupOrder();
+    }
+  }, [groupBill, groupOrder]);
 
   const handleSubmitOrder = async () => {
-    if (!auth.isAuthenticated) {
-      toast.info("You need to be logged in to checkout");
-      navigate(`/login?next=orders`);
-      return;
-    }
-
     try {
       setLoading(true);
       setLoadingText("Submitting Order");
@@ -355,7 +372,88 @@ const GroupDineOrder = () => {
           </div>
         </>
       )}
+      <div className="w-full space-y-4">
+        {/* ─────────────────────────────── */}
+        {/* SPLIT BILL — PAID */}
+        {/* ─────────────────────────────── */}
+        {isBillSplitting && MY_SPLIT?.is_paid && (
+          <>
+            <div className="flex items-center justify-center gap-2 py-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <p className="text-[13px] font-bold tracking-[0.2em] text-emerald-600 uppercase">
+                Payment Confirmed
+              </p>
+            </div>
 
+            <div className="flex h-20 w-full items-center justify-between rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 text-emerald-700">
+              <div>
+                <p className="text-[12px] font-bold tracking-[0.15em] uppercase opacity-70">
+                  Transaction
+                </p>
+                <p className="text-[16px] font-bold">Order Settled</p>
+              </div>
+
+              <p className="text-[18px] font-extrabold">
+                {formatCurrency(MY_SPLIT.amount_to_pay)}
+              </p>
+            </div>
+          </>
+        )}
+
+        {groupBill &&
+          MY_INDIVIDUAL_BILL &&
+          groupBill.payment_method === "individual" && (
+            <div className="w-full space-y-4">
+              {/* ─────────────────────────────── */}
+              {/* PAYMENT PENDING — SHOW PAY CTA */}
+              {/* ─────────────────────────────── */}
+
+              {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "paid" &&
+                MY_INDIVIDUAL_BILL.paidBy === "me" && (
+                  <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
+                    <p className="text-[13px] font-bold tracking-[0.15em] uppercase">
+                      Payment Complete
+                    </p>
+
+                    <p className="mt-1 text-[16px] font-semibold">
+                      You’ve paid for your bill
+                    </p>
+
+                    {MY_INDIVIDUAL_BILL.paidByData?.paying_for_orders.length! >
+                      1 && (
+                      <p className="mt-2 text-[13px] opacity-80">
+                        You also covered other diners’ orders. Thank you 🙏
+                      </p>
+                    )}
+                  </div>
+                )}
+
+              {/* ─────────────────────────────── */}
+              {/* PAID BY SOMEONE ELSE */}
+              {/* ─────────────────────────────── */}
+              {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "paid" &&
+                MY_INDIVIDUAL_BILL.paidBy !== "me" &&
+                MY_INDIVIDUAL_BILL.paidByData && (
+                  <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
+                    <p className="text-[13px] font-bold tracking-[0.15em] uppercase">
+                      Payment Complete
+                    </p>
+
+                    <p className="mt-1 text-[16px] font-semibold">
+                      Your bill was paid for you
+                    </p>
+
+                    <p className="mt-2 text-[13px] opacity-80">
+                      Paid by{" "}
+                      <span className="font-medium">
+                        {MY_INDIVIDUAL_BILL.paidByData.customer_name}
+                      </span>
+                    </p>
+                  </div>
+                )}
+            </div>
+          )}
+      </div>
       {/* Updated Function Area*/}
       {hasActiveOrders && !hasCartItems && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
@@ -395,7 +493,11 @@ const GroupDineOrder = () => {
                         <>
                           <button
                             onClick={() => {
-                              if (billGenerated && notYetProcessedBillSplit) {
+                              if (
+                                billGenerated &&
+                                groupBill.payment_method === "split" &&
+                                notYetProcessedBillSplit
+                              ) {
                                 setShowAllocationModal(true);
                                 return;
                               }
@@ -464,7 +566,7 @@ const GroupDineOrder = () => {
                           className="w-full sm:w-auto"
                         >
                           <button className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto">
-                            Settle Bill
+                            {MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.paidBy ? "View" : "Settle"} Bill
                             <ArrowRight
                               size={16}
                               className="transition-transform group-hover:translate-x-1"
@@ -479,7 +581,7 @@ const GroupDineOrder = () => {
                       onClick={() => navigate("/bill-settlement")}
                       className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 text-[14px] font-semibold tracking-[0.25em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-black active:scale-95 sm:w-auto"
                     >
-                      Settle Bill
+                      {MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.paidBy ? "View" : "Settle"} Bill
                       <ArrowRight
                         size={16}
                         className="transition-transform group-hover:translate-x-1"

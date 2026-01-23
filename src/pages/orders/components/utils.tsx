@@ -471,6 +471,7 @@ export const ActiveOrderView = ({ orders }: ActiveOrderViewProps) => {
 
 import { Clock } from "lucide-react";
 import moment from "moment";
+import { cn } from "@/lib/utils";
 
 export const UnpaidOrderCard = ({ data }: { data: Order[] }) => {
   const orderCart = useSelector((state: RootState) => state.orderCart);
@@ -508,10 +509,23 @@ export const UnpaidOrderCard = ({ data }: { data: Order[] }) => {
             <span className="text-[14px] font-medium tracking-[0.2em] text-gray-400 uppercase">
               ID: #{order.id}
             </span>
-            <div className="mb-1 flex w-max items-center gap-2 rounded-full bg-amber-50/50 px-4 py-2 ring-1 ring-amber-100/50 ring-inset">
+            <div className="mb-1 flex w-max items-center gap-2 rounded-full">
               <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
-              <span className="text-[11px] font-semibold tracking-widest text-amber-700 uppercase">
-                Payment pending
+              <span
+                className={cn(
+                  "text-[12px] font-bold tracking-[0.15em] uppercase",
+                  {
+                    pending: "text-amber-600",
+                    paid: "text-emerald-600",
+                    failed: "text-rose-600",
+                  }[order.payment] || "text-gray-400"
+                )}
+              >
+                {order.payment === "paid"
+                  ? "Payment Confirmed"
+                  : order.payment === "failed"
+                    ? "Payment Failed"
+                    : "Payment Pending"}
               </span>
             </div>
           </div>
