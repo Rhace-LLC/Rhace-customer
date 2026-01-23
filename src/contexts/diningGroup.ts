@@ -9,12 +9,12 @@ import {
   joinDiningGroup,
 } from "@/api-services/dininggroup.service";
 import { useSelectedRestaurant } from "@/store/useSelectedRestaurant";
-import { useDiningExperience } from "./DiningExperienceContext";
 import { useAuth } from "./AuthContext";
+import { useSetupContext } from "./SetupContext";
 
 export const useDiningGroup = () => {
   const auth = useAuth();
-  const { preferredDiningExperience, shouldPrompt } = useDiningExperience();
+  const { preferredDiningExperience, shouldPrompt } = useSetupContext();
   const selectedRestaurant = useSelectedRestaurant();
 
   const [groups, setGroups] = useState<DiningGroup[]>([]);

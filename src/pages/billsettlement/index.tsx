@@ -9,6 +9,7 @@ import {
   calculateOrderTotal,
   formatCurrency,
   getCustomerSplitRecord,
+  getMyIndividualBillBreakdown,
 } from "../utils/helpers";
 import {
   initiateDiningGroupPayment,
@@ -38,7 +39,6 @@ const BillSettlement = () => {
   const { groupOrder } = useGroupOrder();
 
   const isBillSplitting = groupBill?.payment_method == "split";
-  console.log("paymentDetails", paymentDetails);
 
   const groupOrderForMe =
     groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
@@ -50,12 +50,16 @@ const BillSettlement = () => {
     groupBill?.split_records || [],
     auth?.user?.id || ""
   );
-  console.log("my split", MY_SPLIT);
 
   const MY_TOTAL = groupOrderForMe.reduce((sum, order) => {
     return sum + calculateOrderTotal(order);
   }, 0);
 
+  const MY_INDIVIDUAL_BILL = getMyIndividualBillBreakdown(
+    auth?.user?.id || "",
+    groupBill
+  );
+  console.log("my individualbill", MY_INDIVIDUAL_BILL);
   /*  
   const GROUP_TOTAL = (groupOrder?.orders || []).reduce((sum, order) => {
     return sum + calculateOrderTotal(order);
@@ -320,14 +324,67 @@ const BillSettlement = () => {
           </>
         )}
 
-        {!isBillSplitting && (
-          <button
-            onClick={initiaiteOrderPayment}
-            className="flex h-16 w-full items-center justify-center rounded-[1.5rem] bg-black text-[15px] font-semibold tracking-tight text-white shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
-          >
-            Proceed to Payment • <>₦ {MY_TOTAL.toLocaleString("en-NG")}</>
-          </button>
-        )}
+        {groupBill &&
+          MY_INDIVIDUAL_BILL &&
+          groupBill.payment_method === "individual" && (
+            <div className="w-full space-y-4">
+              {/* ─────────────────────────────── */}
+              {/* PAYMENT PENDING — SHOW PAY CTA */}
+              {/* ─────────────────────────────── */}
+              {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "pending" && (
+                <button
+                  onClick={initiaiteOrderPayment}
+                  className="flex h-16 w-full items-center justify-center rounded-[1.5rem] bg-black text-[15px] font-semibold tracking-tight text-white shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
+                >
+                  Proceed to Payment • <>₦ {MY_TOTAL.toLocaleString("en-NG")}</>
+                </button>
+              )}
+
+              {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "paid" &&
+                MY_INDIVIDUAL_BILL.paidBy === "me" && (
+                  <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
+                    <p className="text-[13px] font-bold tracking-[0.15em] uppercase">
+                      Payment Complete
+                    </p>
+
+                    <p className="mt-1 text-[16px] font-semibold">
+                      You’ve paid for your bill
+                    </p>
+
+                    {MY_INDIVIDUAL_BILL.paidByData?.paying_for_orders.length! >
+                      1 && (
+                      <p className="mt-2 text-[13px] opacity-80">
+                        You also covered other diners’ orders. Thank you 🙏
+                      </p>
+                    )}
+                  </div>
+                )}
+
+              {/* ─────────────────────────────── */}
+              {/* PAID BY SOMEONE ELSE */}
+              {/* ─────────────────────────────── */}
+              {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "paid" &&
+                MY_INDIVIDUAL_BILL.paidBy !== "me" &&
+                MY_INDIVIDUAL_BILL.paidByData && (
+                  <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
+                    <p className="text-[13px] font-bold tracking-[0.15em] uppercase">
+                      Payment Complete
+                    </p>
+
+                    <p className="mt-1 text-[16px] font-semibold">
+                      Your bill was paid for you
+                    </p>
+
+                    <p className="mt-2 text-[13px] opacity-80">
+                      Paid by{" "}
+                      <span className="font-medium">
+                        {MY_INDIVIDUAL_BILL.paidByData.customer_name}
+                      </span>
+                    </p>
+                  </div>
+                )}
+            </div>
+          )}
       </div>
 
       <div className="hidden space-y-4 rounded-[2.5rem] bg-gray-50 p-8">

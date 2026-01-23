@@ -1,33 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { parseError } from "@/api-services/utils/parseError";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRestaurantProfile } from "@/api-services/restaurantProfile";
-import { RootState } from "@/store/store";
 import { setRestaurant } from "@/store/restaurant.slice";
+import { useSetupContext } from "@/contexts/SetupContext";
+import { RootState } from "@/store/store";
 
-interface UseRestaurantProps {
-  restaurantId: string;
-}
-
-export const useRestaurant = ({ restaurantId }: UseRestaurantProps) => {
+export const useRestaurant = () => {
   const auth = useAuth();
   const dispatch = useDispatch();
+  const setup = useSetupContext();
 
-  // Pull restaurant from Redux store
-  const restaurant = useSelector(
-    (state: RootState) => state.restaurant[restaurantId] || null
+  const restaurantId = setup.selectedRestaurant?.restaurantId;
+
+  const restaurant = useSelector((state: RootState) =>
+    restaurantId ? (state.restaurant[restaurantId] ?? null) : null
   );
 
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   const fetchRestaurant = async () => {
+    if (!restaurantId) {
+      return;
+    }
     try {
       setLoading(true);
       setError("");
       const res = await getRestaurantProfile(restaurantId, auth.token);
-
       // Dispatch to store
       dispatch(setRestaurant({ restaurantId, data: res }));
     } catch (err) {
@@ -36,12 +38,6 @@ export const useRestaurant = ({ restaurantId }: UseRestaurantProps) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (restaurantId && !restaurant) {
-      fetchRestaurant();
-    }
-  }, [restaurantId, restaurant]);
 
   return {
     restaurant,

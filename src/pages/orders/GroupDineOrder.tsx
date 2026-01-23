@@ -182,11 +182,10 @@ const GroupDineOrder = () => {
       await requestDiningGroupBill(groupOrder.id, option, auth.token);
 
       // optional: close modal here if needed
-      if(option == "split"){
+      if (option == "split") {
         setShowAllocationModal(true);
-      }
-      else {
-        fetchGroupBill()
+      } else {
+        fetchGroupBill();
       }
     } catch (error: any) {
       const errorMessage = parseError(error);
@@ -382,7 +381,7 @@ const GroupDineOrder = () => {
 
                         <button
                           onClick={fetchGroupBill}
-                          className="rounded-2xl w-full bg-black px-6 py-3 text-[13px] font-semibold text-white uppercase shadow transition-all hover:bg-gray-900 active:scale-95"
+                          className="w-full rounded-2xl bg-black px-6 py-3 text-[13px] font-semibold text-white uppercase shadow transition-all hover:bg-gray-900 active:scale-95"
                         >
                           Retry
                         </button>
@@ -430,8 +429,7 @@ const GroupDineOrder = () => {
                 </>
               )}
 
-              {
-                !groupBillLoading && !groupBillError && (
+              {!groupBillLoading && !groupBillError && (
                 <>
                   {iAmAdmin ? (
                     <>
@@ -439,7 +437,11 @@ const GroupDineOrder = () => {
                         // Admin sees Get Bill button if bill hasn't been generated
                         <button
                           onClick={() => {
-                            if (billGenerated && (groupBill?.payment_method == "split" && notYetProcessedBillSplit)) {
+                            if (
+                              billGenerated &&
+                              groupBill?.payment_method == "split" &&
+                              notYetProcessedBillSplit
+                            ) {
                               setShowAllocationModal(true);
                               return;
                             }
@@ -483,9 +485,7 @@ const GroupDineOrder = () => {
                     </button>
                   )}
                 </>
-                )
-              }
-
+              )}
             </div>
           </div>
         </div>

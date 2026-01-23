@@ -49,6 +49,16 @@ export interface SplitRecord {
   is_paid: boolean;
   paid_at: string | null; // ISO date string or null
 }
+export interface IndividualPayment {
+  id: number;
+  customer: string; // UUID
+  customer_name: string;
+  total_to_pay: string; // money as string from API
+  amount_paid: string; // money as string from API
+  is_paid: boolean;
+  paid_at: string | null; // ISO timestamp or null
+  paying_for_orders: number[]; // order IDs
+}
 
 export interface Bill {
   id: number;
@@ -62,7 +72,7 @@ export interface Bill {
   total_paid_amount: string;
   orders: BillOrder[];
   split_records: SplitRecord[]; // if you have types for split records, replace `any`
-  individual_payments: any[]; // same here
+  individual_payments: IndividualPayment[]; // same here
   created_at: string;
   updated_at: string;
   paid_at: string | null;
