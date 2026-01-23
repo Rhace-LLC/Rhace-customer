@@ -15,12 +15,12 @@ export const store = configureStore({
   reducer: {
     profile: userReducer,
     orderCart: orderCartReducer,
+    restaurant: restaurantReducer,
     reservations: reservationReducer,
     restaurants: restaurantsReducer,
     paymentTransactions: paymentTranxReducer,
     notifications: notificationReducer,
     menuUpdated: menuUpdatedReducer,
-    restaurant: restaurantReducer,
     table_order: tableOrderReducer,
     unpaid_uncompleted_orders: unpaiduncompletedReducer,
     group_order: groupOrderReducer,

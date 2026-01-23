@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { parseError } from "@/api-services/utils/parseError";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRestaurantProfile } from "@/api-services/restaurantProfile";
-import { setRestaurant } from "@/store/restaurant.slice";
 import { useSetupContext } from "@/contexts/SetupContext";
 import { RootState } from "@/store/store";
+import { setRestaurant } from "@/store/restaurant.slice";
 
 export const useRestaurant = () => {
   const auth = useAuth();
@@ -14,8 +14,9 @@ export const useRestaurant = () => {
 
   const restaurantId = setup.selectedRestaurant?.restaurantId;
 
-  const restaurant = useSelector((state: RootState) =>
-    restaurantId ? (state.restaurant[restaurantId] ?? null) : null
+  const restaurant = useSelector((state: RootState) =>{
+   return  restaurantId ? (state.restaurant[restaurantId] ?? null) : null
+  }
   );
 
   const [loading, setLoading] = useState(false);

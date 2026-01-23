@@ -11,7 +11,7 @@ import { QRScanDialog } from "@/components/dialogs/QRScanDialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRestaurant } from "./useSelectedRestaurant";
+import { useRestaurant } from "./useRestaurant";
 import { useSetupContext } from "@/contexts/SetupContext";
 import { useParseSelection } from "@/hooks/useParseSelection";
 
