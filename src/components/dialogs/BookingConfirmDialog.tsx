@@ -1,9 +1,7 @@
-import { Calendar, Clock, Users, MapPin } from "lucide-react";
+import { Calendar, Clock, Users, Info } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { ReservationForm } from "@/pages/reservations/createReservation";
-import { useSetupContext } from "@/contexts/SetupContext";
 
 interface BookingConfirmDialogProps {
   reservation: ReservationForm;
@@ -20,98 +18,93 @@ export function BookingConfirmDialog({
 }: BookingConfirmDialogProps) {
   if (!reservation) return null;
 
-  const setup = useSetupContext();
-  const selectedRestaurant = setup.selectedRestaurant;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Confirm Reservation</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div className="rounded-lg bg-gray-50 p-4 text-center">
-            <h3 className="mb-2 text-lg font-medium">
-              Restaurant Venue - {selectedRestaurant?.restaurantName}
-            </h3>
-            <div className="text-muted-foreground flex items-center justify-center gap-1 text-sm">
-              <MapPin className="h-4 w-4" />
-              <span></span>
+      <DialogContent className="max-w-[95vw] overflow-hidden rounded-[2.5rem] border-none p-0 shadow-2xl sm:max-w-[440px]">
+        <div className="bg-white p-8 sm:p-10">
+          
+          {/* HEADER SECTON */}
+          <DialogHeader className="mb-8">
+            <div className="space-y-1">
+              <p className="text-[12px] font-bold uppercase tracking-[0.25em] text-blue-500">
+                Final Step
+              </p>
+              <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
+                Confirm Reservation
+              </DialogTitle>
             </div>
-          </div>
+          </DialogHeader>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Calendar className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="font-medium">{reservation.date}</p>
-                <p className="text-muted-foreground text-sm">Date</p>
-              </div>
-            </div>
+          <div className="space-y-8">
 
-            <div className="flex items-center gap-3">
-              <Clock className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="font-medium">{reservation.time}</p>
-                <p className="text-muted-foreground text-sm">Time</p>
+            {/* DETAILS GRID */}
+            <div className="grid grid-cols-2 gap-y-6 gap-x-4 border-y border-gray-50 py-8">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Calendar size={14} />
+                  <span className="text-[11px] font-bold uppercase tracking-widest">Date</span>
+                </div>
+                <p className="text-[15px] font-bold text-gray-900">{reservation.date}</p>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <Users className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="font-medium">
-                  {reservation.party_size}{" "}
-                  {reservation.party_size === 1 ? "guest" : "guests"}
-                </p>
-                <p className="text-muted-foreground text-sm">Party size</p>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Clock size={14} />
+                  <span className="text-[11px] font-bold uppercase tracking-widest">Time</span>
+                </div>
+                <p className="text-[15px] font-bold text-gray-900">{reservation.time}</p>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <div className="bg-primary flex h-5 w-5 items-center justify-center rounded">
-                <span className="text-xs font-bold text-white">T</span>
-              </div>
-              <div>
-                <p className="font-medium">{reservation.status}</p>
-                <p className="text-muted-foreground text-sm">
-                  Reservation Status
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Users size={14} />
+                  <span className="text-[11px] font-bold uppercase tracking-widest">Guests</span>
+                </div>
+                <p className="text-[15px] font-bold text-gray-900">
+                   {reservation.party_size} {reservation.party_size === 1 ? "Person" : "People"}
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-primary flex h-5 w-5 items-center justify-center rounded">
-                <span className="text-xs font-bold text-white">T</span>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest">Status</span>
+                </div>
+                <p className="text-[15px] font-bold capitalize text-gray-900">{reservation.status || 'Pending'}</p>
               </div>
-              <div>
-                <p className="font-medium">Your table would be assigned</p>
-                <p className="text-muted-foreground text-sm">-</p>
-              </div>
             </div>
-          </div>
 
-          <Separator />
+            {/* POLICY NOTES */}
+            <div className="rounded-2xl bg-blue-50/30 p-5">
+              <div className="mb-2 flex items-center gap-2 text-blue-600">
+                <Info size={14} />
+                <span className="text-[11px] font-bold uppercase tracking-widest">Policy Notes</span>
+              </div>
+              <ul className="space-y-1.5 text-[13px] font-medium leading-relaxed text-gray-500">
+                <li className="flex items-start gap-2">• Arrive 10 minutes before your slot.</li>
+                <li className="flex items-start gap-2">• Cancellations require 2h notice.</li>
+              </ul>
+            </div>
 
-          <div className="text-muted-foreground space-y-1 text-sm">
-            <p>• Please arrive 10 minutes before your reservation time</p>
-            <p>• Cancellations must be made at least 2 hours in advance</p>
-            <p>• Late arrivals may result in table reassignment</p>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                onClose();
-                onConfirm();
-              }}
-              className="bg-primary hover:bg-primary/90 flex-1"
-            >
-              Confirm Reservation
-            </Button>
+            {/* ACTION FOOTER */}
+            <div className="flex flex-col gap-3 pt-2">
+              <Button
+                onClick={() => {
+                  onConfirm();
+                  onClose();
+                }}
+                className="h-16 w-full rounded-2xl bg-black text-[15px] font-bold tracking-tight text-white shadow-2xl shadow-black/10 transition-all active:scale-[0.98]"
+              >
+                Confirm & Book Table
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={onClose} 
+                className="h-12 rounded-xl text-[14px] font-bold text-gray-400 hover:text-gray-900"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

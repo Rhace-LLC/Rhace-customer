@@ -52,52 +52,55 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   const randomFallbackImage = getRandomImage(fallBackImg);
 
   return (
-    <div className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-sm">
-      {/* Cover Image */}
-      <div className="h-40 w-full overflow-hidden rounded-xl bg-gray-100">
-        {restaurant.cover_image_url ? (
-          <img
-            src={restaurant.cover_image_url}
-            alt={restaurant.name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <img
-            src={randomFallbackImage}
-            alt={restaurant.name}
-            className="h-full w-full object-cover"
-          />
-        )}
+    <div className="group relative w-full max-w-sm overflow-hidden rounded-[2rem] bg-white p-3 transition-all duration-500 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] ease-out">
+      {/* IMAGE ARCHITECTURE */}
+      <div className="relative h-52 w-full overflow-hidden rounded-[1.5rem] bg-gray-100">
+        <img
+          src={restaurant.cover_image_url || randomFallbackImage}
+          alt={restaurant.name}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        
+        {/* FLOATING RATING BADGE */}
+        <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 backdrop-blur-md shadow-sm">
+          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+          <span className="text-[13px] font-bold text-gray-900">
+            {rating.toFixed(1)}
+          </span>
+        </div>
       </div>
 
-      {/* Name & Slogan */}
-      <div className="mt-4">
-        <h2 className="text-lg font-bold text-gray-900">{restaurant.name}</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          {restaurant.slogan ?? randomPickedSlogan}
-        </p>
+      {/* CONTENT GRID */}
+      <div className="flex flex-col px-2 py-5">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-[20px] font-extrabold tracking-tight text-gray-900 leading-tight">
+              {restaurant.name}
+            </h2>
+            <div className="h-1 w-1 rounded-full bg-blue-500 opacity-0 transition-opacity group-hover:opacity-100" />
+          </div>
+          
+          <p className="text-[14px] font-medium italic text-gray-400 line-clamp-1">
+            {restaurant.slogan ?? randomPickedSlogan}
+          </p>
+        </div>
+
+        {/* METADATA */}
+        <div className="mt-4 flex items-center gap-2">
+          <div className="h-1 w-1 rounded-full bg-gray-200" />
+          <p className="text-[13px] font-bold uppercase tracking-wider text-gray-400">
+            {restaurant.city}, {restaurant.state}
+          </p>
+        </div>
+
+        {/* PRIMARY ACTION */}
+        <Button
+          onClick={() => onRestaurantView(restaurant)}
+          className="mt-6 h-14 w-full rounded-2xl bg-black text-[15px] font-bold tracking-tight text-white transition-all hover:bg-gray-800 active:scale-[0.97]"
+        >
+          View Restaurant
+        </Button>
       </div>
-
-      {/* Location */}
-      <p className="mt-2 text-sm text-gray-600">
-        {restaurant.city}, {restaurant.state}, {restaurant.country}
-      </p>
-
-      {/* Rating */}
-      <div className="mt-3 flex items-center gap-1 text-yellow-500">
-        <Star className="h-4 w-4 fill-yellow-500" />
-        <span className="text-sm font-semibold text-gray-800">
-          {rating.toFixed(1)}
-        </span>
-      </div>
-
-      {/* Button */}
-      <Button
-        className="mt-4 w-full"
-        onClick={() => onRestaurantView(restaurant)}
-      >
-        View Restaurant
-      </Button>
     </div>
   );
 };

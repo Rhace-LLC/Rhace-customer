@@ -41,10 +41,27 @@ export const useGroupOrder = () => {
     }
   }, [dispatch, token]);
 
+  const groupOrderRefresh = useCallback(async () => {
+    if (!token) return;
+
+    try {
+      const response = await getCurrentGroup(token);
+
+      dispatch(
+        setGroupOrder({
+          group: response,
+          totalAmount: 0, // derive later
+        })
+      );
+    } catch (err: any) {
+          } 
+  }, [dispatch, token]);
+
   return {
     groupOrder,
     fetchGroupOrder,
     loading,
     error,
+    groupOrderRefresh
   };
 };

@@ -9,15 +9,11 @@ import { useNavigate } from "react-router-dom";
 
 export const AllRestaurantsView: React.FC = () => {
   const [page, setPage] = useState(1);
-  const pageSize = 8;
 
   const navigate = useNavigate();
 
   const dataStore = useSelector((state: RootState) => state.restaurants);
   const allData = dataStore.data;
-  const totalItems = dataStore.total;
-
-  const total_pages = Math.ceil(totalItems / pageSize);
 
   const { fetchAllData, loading, error } = useRestaurantData(page);
 
@@ -33,7 +29,7 @@ export const AllRestaurantsView: React.FC = () => {
 
   return (
     <>
-      <div className="mb-10 p-4 pt-10">
+      <div className="p-4 pt-10">
         <h1 className="text-2xl font-bold text-gray-900">
           Discover Amazing Restaurants
         </h1>
@@ -74,7 +70,7 @@ export const AllRestaurantsView: React.FC = () => {
       <div className="px-5">
         <Pagination
           currentPage={page}
-          totalPages={total_pages}
+          totalPages={page+1}
           onPageChange={(p) => setPage(p)}
         />
       </div>

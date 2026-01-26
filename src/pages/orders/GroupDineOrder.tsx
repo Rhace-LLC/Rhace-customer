@@ -56,28 +56,23 @@ const GroupDineOrder = () => {
   const setup = useSetupContext();
   const selectedRestaurant = setup.selectedRestaurant;
 
-  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
+  const { groupOrder, fetchGroupOrder, loading, error, groupOrderRefresh } = useGroupOrder();
+  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading, groupBillRefresh } =
     useGroupBill();
 
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
 
-  const { groupOrder, fetchGroupOrder, loading, error } = useGroupOrder();
 
-  const groupOrderForMe =
-    groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
+  const groupOrderForMe = groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
-  const groupOrderForOthers =
-    groupOrder?.orders?.filter((x) => x.customer !== auth?.user?.id) || [];
+  const groupOrderForOthers = groupOrder?.orders?.filter((x) => x.customer !== auth?.user?.id) || [];
+
   const groupedOrdersForOthers = groupOrderForOthers.reduce<
-    Record<
-      string,
-      {
+    Record<string,{
         customerName: string;
         orders: typeof groupOrderForOthers;
-      }
-    >
-  >((acc, order) => {
+      }>>((acc, order) => {
     if (!acc[order.customer]) {
       acc[order.customer] = {
         customerName: order.customer_name_display,
@@ -92,6 +87,7 @@ const GroupDineOrder = () => {
   const notYetProcessedBillSplit =
     groupBill?.payment_method === "split" &&
     groupBill?.split_records?.length == 0;
+
   const hasCartItems = orderCart.data.length > 0;
   const hasActiveOrders = groupOrderForMe.length > 0;
 
@@ -116,19 +112,11 @@ const GroupDineOrder = () => {
     return sum + calculateOrderTotal(order);
   }, 0);
 
-  useEffect(() => {
-    if (groupBill) return;
-    fetchGroupBill();
-  }, [fetchGroupBill]);
 
-  useEffect(() => {
-    if (!groupBill) {
-      fetchGroupBill();
-    }
-    if (!groupOrder) {
-      fetchGroupOrder();
-    }
-  }, [groupBill, groupOrder]);
+  const refresh = () => {    
+      groupOrderRefresh();
+      groupBillRefresh();
+  }
 
   const handleSubmitOrder = async () => {
     try {
@@ -155,8 +143,7 @@ const GroupDineOrder = () => {
       toast.info(
         "Order Submitted Successfully, You may now proceed to settle bill"
       );
-
-      fetchGroupOrder();
+      groupOrderRefresh()    
       dispatch(clearCart());
     } catch (error) {
       const errmsg = parseError(error);
@@ -184,7 +171,7 @@ const GroupDineOrder = () => {
         { items: addOrderPayload },
         auth.token
       );
-      fetchGroupOrder();
+      groupOrderRefresh()
       dispatch(clearCart());
     } catch (error) {
       const errorMessage = parseError(error);
@@ -210,7 +197,7 @@ const GroupDineOrder = () => {
       if (option == "split") {
         setShowAllocationModal(true);
       } else {
-        fetchGroupBill();
+        refresh()
       }
     } catch (error: any) {
       const errorMessage = parseError(error);
@@ -228,7 +215,7 @@ const GroupDineOrder = () => {
       setLoadingText("Allocating user bills...");
 
       await submitSplitAmounts(groupOrder?.id || "", data, auth.token);
-      fetchGroupBill();
+      refresh()
       setShowAllocationModal(false);
     } catch (error: any) {
       const errorMessage = parseError(error);
@@ -248,10 +235,16 @@ const GroupDineOrder = () => {
     return sum + price * item.quantity;
   }, 0);
 
-  useEffect(() => {
-    fetchGroupOrder();
-  }, []);
 
+  useEffect(() => {
+    if (!groupBill) {
+      fetchGroupBill();
+    }
+    if (!groupOrder) {
+      fetchGroupOrder();
+    }
+  }, [groupBill, groupOrder]);
+  
   if (loading) {
     return <FullScreenLoader />;
   }

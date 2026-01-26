@@ -34,8 +34,7 @@ const BillSettlement = () => {
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [addedDiners, setAddedDiners] = useState<any[]>([]);
-  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
-    useGroupBill();
+  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } = useGroupBill();
   const { groupOrder } = useGroupOrder();
 
   const isBillSplitting = groupBill?.payment_method == "split";
@@ -336,7 +335,7 @@ const BillSettlement = () => {
                   onClick={initiaiteOrderPayment}
                   className="flex h-16 w-full items-center justify-center rounded-[1.5rem] bg-black text-[15px] font-semibold tracking-tight text-white shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
                 >
-                  Proceed to Payment • <>₦ {MY_TOTAL.toLocaleString("en-NG")}</>
+                  Proceed to Payment • <>₦ {MY_INDIVIDUAL_BILL.myBillTotal.toLocaleString("en-NG")}</>
                 </button>
               )}
 

@@ -13,7 +13,7 @@ export const formatDate = (date?: string | null) =>
 export const calculateOrderTotal = (order: Order): number => {
   return order.items.reduce((total, item) => {
     const price = parseFloat(item.price) || 0;
-    return total + price * item.quantity;
+    return total + price;
   }, 0);
 };
 
