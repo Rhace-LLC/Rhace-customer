@@ -35,7 +35,6 @@ const BillSettlement = () => {
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [addedDiners, setAddedDiners] = useState<any[]>([]);
   const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } = useGroupBill();
   const {groupOrder} = useGroupOrder()
 
@@ -60,32 +59,6 @@ const BillSettlement = () => {
     auth?.user?.id || "",
     groupBill
   );
-
-  /*  
-  const GROUP_TOTAL = (groupOrder?.orders || []).reduce((sum, order) => {
-    return sum + calculateOrderTotal(order);
-  }, 0);
-  */
-
-  const toggleDiner = (diner: any) => {
-    setAddedDiners((prev) =>
-      prev.some((d) => d.id === diner.id)
-        ? prev.filter((d) => d.id !== diner.id)
-        : [...prev, diner]
-    );
-  };
-
-  /*  
-  const totalToPay =
-    MY_TOTAL + addedDiners.reduce((sum, d) => sum + d.total, 0);
-  */
-
-  const billingText =
-    addedDiners.length === 0
-      ? "You’ll only be charged for what you ordered."
-      : `You’ll be billed for yourself and ${addedDiners
-          .map((d) => d.name)
-          .join(", ")}.`;
 
   const [addToBillLoading, setAddToBillLoading] = useState(false);
   //const [addToBillError, setAddToBillError] = useState<string | null>(null);
@@ -411,7 +384,7 @@ const BillSettlement = () => {
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-center text-[13px] leading-tight text-gray-400 sm:text-left">
-            {billingText}
+            You will be billed for your order and any other person you choose to cover.
           </p>
           {!isBillSplitting && (
             <button className="text-[14px] font-semibold text-gray-900 underline underline-offset-8 transition-opacity hover:opacity-60">
