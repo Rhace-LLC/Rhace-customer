@@ -1,4 +1,4 @@
-import { CheckCircle, DollarSign } from "lucide-react";
+import { Check, CheckCircle, DollarSign, Loader2, Plus } from "lucide-react";
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -37,15 +37,15 @@ const BillSettlement = () => {
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [addedDiners, setAddedDiners] = useState<any[]>([]);
   const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } = useGroupBill();
-  const { groupOrder } = useGroupOrder();
+  const {groupOrder} = useGroupOrder()
 
   const isBillSplitting = groupBill?.payment_method == "split";
 
   const groupOrderForMe =
-    groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
+    groupBill?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
   const groupOrderForOthers =
-    groupOrder?.orders?.filter((x) => x.customer !== auth?.user?.id) || [];
+    groupBill?.orders?.filter((x) => x.customer !== auth?.user?.id) || [];
 
   const MY_SPLIT = getCustomerSplitRecord(
     groupBill?.split_records || [],
@@ -98,8 +98,8 @@ const BillSettlement = () => {
 
     try {
       await selectDiningGroupOrders(groupOrder.id, [id], auth.token);
-      fetchGroupBill();
-      toast.success("Added to my bill");
+      fetchGroupBill()
+      toast.success("Added to my bill")
       // optional: refetch group order or optimistically update state
     } catch (error: any) {
       const message = parseError(error);
@@ -438,6 +438,7 @@ const BillSettlement = () => {
           );
 
           const isAdded = isNumberInArray(MY_INDIVIDUAL_BILL?.myBill[0]?.paying_for_orders || [], order.id)
+          let showAdd = !isBillSplitting && !order.is_paid
 
           return (
             <div
@@ -473,33 +474,44 @@ const BillSettlement = () => {
                     {formatCurrency(String(total))}
                   </p>
                 )}
-                {!isBillSplitting && (
-                  <button
-                    disabled={addToBillLoading}
-                    onClick={() => {
-                      if (addToBillLoading || isAdded) return;
-
-                      toggleDiner({
-                        id: customerId,
-                        name: customerName,
-                        total,
-                      });
-
-                      handleAddToMyBill(order.id);
-                    }}
-                    className={cn(
-                      "mt-1 text-[13px] font-semibold underline transition-opacity",
-                      addToBillLoading && "cursor-not-allowed opacity-60",
-                      isAdded ? "text-emerald-400" : "text-blue-600"
-                    )}
-                  >
-                    {addToBillLoading
-                      ? "Adding..."
-                      : isAdded
-                        ? "Added to bill"
-                        : "Add to bill"}
-                  </button>
-                )}
+                {showAdd ? (
+  <button
+    disabled={addToBillLoading || isAdded}
+    onClick={() => {
+      if (addToBillLoading || isAdded) return;
+      handleAddToMyBill(order.id);
+    }}
+    className={cn(
+      "group mt-2 flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold tracking-tight transition-all active:scale-95",
+      addToBillLoading && "cursor-not-allowed opacity-70",
+      isAdded 
+        ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100" 
+        : "bg-blue-50 text-blue-600 ring-1 ring-blue-100 hover:bg-blue-600 hover:text-white hover:ring-blue-600"
+    )}
+  >
+    {addToBillLoading ? (
+      <>
+        <Loader2 className="h-3 w-3 animate-spin" />
+        <span>Adding</span>
+      </>
+    ) : isAdded ? (
+      <>
+        <Check size={12} strokeWidth={3} />
+        <span>Added</span>
+      </>
+    ) : (
+      <>
+        <Plus size={12} strokeWidth={3} className="transition-transform group-hover:rotate-90" />
+        <span>Add to bill</span>
+      </>
+    )}
+  </button>
+) : (
+  <div className="mt-2 flex items-center gap-1.5 px-1 text-[11px] font-extrabold uppercase tracking-widest text-gray-300">
+    <div className="h-1 w-1 rounded-full bg-gray-300" />
+    <span>Settled</span>
+  </div>
+)}
               </div>
             </div>
           );

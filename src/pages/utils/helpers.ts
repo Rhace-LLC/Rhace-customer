@@ -1,4 +1,4 @@
-import { Bill, SplitRecord } from "@/api-services/billsettlement.service";
+import { Bill, BillOrder, SplitRecord } from "@/api-services/billsettlement.service";
 import { Order, OrderStatus } from "@/api-services/order.service";
 
 export const formatCurrency = (value: string) =>
@@ -10,7 +10,7 @@ export const formatCurrency = (value: string) =>
 export const formatDate = (date?: string | null) =>
   date ? new Date(date).toLocaleString() : "—";
 
-export const calculateOrderTotal = (order: Order): number => {
+export const calculateOrderTotal = (order: BillOrder | Order): number => {
   return order.items.reduce((total, item) => {
     const price = parseFloat(item.price) || 0;
     return total + price;
