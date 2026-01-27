@@ -52,6 +52,7 @@ export const getMyIndividualBillBreakdown = (
   }
   // 1️⃣ My orders
   const myOrders = bill.orders.filter((order) => order.customer === customerId);
+  const myBill = bill.individual_payments.filter((order) => order.customer === customerId);
 
   const myOrderIds = myOrders.map((o) => o.id);
 
@@ -87,5 +88,10 @@ export const getMyIndividualBillBreakdown = (
     myBillPaymentStatus,
     paidBy,
     paidByData: paymentThatPaidForMe,
+    myBill
   };
 };
+
+export function isNumberInArray(arr: number[], num: number): boolean {
+  return arr.includes(num);
+}

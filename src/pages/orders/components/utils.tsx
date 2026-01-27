@@ -574,12 +574,12 @@ export const UnpaidOrderCard = ({ data }: { data: Order[] }) => {
                   <span className="font-medium text-gray-800">
                     <span className="font-medium">
                       {formatCurrency(
-                        String(Number(item.price) * Number(item.quantity))
+                        String(Number(item.price))
                       )}
                     </span>
                   </span>
                 </p>
-                <p>
+                <p className="hidden">
                   <span className="text-sm font-medium text-gray-600">
                     {item.price} x {item.quantity}
                   </span>

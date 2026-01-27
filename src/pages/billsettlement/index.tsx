@@ -10,6 +10,7 @@ import {
   formatCurrency,
   getCustomerSplitRecord,
   getMyIndividualBillBreakdown,
+  isNumberInArray,
 } from "../utils/helpers";
 import {
   initiateDiningGroupPayment,
@@ -19,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { parseError } from "@/api-services/utils/parseError";
 import { useLoading } from "@/contexts/LoadingContext";
+
 import {
   Dialog,
   DialogContent,
@@ -109,7 +111,6 @@ const BillSettlement = () => {
     }
   };
 
-  // ✅ Initiate Order Payment
   const initiaiteOrderPayment = async (): Promise<any> => {
     try {
       setLoading(true);
@@ -248,9 +249,12 @@ const BillSettlement = () => {
                   <span className="ml-2 text-[13px] font-medium text-gray-400">
                     × {item.quantity}
                   </span>
+                  <span className="block text-blue-800 text-[13px] font-medium">
+                    Unit Price: {(Number(item.price)/Number(item.quantity))}
+                  </span>
                 </span>
                 <span className="font-semibold text-gray-900">
-                  ₦{Number(item.price).toLocaleString("en-NG")}
+                  {formatCurrency(item.price)}
                 </span>
               </div>
             ))
@@ -433,9 +437,7 @@ const BillSettlement = () => {
             customerId
           );
 
-          const isAdded = addedDiners.some(
-            (d) => String(d.id) === String(customerId)
-          );
+          const isAdded = isNumberInArray(MY_INDIVIDUAL_BILL?.myBill[0]?.paying_for_orders || [], order.id)
 
           return (
             <div
