@@ -1,7 +1,7 @@
 /* ================================
    Types
 ================================ */
-import { Order } from "./order.service";
+import { BillOrder } from "./billsettlement.service";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
 import { getConfig } from "./utils/reqConfig";
 
@@ -21,7 +21,7 @@ export interface DiningGroup {
   table: string;
 
   customers: DiningGroupCustomer[];
-  orders: Order[];
+  orders: BillOrder[];
   orders_completed: boolean;
 }
 

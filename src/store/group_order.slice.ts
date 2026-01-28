@@ -1,16 +1,13 @@
+import { BillOrder } from "@/api-services/billsettlement.service";
 import { DiningGroup } from "@/api-services/dininggroup.service";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface GroupOrderState {
   group: DiningGroup | null;
-
-  // Derived / UI state
-  totalAmount: number;
 }
 
 const initialState: GroupOrderState = {
   group: null,
-  totalAmount: 0,
 };
 
 const groupOrderSlice = createSlice({
@@ -21,20 +18,29 @@ const groupOrderSlice = createSlice({
       state,
       action: PayloadAction<{
         group: DiningGroup;
-        totalAmount: number;
       }>
     ) {
       state.group = action.payload.group;
-      state.totalAmount = action.payload.totalAmount;
+    },
+
+    /**
+     * Update only the orders inside the current dining group
+     */
+    updateDiningGroupOrders(
+      state,
+      action: PayloadAction<BillOrder[]>
+    ) {
+      if (!state.group) return;
+
+      state.group.orders = action.payload;
     },
 
     clearGroupOrder(state) {
       state.group = null;
-      state.totalAmount = 0;
     },
   },
 });
 
-export const { setGroupOrder, clearGroupOrder } = groupOrderSlice.actions;
+export const { setGroupOrder, clearGroupOrder, updateDiningGroupOrders } = groupOrderSlice.actions;
 
 export default groupOrderSlice.reducer;

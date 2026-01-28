@@ -28,6 +28,7 @@ import {
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { EmptyBillState } from "./EmptyBill";
 
 const BillSettlement = () => {
   const auth = useAuth();
@@ -37,6 +38,8 @@ const BillSettlement = () => {
   const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
     useGroupBill();
   const { groupOrder } = useGroupOrder();
+
+  console.log("bill", groupBill)
   const isBillSplitting = groupBill?.payment_method == "split";
 
   const groupOrderForMe =
@@ -139,7 +142,7 @@ const BillSettlement = () => {
 
     const result = await verifyPayment();
     fetchGroupBill();
-    if (result?.data?.payment_status === "success") {
+    if (result?.data?.payment_status === "success" || result?.data?.status == "success") {
       toast.success("Payment completed successfully!");
     } else {
       toast.info("Payment not complete. Please try again.");
@@ -182,6 +185,10 @@ const BillSettlement = () => {
         </div>
       </div>
     );
+  }
+
+  if(!groupBill){
+    return <EmptyBillState />
   }
 
   return (

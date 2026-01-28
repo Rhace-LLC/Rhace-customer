@@ -2,6 +2,7 @@ import { getDiningGroupBillSummary } from "@/api-services/billsettlement.service
 import { parseError } from "@/api-services/utils/parseError";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
+import { updateDiningGroupOrders } from "@/store/group_order.slice";
 import { clearBill, setBill } from "@/store/groupbill.slice";
 import { RootState } from "@/store/store";
 import { useCallback, useState } from "react";
@@ -47,7 +48,7 @@ export const useGroupBill = () => {
         groupOrder.id,
         auth.token
       );
-
+      dispatch(updateDiningGroupOrders(response.bill.orders))
       dispatch(setBill(response.bill));
     } catch (error: any) {
       dispatch(clearBill());

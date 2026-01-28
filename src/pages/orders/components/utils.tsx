@@ -1,9 +1,9 @@
-import { ArrowRight, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
+import { AlertCircle, ArrowRight, Loader2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { MenuDishData } from "@/api-services/menu.service";
 import { Button } from "@/components/ui/button";
 import { increaseQuantity, reduceQuantity } from "@/store/orderCart.slice";
 import { RootState } from "@/store/store";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -38,25 +38,52 @@ interface FullScreenErrorProps {
   onRetry?: () => void;
 }
 
+interface FullScreenErrorProps {
+  message: string;
+  onRetry?: () => void;
+}
+
 const FullScreenError = ({ message, onRetry }: FullScreenErrorProps) => {
   return (
-    <div className="bg-background flex min-h-screen w-full items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-xl border bg-white p-6 text-center shadow-sm">
-        <AlertTriangle className="text-destructive mx-auto mb-3 h-8 w-8" />
+    <div className="bg-[#FBFBFB] flex min-h-screen w-full flex-col items-center justify-center px-6">
+      <div className="flex w-full max-w-[340px] flex-col items-center text-center">
+        
+        {/* ICON: ARCHITECTURAL NEUTRALITY */}
+        <div className="relative mb-10 flex h-20 w-20 items-center justify-center">
+          {/* Subtle background ring */}
+          <div className="absolute inset-0 animate-pulse rounded-full bg-gray-100/80" />
+          
+          <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-gray-100">
+            <AlertCircle 
+              size={28} 
+              strokeWidth={1.5} 
+              className="text-gray-900" 
+            />
+          </div>
+        </div>
 
-        <h2 className="mb-1 text-base font-semibold">Something went wrong</h2>
+        {/* TYPOGRAPHY: TIGHT & BOLD */}
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold tracking-tight text-gray-900">
+            Request Error
+          </h2>
+          <p className="text-[15px] font-medium leading-relaxed text-gray-400">
+            {message || "We encountered an unexpected issue while syncing your data."}
+          </p>
+        </div>
 
-        <p className="text-muted-foreground mb-4 text-sm">{message}</p>
-
+        {/* ACTION: HIGH CONTRAST */}
         {onRetry && (
-          <Button
-            variant="outline"
-            className="flex w-full items-center justify-center gap-2"
-            onClick={onRetry}
-          >
-            <RefreshCcw size={16} />
-            Retry
-          </Button>
+          <div className="mt-12 w-full">
+            <Button
+              onClick={onRetry}
+              className="h-12 w-full rounded-2xl bg-black text-[14px] font-bold tracking-tight text-white transition-all hover:bg-gray-800 active:scale-[0.98] shadow-xl shadow-black/5"
+            >
+              <RefreshCcw size={16} className="mr-2" />
+              Try again
+            </Button>
+            
+          </div>
         )}
       </div>
     </div>
@@ -472,8 +499,9 @@ export const ActiveOrderView = ({ orders }: ActiveOrderViewProps) => {
 import { Clock } from "lucide-react";
 import moment from "moment";
 import { cn } from "@/lib/utils";
+import { BillOrder } from "@/api-services/billsettlement.service";
 
-export const UnpaidOrderCard = ({ data }: { data: Order[] }) => {
+export const UnpaidOrderCard = ({ data }: { data: BillOrder[] }) => {
   const orderCart = useSelector((state: RootState) => state.orderCart);
   const order = data[0];
 

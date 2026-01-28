@@ -4,17 +4,25 @@ import {
   formatDate,
   getOrderStatusText,
 } from "../utils/helpers";
-import { OrderStatusBadge } from "./components/utils";
+import FullScreenError, { FullScreenLoader, OrderStatusBadge } from "./components/utils";
 import { useEffect } from "react";
 
 const ActiveOrderPage = () => {
-  const { uncompletedOrders, getUserActiveOrder } = useUnpaidUncompleted();
+  const { uncompletedOrders, getUserActiveOrder, activeOrderLoading, activeOrderError } = useUnpaidUncompleted();
 
   useEffect(() => {
     if (uncompletedOrders.length == 0) {
       getUserActiveOrder();
     }
   }, []);
+
+  if(activeOrderLoading){
+    return <FullScreenLoader />
+  }
+
+  if(activeOrderError){
+    return <FullScreenError message={activeOrderError} onRetry={getUserActiveOrder} />
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-12 p-6 py-12">
