@@ -70,7 +70,7 @@ export const AllRestaurantsView: React.FC = () => {
       <div className="px-5">
         <Pagination
           currentPage={page}
-          totalPages={page+1}
+          totalPages={page + 1}
           onPageChange={(p) => setPage(p)}
         />
       </div>

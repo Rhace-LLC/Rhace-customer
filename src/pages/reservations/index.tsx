@@ -68,21 +68,21 @@ export function ReservationsPage() {
             My Reservations
           </h3>
 
-            <ContentHOC
-              loading={fetchLoading}
-              error={!!fetchError}
-              noContent={toShow.length === 0}
-              loadingText="Fetching Your Reservations. Please wait..."
-              noContentMessage="No Reservations Found"
-              noContentBtnText="Reload"
-              noContentAction={fetchAllData}
-              errMessage={fetchError}
-              actionFn={fetchAllData}
-            >
-              <RenderReservationCards data={toShow} />
-            </ContentHOC>
+          <ContentHOC
+            loading={fetchLoading}
+            error={!!fetchError}
+            noContent={toShow.length === 0}
+            loadingText="Fetching Your Reservations. Please wait..."
+            noContentMessage="No Reservations Found"
+            noContentBtnText="Reload"
+            noContentAction={fetchAllData}
+            errMessage={fetchError}
+            actionFn={fetchAllData}
+          >
+            <RenderReservationCards data={toShow} />
+          </ContentHOC>
           <Pagination
-            totalPages={page+1}
+            totalPages={page + 1}
             currentPage={page}
             onPageChange={(page) => setPage(page)}
           />

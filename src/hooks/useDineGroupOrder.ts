@@ -53,8 +53,7 @@ export const useGroupOrder = () => {
           totalAmount: 0, // derive later
         })
       );
-    } catch (err: any) {
-          } 
+    } catch (err: any) {}
   }, [dispatch, token]);
 
   return {
@@ -62,6 +61,6 @@ export const useGroupOrder = () => {
     fetchGroupOrder,
     loading,
     error,
-    groupOrderRefresh
+    groupOrderRefresh,
   };
 };

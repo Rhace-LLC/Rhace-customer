@@ -52,7 +52,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   const randomFallbackImage = getRandomImage(fallBackImg);
 
   return (
-    <div className="group relative w-full max-w-sm overflow-hidden rounded-[2rem] bg-white p-3 transition-all duration-500 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] ease-out">
+    <div className="group relative w-full max-w-sm overflow-hidden rounded-[2rem] bg-white p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 ease-out hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)]">
       {/* IMAGE ARCHITECTURE */}
       <div className="relative h-52 w-full overflow-hidden rounded-[1.5rem] bg-gray-100">
         <img
@@ -60,9 +60,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           alt={restaurant.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        
+
         {/* FLOATING RATING BADGE */}
-        <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 backdrop-blur-md shadow-sm">
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur-md">
           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
           <span className="text-[13px] font-bold text-gray-900">
             {rating.toFixed(1)}
@@ -74,13 +74,13 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       <div className="flex flex-col px-2 py-5">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-[20px] font-extrabold tracking-tight text-gray-900 leading-tight">
+            <h2 className="text-[20px] leading-tight font-extrabold tracking-tight text-gray-900">
               {restaurant.name}
             </h2>
             <div className="h-1 w-1 rounded-full bg-blue-500 opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
-          
-          <p className="text-[14px] font-medium italic text-gray-400 line-clamp-1">
+
+          <p className="line-clamp-1 text-[14px] font-medium text-gray-400 italic">
             {restaurant.slogan ?? randomPickedSlogan}
           </p>
         </div>
@@ -88,7 +88,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         {/* METADATA */}
         <div className="mt-4 flex items-center gap-2">
           <div className="h-1 w-1 rounded-full bg-gray-200" />
-          <p className="text-[13px] font-bold uppercase tracking-wider text-gray-400">
+          <p className="text-[13px] font-bold tracking-wider text-gray-400 uppercase">
             {restaurant.city}, {restaurant.state}
           </p>
         </div>

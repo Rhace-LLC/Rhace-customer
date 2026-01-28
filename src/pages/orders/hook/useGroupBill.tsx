@@ -1,6 +1,4 @@
-import {
-  getDiningGroupBillSummary,
-} from "@/api-services/billsettlement.service";
+import { getDiningGroupBillSummary } from "@/api-services/billsettlement.service";
 import { parseError } from "@/api-services/utils/parseError";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
@@ -14,9 +12,7 @@ export const useGroupBill = () => {
   const { groupOrder } = useGroupOrder();
   const dispatch = useDispatch();
 
-  const groupBill = useSelector(
-    (state: RootState) => state.groupBill.bill
-  );
+  const groupBill = useSelector((state: RootState) => state.groupBill.bill);
 
   const [groupBillLoading, setGroupBillLoading] = useState(false);
   const [groupBillError, setGroupBillError] = useState<string | null>(null);
@@ -63,6 +59,6 @@ export const useGroupBill = () => {
     groupBillLoading,
     groupBillError,
     fetchGroupBill,
-    groupBillRefresh
+    groupBillRefresh,
   };
 };

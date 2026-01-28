@@ -43,6 +43,14 @@ export const GetBillConfirmation = ({
             <DialogTitle className="text-2xl leading-tight font-semibold tracking-tighter text-gray-900">
               How should this group <br /> settle the bill?
             </DialogTitle>
+            <p className="mt-2 text-sm text-gray-600">
+              Make sure everyone at the table has submitted their order. If you
+              proceed now,{" "}
+              <span className="font-medium text-gray-900">
+                no one will be able to submit or update their order
+              </span>{" "}
+              afterwards.
+            </p>
           </DialogHeader>
 
           <div className="space-y-4">

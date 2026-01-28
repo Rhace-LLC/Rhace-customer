@@ -22,11 +22,10 @@ export function BookingConfirmDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] overflow-hidden rounded-[2.5rem] border-none p-0 shadow-2xl sm:max-w-[440px]">
         <div className="bg-white p-8 sm:p-10">
-          
           {/* HEADER SECTON */}
           <DialogHeader className="mb-8">
             <div className="space-y-1">
-              <p className="text-[12px] font-bold uppercase tracking-[0.25em] text-blue-500">
+              <p className="text-[12px] font-bold tracking-[0.25em] text-blue-500 uppercase">
                 Final Step
               </p>
               <DialogTitle className="text-2xl font-bold tracking-tight text-gray-900">
@@ -36,41 +35,55 @@ export function BookingConfirmDialog({
           </DialogHeader>
 
           <div className="space-y-8">
-
             {/* DETAILS GRID */}
-            <div className="grid grid-cols-2 gap-y-6 gap-x-4 border-y border-gray-50 py-8">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 border-y border-gray-50 py-8">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-gray-400">
                   <Calendar size={14} />
-                  <span className="text-[11px] font-bold uppercase tracking-widest">Date</span>
-                </div>
-                <p className="text-[15px] font-bold text-gray-900">{reservation.date}</p>
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Clock size={14} />
-                  <span className="text-[11px] font-bold uppercase tracking-widest">Time</span>
-                </div>
-                <p className="text-[15px] font-bold text-gray-900">{reservation.time}</p>
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Users size={14} />
-                  <span className="text-[11px] font-bold uppercase tracking-widest">Guests</span>
+                  <span className="text-[11px] font-bold tracking-widest uppercase">
+                    Date
+                  </span>
                 </div>
                 <p className="text-[15px] font-bold text-gray-900">
-                   {reservation.party_size} {reservation.party_size === 1 ? "Person" : "People"}
+                  {reservation.date}
                 </p>
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-gray-400">
-                  <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-[11px] font-bold uppercase tracking-widest">Status</span>
+                  <Clock size={14} />
+                  <span className="text-[11px] font-bold tracking-widest uppercase">
+                    Time
+                  </span>
                 </div>
-                <p className="text-[15px] font-bold capitalize text-gray-900">{reservation.status || 'Pending'}</p>
+                <p className="text-[15px] font-bold text-gray-900">
+                  {reservation.time}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Users size={14} />
+                  <span className="text-[11px] font-bold tracking-widest uppercase">
+                    Guests
+                  </span>
+                </div>
+                <p className="text-[15px] font-bold text-gray-900">
+                  {reservation.party_size}{" "}
+                  {reservation.party_size === 1 ? "Person" : "People"}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <div className="h-2 w-2 animate-pulse rounded-full bg-amber-400" />
+                  <span className="text-[11px] font-bold tracking-widest uppercase">
+                    Status
+                  </span>
+                </div>
+                <p className="text-[15px] font-bold text-gray-900 capitalize">
+                  {reservation.status || "Pending"}
+                </p>
               </div>
             </div>
 
@@ -78,11 +91,17 @@ export function BookingConfirmDialog({
             <div className="rounded-2xl bg-blue-50/30 p-5">
               <div className="mb-2 flex items-center gap-2 text-blue-600">
                 <Info size={14} />
-                <span className="text-[11px] font-bold uppercase tracking-widest">Policy Notes</span>
+                <span className="text-[11px] font-bold tracking-widest uppercase">
+                  Policy Notes
+                </span>
               </div>
-              <ul className="space-y-1.5 text-[13px] font-medium leading-relaxed text-gray-500">
-                <li className="flex items-start gap-2">• Arrive 10 minutes before your slot.</li>
-                <li className="flex items-start gap-2">• Cancellations require 2h notice.</li>
+              <ul className="space-y-1.5 text-[13px] leading-relaxed font-medium text-gray-500">
+                <li className="flex items-start gap-2">
+                  • Arrive 10 minutes before your slot.
+                </li>
+                <li className="flex items-start gap-2">
+                  • Cancellations require 2h notice.
+                </li>
               </ul>
             </div>
 
@@ -97,9 +116,9 @@ export function BookingConfirmDialog({
               >
                 Confirm & Book Table
               </Button>
-              <Button 
-                variant="ghost" 
-                onClick={onClose} 
+              <Button
+                variant="ghost"
+                onClick={onClose}
                 className="h-12 rounded-xl text-[14px] font-bold text-gray-400 hover:text-gray-900"
               >
                 Cancel

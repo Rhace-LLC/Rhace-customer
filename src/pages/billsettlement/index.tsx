@@ -31,13 +31,12 @@ import {
 
 const BillSettlement = () => {
   const auth = useAuth();
-
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } = useGroupBill();
-  const {groupOrder} = useGroupOrder()
-
+  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
+    useGroupBill();
+  const { groupOrder } = useGroupOrder();
   const isBillSplitting = groupBill?.payment_method == "split";
 
   const groupOrderForMe =
@@ -71,8 +70,8 @@ const BillSettlement = () => {
 
     try {
       await selectDiningGroupOrders(groupOrder.id, [id], auth.token);
-      fetchGroupBill()
-      toast.success("Added to my bill")
+      fetchGroupBill();
+      toast.success("Added to my bill");
       // optional: refetch group order or optimistically update state
     } catch (error: any) {
       const message = parseError(error);
@@ -222,8 +221,8 @@ const BillSettlement = () => {
                   <span className="ml-2 text-[13px] font-medium text-gray-400">
                     × {item.quantity}
                   </span>
-                  <span className="block text-blue-800 text-[13px] font-medium">
-                    Unit Price: {(Number(item.price)/Number(item.quantity))}
+                  <span className="block text-[13px] font-medium text-blue-800">
+                    Unit Price: {Number(item.price) / Number(item.quantity)}
                   </span>
                 </span>
                 <span className="font-semibold text-gray-900">
@@ -312,7 +311,10 @@ const BillSettlement = () => {
                   onClick={initiaiteOrderPayment}
                   className="flex h-16 w-full items-center justify-center rounded-[1.5rem] bg-black text-[15px] font-semibold tracking-tight text-white shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
                 >
-                  Proceed to Payment • <>₦ {MY_INDIVIDUAL_BILL.myBillTotal.toLocaleString("en-NG")}</>
+                  Proceed to Payment •{" "}
+                  <>
+                    ₦ {MY_INDIVIDUAL_BILL.myBillTotal.toLocaleString("en-NG")}
+                  </>
                 </button>
               )}
 
@@ -384,7 +386,8 @@ const BillSettlement = () => {
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-center text-[13px] leading-tight text-gray-400 sm:text-left">
-            You will be billed for your order and any other person you choose to cover.
+            You will be billed for your order and any other person you choose to
+            cover.
           </p>
           {!isBillSplitting && (
             <button className="text-[14px] font-semibold text-gray-900 underline underline-offset-8 transition-opacity hover:opacity-60">
@@ -410,8 +413,11 @@ const BillSettlement = () => {
             customerId
           );
 
-          const isAdded = isNumberInArray(MY_INDIVIDUAL_BILL?.myBill[0]?.paying_for_orders || [], order.id)
-          let showAdd = !isBillSplitting && !order.is_paid
+          const isAdded = isNumberInArray(
+            MY_INDIVIDUAL_BILL?.myBill[0]?.paying_for_orders || [],
+            order.id
+          );
+          let showAdd = !isBillSplitting && !order.is_paid;
 
           return (
             <div
@@ -448,43 +454,47 @@ const BillSettlement = () => {
                   </p>
                 )}
                 {showAdd ? (
-  <button
-    disabled={addToBillLoading || isAdded}
-    onClick={() => {
-      if (addToBillLoading || isAdded) return;
-      handleAddToMyBill(order.id);
-    }}
-    className={cn(
-      "group mt-2 flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold tracking-tight transition-all active:scale-95",
-      addToBillLoading && "cursor-not-allowed opacity-70",
-      isAdded 
-        ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100" 
-        : "bg-blue-50 text-blue-600 ring-1 ring-blue-100 hover:bg-blue-600 hover:text-white hover:ring-blue-600"
-    )}
-  >
-    {addToBillLoading ? (
-      <>
-        <Loader2 className="h-3 w-3 animate-spin" />
-        <span>Adding</span>
-      </>
-    ) : isAdded ? (
-      <>
-        <Check size={12} strokeWidth={3} />
-        <span>Added</span>
-      </>
-    ) : (
-      <>
-        <Plus size={12} strokeWidth={3} className="transition-transform group-hover:rotate-90" />
-        <span>Add to bill</span>
-      </>
-    )}
-  </button>
-) : (
-  <div className="mt-2 flex items-center gap-1.5 px-1 text-[11px] font-extrabold uppercase tracking-widest text-gray-300">
-    <div className="h-1 w-1 rounded-full bg-gray-300" />
-    <span>Settled</span>
-  </div>
-)}
+                  <button
+                    disabled={addToBillLoading || isAdded}
+                    onClick={() => {
+                      if (addToBillLoading || isAdded) return;
+                      handleAddToMyBill(order.id);
+                    }}
+                    className={cn(
+                      "group mt-2 flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold tracking-tight transition-all active:scale-95",
+                      addToBillLoading && "cursor-not-allowed opacity-70",
+                      isAdded
+                        ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"
+                        : "bg-blue-50 text-blue-600 ring-1 ring-blue-100 hover:bg-blue-600 hover:text-white hover:ring-blue-600"
+                    )}
+                  >
+                    {addToBillLoading ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <span>Adding</span>
+                      </>
+                    ) : isAdded ? (
+                      <>
+                        <Check size={12} strokeWidth={3} />
+                        <span>Added</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus
+                          size={12}
+                          strokeWidth={3}
+                          className="transition-transform group-hover:rotate-90"
+                        />
+                        <span>Add to bill</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="mt-2 flex items-center gap-1.5 px-1 text-[11px] font-extrabold tracking-widest text-gray-300 uppercase">
+                    <div className="h-1 w-1 rounded-full bg-gray-300" />
+                    <span>Settled</span>
+                  </div>
+                )}
               </div>
             </div>
           );

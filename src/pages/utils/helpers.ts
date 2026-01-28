@@ -1,4 +1,8 @@
-import { Bill, BillOrder, SplitRecord } from "@/api-services/billsettlement.service";
+import {
+  Bill,
+  BillOrder,
+  SplitRecord,
+} from "@/api-services/billsettlement.service";
 import { Order, OrderStatus } from "@/api-services/order.service";
 
 export const formatCurrency = (value: string) =>
@@ -52,7 +56,9 @@ export const getMyIndividualBillBreakdown = (
   }
   // 1️⃣ My orders
   const myOrders = bill.orders.filter((order) => order.customer === customerId);
-  const myBill = bill.individual_payments.filter((order) => order.customer === customerId);
+  const myBill = bill.individual_payments.filter(
+    (order) => order.customer === customerId
+  );
 
   const myOrderIds = myOrders.map((o) => o.id);
 
@@ -88,7 +94,7 @@ export const getMyIndividualBillBreakdown = (
     myBillPaymentStatus,
     paidBy,
     paidByData: paymentThatPaidForMe,
-    myBill
+    myBill,
   };
 };
 

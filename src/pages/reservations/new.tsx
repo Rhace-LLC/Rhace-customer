@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Users, ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
+import {
+  Users,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Clock,
+} from "lucide-react";
 import { BookingConfirmDialog } from "@/components/dialogs/BookingConfirmDialog";
 import { cn } from "@/lib/utils"; // Assuming you have this utility
 
@@ -21,12 +27,25 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [partySize, setPartySize] = useState<number>(2);
-  const [pendingReservation, setPendingReservation] = useState<ReservationForm | null>(null);
+  const [pendingReservation, setPendingReservation] =
+    useState<ReservationForm | null>(null);
 
   const timeSlots = [
-    "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
-    "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "6:00 PM",
-    "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM",
+    "08:00 AM",
+    "09:00 AM",
+    "10:00 AM",
+    "11:00 AM",
+    "12:00 PM",
+    "12:30 PM",
+    "1:00 PM",
+    "1:30 PM",
+    "2:00 PM",
+    "6:00 PM",
+    "6:30 PM",
+    "7:00 PM",
+    "7:30 PM",
+    "8:00 PM",
+    "8:30 PM",
   ];
 
   const handleBooking = () => {
@@ -47,25 +66,30 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-12 py-10 animate-in fade-in duration-700">
-      
+    <div className="animate-in fade-in mx-auto max-w-xl space-y-12 py-10 duration-700">
       {/* 1. DATE SELECTION */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2 text-blue-500">
             <Calendar size={16} strokeWidth={2.5} />
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em]">Select Date</span>
+            <span className="text-[12px] font-bold tracking-[0.2em] uppercase">
+              Select Date
+            </span>
           </div>
           <span className="text-[13px] font-bold text-gray-400">
-            {selectedDate.toLocaleDateString("en", { month: 'long', year: 'numeric' })}
+            {selectedDate.toLocaleDateString("en", {
+              month: "long",
+              year: "numeric",
+            })}
           </span>
         </div>
-        
-        <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+
+        <div className="no-scrollbar flex gap-3 overflow-x-auto pb-4">
           {Array.from({ length: 14 }, (_, i) => {
             const date = new Date();
             date.setDate(date.getDate() + i);
-            const isSelected = date.toDateString() === selectedDate.toDateString();
+            const isSelected =
+              date.toDateString() === selectedDate.toDateString();
 
             return (
               <button
@@ -73,12 +97,12 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
                 onClick={() => setSelectedDate(date)}
                 className={cn(
                   "flex min-w-[70px] flex-col items-center justify-center rounded-[1.5rem] py-4 transition-all duration-300",
-                  isSelected 
-                    ? "bg-black text-white shadow-xl shadow-black/10 scale-105" 
+                  isSelected
+                    ? "scale-105 bg-black text-white shadow-xl shadow-black/10"
                     : "bg-gray-50 text-gray-400 hover:bg-gray-100"
                 )}
               >
-                <span className="text-[11px] font-bold uppercase tracking-widest opacity-60">
+                <span className="text-[11px] font-bold tracking-widest uppercase opacity-60">
                   {date.toLocaleDateString("en", { weekday: "short" })}
                 </span>
                 <span className="mt-1 text-lg font-extrabold tracking-tight">
@@ -94,7 +118,9 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
       <section className="space-y-4">
         <div className="flex items-center gap-2 px-1 text-blue-500">
           <Clock size={16} strokeWidth={2.5} />
-          <span className="text-[12px] font-bold uppercase tracking-[0.2em]">Available Slots</span>
+          <span className="text-[12px] font-bold tracking-[0.2em] uppercase">
+            Available Slots
+          </span>
         </div>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {timeSlots.map((time) => (
@@ -105,7 +131,7 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
                 "h-12 rounded-2xl text-[13px] font-bold transition-all duration-300",
                 selectedTime === time
                   ? "bg-black text-white shadow-lg"
-                  : "bg-white ring-1 ring-gray-100 text-gray-600 hover:bg-gray-50 hover:ring-gray-200"
+                  : "bg-white text-gray-600 ring-1 ring-gray-100 hover:bg-gray-50 hover:ring-gray-200"
               )}
             >
               {time}
@@ -118,8 +144,12 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
       <section className="rounded-[2.5rem] bg-gray-50/50 p-8 sm:p-10">
         <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <h4 className="text-[18px] font-bold tracking-tight text-gray-900">Table for how many?</h4>
-            <p className="text-[14px] font-medium text-gray-400">Specify your party size</p>
+            <h4 className="text-[18px] font-bold tracking-tight text-gray-900">
+              Table for how many?
+            </h4>
+            <p className="text-[14px] font-medium text-gray-400">
+              Specify your party size
+            </p>
           </div>
 
           <div className="flex items-center justify-between gap-6 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-gray-100">
@@ -135,7 +165,7 @@ export function CreateReservation({ onSubmit }: CreateReservationProps) {
 
             <div className="flex items-center gap-2 px-2">
               <Users className="h-4 w-4 text-blue-500" strokeWidth={2.5} />
-              <span className="text-[16px] font-extrabold text-gray-900 min-w-[20px] text-center">
+              <span className="min-w-[20px] text-center text-[16px] font-extrabold text-gray-900">
                 {partySize}
               </span>
             </div>

@@ -10,11 +10,11 @@ import { useEffect } from "react";
 const ActiveOrderPage = () => {
   const { uncompletedOrders, getUserActiveOrder } = useUnpaidUncompleted();
 
-  useEffect(()=>{
-    if(uncompletedOrders.length == 0){
-      getUserActiveOrder()
+  useEffect(() => {
+    if (uncompletedOrders.length == 0) {
+      getUserActiveOrder();
     }
-  },[])
+  }, []);
 
   return (
     <div className="mx-auto max-w-3xl space-y-12 p-6 py-12">

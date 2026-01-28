@@ -10,7 +10,7 @@ import restaurantReducer from "./restaurant.slice";
 import tableOrderReducer from "./table_order.slice";
 import unpaiduncompletedReducer from "./unpaidanduncompletedorder.slice";
 import groupOrderReducer from "./group_order.slice";
-import groupBillReducer from "./groupbill.slice"
+import groupBillReducer from "./groupbill.slice";
 
 export const store = configureStore({
   reducer: {
@@ -25,7 +25,7 @@ export const store = configureStore({
     table_order: tableOrderReducer,
     unpaid_uncompleted_orders: unpaiduncompletedReducer,
     group_order: groupOrderReducer,
-    groupBill: groupBillReducer
+    groupBill: groupBillReducer,
   },
   devTools: import.meta.env.MODE !== "production",
 });
