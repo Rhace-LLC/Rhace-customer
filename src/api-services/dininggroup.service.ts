@@ -91,3 +91,9 @@ export const getCurrentGroup = async (token?: string): Promise<DiningGroup> => {
 
   return bookiesAxiosInstance(config);
 };
+
+export const leaveGroup = async (token?: string): Promise<DiningGroup> => {
+  const config = getConfig(`/menu/dining-groups/leave/`, "POST", token);
+
+  return bookiesAxiosInstance(config);
+};

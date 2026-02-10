@@ -119,7 +119,7 @@ function NavigationContent() {
     "/notifications": { tab: "notifications", title: "Notifications" },
     "/profile": { tab: "profile", title: "Profile" },
     "/login": { tab: "login", title: "Login" },
-    "/orders/active" : {tab: "active-orders", title: "Active Orders"}
+    "/orders/active": { tab: "active-orders", title: "Active Orders" },
   };
 
   // Update activeTab and title whenever location changes

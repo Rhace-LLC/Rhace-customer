@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { register, RegisterRequestBody } from "@/api-services/auth.service";
 
 import imageSvg from "../../assets/login-img-svg.svg";
+import { parseError } from "@/api-services/utils/parseError";
 const loginImg =
   "https://res.cloudinary.com/mixam/image/upload/v1767798994/jwhqnhiqa5fpnkf0hu7f.png";
 export interface FormErrors {
@@ -103,20 +104,20 @@ export default function Signup() {
         role: "customer",
       };
 
-      await register(payload); // ✅ API call
+      await register(payload);
       toast.success("Account created successfully!");
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       navigate(`/verify-email?email=${encodeURIComponent(form.email)}`);
     } catch (error: any) {
-      toast.error("Failed to create account. Please try again.");
+      const errMessage = parseError(error);
+      toast.error(errMessage || "Failed to create account. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // -------------------- RENDER --------------------
   return (
     <>
       <div className="grid min-h-screen grid-rows-[auto,1fr] md:grid-cols-2 md:grid-rows-1">

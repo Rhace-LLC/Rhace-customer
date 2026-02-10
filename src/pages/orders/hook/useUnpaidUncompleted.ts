@@ -51,6 +51,23 @@ export const useUnpaidUncompleted = () => {
     }
   }, [auth.token, dispatch]);
 
+  // Fetch active (paid) orders
+  const getUserActiveOrderRefresh = useCallback(async () => {
+    if (!auth.token) return;
+
+    try {
+      const response = await getActiveOrder(auth.token);
+      const active = response.orders.filter((x) => x.payment === "paid");
+      dispatch(setUncompletedOrder(active));
+    } catch (error) {
+      const errorMessage = parseError(error);
+      setActiveOrderError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setActiveOrderLoading(false);
+    }
+  }, [auth.token, dispatch]);
+
   // Fetch unpaid orders
   const getUserUnpaidOrder = useCallback(async () => {
     if (!auth.token) return;
@@ -84,5 +101,6 @@ export const useUnpaidUncompleted = () => {
     // request functions
     getUserUnpaidOrder,
     getUserActiveOrder,
+    getUserActiveOrderRefresh,
   };
 };

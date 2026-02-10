@@ -96,6 +96,12 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
     });
   };
 
+  useEffect(() => {
+    if (!open) return;
+
+    fetchGroupBill();
+  }, [open, fetchGroupBill]);
+
   // LOGIC PRESERVED: submit
   const handleSubmit = () => {
     const sum = allocations.reduce((acc, a) => acc + a.amount_to_pay, 0);
@@ -112,9 +118,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
     onSubmit(payload);
     onOpenChange(false);
   };
-  useEffect(() => {
-    fetchGroupBill();
-  }, [fetchGroupBill]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] overflow-hidden rounded-[2.5rem] border-none p-0 shadow-2xl sm:max-w-[480px]">

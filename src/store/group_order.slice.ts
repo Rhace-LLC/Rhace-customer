@@ -26,10 +26,7 @@ const groupOrderSlice = createSlice({
     /**
      * Update only the orders inside the current dining group
      */
-    updateDiningGroupOrders(
-      state,
-      action: PayloadAction<BillOrder[]>
-    ) {
+    updateDiningGroupOrders(state, action: PayloadAction<BillOrder[]>) {
       if (!state.group) return;
 
       state.group.orders = action.payload;
@@ -41,6 +38,7 @@ const groupOrderSlice = createSlice({
   },
 });
 
-export const { setGroupOrder, clearGroupOrder, updateDiningGroupOrders } = groupOrderSlice.actions;
+export const { setGroupOrder, clearGroupOrder, updateDiningGroupOrders } =
+  groupOrderSlice.actions;
 
 export default groupOrderSlice.reducer;

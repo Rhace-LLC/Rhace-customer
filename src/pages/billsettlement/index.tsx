@@ -35,11 +35,15 @@ const BillSettlement = () => {
   const { setLoading, setLoadingText } = useLoading();
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const { groupBill, fetchGroupBill, groupBillError, groupBillLoading } =
-    useGroupBill();
+  const {
+    groupBill,
+    fetchGroupBill,
+    groupBillError,
+    groupBillLoading,
+    groupBillRefresh,
+  } = useGroupBill();
   const { groupOrder } = useGroupOrder();
 
-  console.log("bill", groupBill)
   const isBillSplitting = groupBill?.payment_method == "split";
 
   const groupOrderForMe =
@@ -61,6 +65,9 @@ const BillSettlement = () => {
     auth?.user?.id || "",
     groupBill
   );
+
+  const myBillPaid =
+    MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.myBillPaymentStatus === "paid";
 
   const [addToBillLoading, setAddToBillLoading] = useState(false);
   //const [addToBillError, setAddToBillError] = useState<string | null>(null);
@@ -142,7 +149,8 @@ const BillSettlement = () => {
 
     const result = await verifyPayment();
     fetchGroupBill();
-    if (result?.data?.payment_status === "success" || result?.data?.status == "success") {
+    console.log(result);
+    if (result?.payment_status === "success" || result?.status == "success") {
       toast.success("Payment completed successfully!");
     } else {
       toast.info("Payment not complete. Please try again.");
@@ -154,6 +162,14 @@ const BillSettlement = () => {
       fetchGroupBill();
     }
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      groupBillRefresh();
+    }, 20_000);
+
+    return () => clearInterval(interval);
+  }, [fetchGroupBill]);
 
   if (groupBillLoading) {
     return (
@@ -187,18 +203,18 @@ const BillSettlement = () => {
     );
   }
 
-  if(!groupBill){
-    return <EmptyBillState />
+  if (!groupBill) {
+    return <EmptyBillState />;
   }
 
   return (
     <div className="mx-auto max-w-2xl space-y-12 px-4 py-8">
       {/* SECTION: INTRO */}
       <div className="mb-4 space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tighter text-gray-900">
+        <h1 className="text-3xl font-bold tracking-tighter text-gray-900">
           Checkout
         </h1>
-        <p className="text-[15px] leading-relaxed text-gray-400">
+        <p className="text-[15px] leading-relaxed text-gray-600">
           Review your selection and choose how you’d like to settle the bill.
         </p>
       </div>
@@ -215,7 +231,7 @@ const BillSettlement = () => {
             </h3>
           </div>
           <span className="rounded-full bg-blue-50 px-4 py-1.5 text-[13px] font-semibold text-blue-600">
-            Personal - {MY_SPLIT?.is_paid ? "Paid" : "Unpaid"}
+            Personal - {myBillPaid ? "Paid" : "Unpaid"}
           </span>
         </div>
 
@@ -318,10 +334,7 @@ const BillSettlement = () => {
                   onClick={initiaiteOrderPayment}
                   className="flex h-16 w-full items-center justify-center rounded-[1.5rem] bg-black text-[15px] font-semibold tracking-tight text-white shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95"
                 >
-                  Proceed to Payment •{" "}
-                  <>
-                    ₦ {MY_INDIVIDUAL_BILL.myBillTotal.toLocaleString("en-NG")}
-                  </>
+                  Proceed to Payment
                 </button>
               )}
 
@@ -339,7 +352,7 @@ const BillSettlement = () => {
                     {MY_INDIVIDUAL_BILL.paidByData?.paying_for_orders.length! >
                       1 && (
                       <p className="mt-2 text-[13px] opacity-80">
-                        You also covered other diners’ orders. Thank you 🙏
+                        You also covered other diners’ orders. Thank you
                       </p>
                     )}
                   </div>
@@ -424,6 +437,7 @@ const BillSettlement = () => {
             MY_INDIVIDUAL_BILL?.myBill[0]?.paying_for_orders || [],
             order.id
           );
+
           let showAdd = !isBillSplitting && !order.is_paid;
 
           return (

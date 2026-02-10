@@ -4,11 +4,21 @@ import {
   formatDate,
   getOrderStatusText,
 } from "../utils/helpers";
-import FullScreenError, { FullScreenLoader, OrderStatusBadge } from "./components/utils";
+import FullScreenError, {
+  FullScreenLoader,
+  OrderStatusBadge,
+} from "./components/utils";
 import { useEffect } from "react";
+import NoActiveOrder from "./components/noorder";
 
 const ActiveOrderPage = () => {
-  const { uncompletedOrders, getUserActiveOrder, activeOrderLoading, activeOrderError } = useUnpaidUncompleted();
+  const {
+    uncompletedOrders,
+    getUserActiveOrder,
+    activeOrderLoading,
+    activeOrderError,
+    getUserActiveOrderRefresh,
+  } = useUnpaidUncompleted();
 
   useEffect(() => {
     if (uncompletedOrders.length == 0) {
@@ -16,12 +26,29 @@ const ActiveOrderPage = () => {
     }
   }, []);
 
-  if(activeOrderLoading){
-    return <FullScreenLoader />
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getUserActiveOrderRefresh();
+    }, 20_000);
+
+    return () => clearInterval(interval);
+  }, [getUserActiveOrderRefresh]);
+
+  if (activeOrderLoading) {
+    return <FullScreenLoader />;
   }
 
-  if(activeOrderError){
-    return <FullScreenError message={activeOrderError} onRetry={getUserActiveOrder} />
+  if (activeOrderError) {
+    return (
+      <FullScreenError
+        message={activeOrderError}
+        onRetry={getUserActiveOrder}
+      />
+    );
+  }
+
+  if (uncompletedOrders.length === 0) {
+    return <NoActiveOrder />;
   }
 
   return (

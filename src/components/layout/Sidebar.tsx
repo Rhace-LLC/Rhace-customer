@@ -8,7 +8,7 @@ import {
   X,
   Utensils,
   AlertCircle,
-  PowerOff
+  PowerOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -66,14 +66,6 @@ export function Sidebar({
       icon: Bell,
       path: "/notifications",
     },
-    /*    
-    {
-      id: "bills-settlement",
-      label: "Bill Summary",
-      icon: Receipt,
-      path: "/bill-settlement",
-    },    
-    */
     {
       id: "order-history",
       label: "Past Orders",

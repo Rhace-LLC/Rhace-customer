@@ -2,9 +2,9 @@ import { RootState } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 
 import { useEffect, useState } from "react";
-import { ShareDineDialog } from "./shareDialog";
+import { ShareDineDialog } from "./components/shareDialog";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, LogOut, Share2, Users } from "lucide-react";
 
 import {
   addItemsToOrder,
@@ -37,6 +37,7 @@ import {
   BillSplitterModal,
   BillSubmission,
 } from "./components/AllocationModal";
+
 import { useSetupContext } from "@/contexts/SetupContext";
 
 import {
@@ -45,6 +46,7 @@ import {
   getCustomerSplitRecord,
   getMyIndividualBillBreakdown,
 } from "../utils/helpers";
+import { LeaveGroupConfirmation } from "./components/leavegroupconfirm";
 
 const GroupDineOrder = () => {
   const auth = useAuth();
@@ -68,7 +70,7 @@ const GroupDineOrder = () => {
 
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
-
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const groupOrderForMe =
     groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
@@ -118,6 +120,9 @@ const GroupDineOrder = () => {
     auth?.user?.id || "",
     groupBill
   );
+
+  const myBillPaid =
+    MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.myBillPaymentStatus === "paid";
 
   const MY_TOTAL = groupOrderForMe.reduce((sum, order) => {
     return sum + calculateOrderTotal(order);
@@ -211,7 +216,7 @@ const GroupDineOrder = () => {
       }
     } catch (error: any) {
       const errorMessage = parseError(error);
-      // optional: show toast / notification
+      // optional: show toast / notification console.log({})
       toast.error(errorMessage || "Unable to get bill. Please try again.");
     } finally {
       setLoading(false);
@@ -254,6 +259,20 @@ const GroupDineOrder = () => {
     }
   }, [groupBill, groupOrder]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      groupBillRefresh();
+    }, 20_000);
+
+    return () => clearInterval(interval);
+  }, [fetchGroupBill]);
+
+  useEffect(() => {
+    if (myBillPaid) {
+      dispatch(clearCart());
+    }
+  }, [myBillPaid]);
+
   if (loading) {
     return <FullScreenLoader />;
   }
@@ -275,23 +294,46 @@ const GroupDineOrder = () => {
 
   return (
     <>
-      {(orderCart.data.length > 0 || groupOrderForMe.length > 0) && (
+      {true && (
         <>
-          <div className="flex items-center justify-between">
+          {/* 3. Wire the Confirmation Component */}
+          <LeaveGroupConfirmation
+            open={isLeaveDialogOpen}
+            onOpenChange={setIsLeaveDialogOpen}
+            hasActiveOrders={true} // You can pass dynamic data here
+          />
+          <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
               <h1 className="text-foreground text-2xl font-bold tracking-tight">
                 Group Dining
               </h1>
-              <p className="text-foreground/60 text">
+              <p className="text-foreground/60 text-sm">
                 Dining together with others.
               </p>
             </div>
-            <button
-              onClick={() => setShareDialogOpen(true)}
-              className="bg-primary/10 text-primary-600 text h-12 cursor-pointer rounded-md px-2 font-medium"
-            >
-              Share Dine Invite
-            </button>
+
+            <div className="flex items-center gap-2">
+              {/* Leave Group Button - Muted/Danger style */}
+              <button
+                onClick={() => setIsLeaveDialogOpen(true)} // Open the dialog
+                className="flex h-12 cursor-pointer items-center justify-center rounded-xl border border-rose-100 bg-rose-50/50 px-4 text-rose-600 transition-all hover:bg-rose-100 active:scale-95"
+                title="Leave Group"
+              >
+                <LogOut size={20} />
+                <span className="text-[10px] tracking-widest uppercase sm:hidden">
+                  Leave Group
+                </span>
+              </button>
+
+              {/* Share Invite Button - Primary style */}
+              <button
+                onClick={() => setShareDialogOpen(true)}
+                className="bg-primary/10 text-primary-600 hover:bg-primary/20 flex h-12 cursor-pointer items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all active:scale-95"
+              >
+                <Share2 size={18} />
+                <span className="hidden sm:inline"></span>
+              </button>
+            </div>
           </div>
 
           {/* Render user Order */}
@@ -737,6 +779,7 @@ const GroupDineOrder = () => {
         onOpenChange={setOpenGetBillModal}
         onProceed={handleProceedGetBill}
       />
+
       <BillSplitterModal
         open={showAllocationModal}
         onOpenChange={setShowAllocationModal}

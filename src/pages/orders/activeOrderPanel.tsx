@@ -1,11 +1,19 @@
 import { Order } from "@/api-services/order.service";
 import { useActiveOrder } from "@/hooks/useActiveOrder";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const ActiveOrdersPanel = () => {
-  const { activeOrder } = useActiveOrder();
+  const { activeOrder, fetchActiveOrderRefresh } = useActiveOrder();
 
   const hasOrders = activeOrder && activeOrder.length > 0;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchActiveOrderRefresh();
+    }, 20_000);
+
+    return () => clearInterval(interval);
+  }, [fetchActiveOrderRefresh]);
 
   if (!hasOrders) {
     return null;

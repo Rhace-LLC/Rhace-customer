@@ -31,6 +31,7 @@ export const useGroupBill = () => {
       );
 
       dispatch(setBill(response.bill));
+      dispatch(updateDiningGroupOrders(response.bill.orders));
     } catch (error: any) {
       const errorMessage = parseError(error);
       setGroupBillError(errorMessage || "Something went wrong");
@@ -42,13 +43,13 @@ export const useGroupBill = () => {
 
   const groupBillRefresh = useCallback(async () => {
     if (!groupOrder?.id || !auth.token) return;
-
+    setGroupBillError(null);
     try {
       const response = await getDiningGroupBillSummary(
         groupOrder.id,
         auth.token
       );
-      dispatch(updateDiningGroupOrders(response.bill.orders))
+      dispatch(updateDiningGroupOrders(response.bill.orders));
       dispatch(setBill(response.bill));
     } catch (error: any) {
       dispatch(clearBill());

@@ -1,5 +1,5 @@
 import { LogIn, Lock } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { OrderDetailSheet } from "@/components/sheets/OrderDetailSheet";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,10 @@ export function PastOrders() {
       console.error("Failed to fetch order:", error);
     }
   };
+
+  useEffect(() => {
+    fetchUserOrders();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">

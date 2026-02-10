@@ -1,6 +1,10 @@
+import { BillOrder } from "@/api-services/billsettlement.service";
 import { getCurrentGroup } from "@/api-services/dininggroup.service";
 import { useAuth } from "@/contexts/AuthContext";
-import { setGroupOrder } from "@/store/group_order.slice";
+import {
+  setGroupOrder,
+  updateDiningGroupOrders,
+} from "@/store/group_order.slice";
 import { RootState } from "@/store/store";
 import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +30,6 @@ export const useGroupOrder = () => {
       dispatch(
         setGroupOrder({
           group: response,
-          totalAmount: 0, // derive later
         })
       );
     } catch (err: any) {
@@ -44,17 +47,23 @@ export const useGroupOrder = () => {
   const groupOrderRefresh = useCallback(async () => {
     if (!token) return;
 
+    setError(null);
     try {
       const response = await getCurrentGroup(token);
-
       dispatch(
         setGroupOrder({
           group: response,
-          totalAmount: 0, // derive later
         })
       );
     } catch (err: any) {}
   }, [dispatch, token]);
+
+  const updateGroupOrders = useCallback(
+    (orders: BillOrder[]) => {
+      dispatch(updateDiningGroupOrders(orders));
+    },
+    [dispatch]
+  );
 
   return {
     groupOrder,
@@ -62,5 +71,6 @@ export const useGroupOrder = () => {
     loading,
     error,
     groupOrderRefresh,
+    updateGroupOrders,
   };
 };

@@ -48,10 +48,17 @@ export const useActiveOrder = () => {
     }
   }, [token, dispatch]);
 
+  const fetchActiveOrderRefresh = useCallback(async () => {
+    if (!token) return;
+    const response: { orders: Order[] } = await getActiveOrder(token);
+    dispatch(setActiveOrder(response.orders));
+  }, [token, dispatch]);
+
   return {
     activeOrder,
     fetchActiveOrder,
     loading,
     error,
+    fetchActiveOrderRefresh,
   };
 };
