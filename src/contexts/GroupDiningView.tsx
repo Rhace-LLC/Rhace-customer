@@ -6,8 +6,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useDiningGroup } from "./diningGroup";
-import { Plus, Loader2, RotateCw } from "lucide-react";
+import { Plus, Loader2, RotateCw, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSetupContext } from "./SetupContext";
 
 export const DiningGroupView = () => {
   const {
@@ -26,6 +27,8 @@ export const DiningGroupView = () => {
     creating,
     refreshGroups,
   } = useDiningGroup();
+
+  const setup = useSetupContext();
 
   if (!isGroupDining || !!userGroup) return null;
 
@@ -89,7 +92,7 @@ export const DiningGroupView = () => {
           {!loading && !error && (
             <div className="space-y-6">
               {groups.length === 0 ? (
-                <div className="rounded-[2rem] border border-dashed border-gray-200 bg-gray-50/50 p-8 text-center">
+                <div className="rounded-4xl border border-dashed border-gray-200 bg-gray-50/50 p-8 text-center">
                   <p className="text-[13px] leading-relaxed text-gray-400">
                     No active groups found at this table. Start a new session to
                     dine with others.
@@ -107,7 +110,7 @@ export const DiningGroupView = () => {
                   {groups.map((group) => (
                     <div
                       key={group.id}
-                      className="group relative space-y-6 rounded-[2rem] border border-gray-100 bg-white p-6 transition-all hover:border-gray-200 hover:shadow-sm"
+                      className="group relative space-y-6 rounded-4xl border border-gray-100 bg-white p-6 transition-all hover:border-gray-200 hover:shadow-sm"
                     >
                       {/* HEADER: STATUS & TIME */}
                       <div className="flex items-center justify-between">
@@ -189,27 +192,42 @@ export const DiningGroupView = () => {
                   ))}
                 </div>
               )}
-
-              <div className="border-t border-gray-50 pt-4">
+              <div className="mt-2 space-y-3 border-t border-slate-100 pt-6">
+                {/* Primary Action: Create Group */}
                 <Button
-                  className="h-14 w-full rounded-2xl bg-black text-[11px] font-semibold tracking-[0.2em] text-white uppercase shadow-xl shadow-black/10 transition-all hover:bg-gray-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="h-14 w-full cursor-pointer rounded-2xl bg-slate-900 text-[11px] font-bold tracking-[0.2em] text-white uppercase shadow-lg shadow-slate-200 transition-all duration-300 hover:bg-blue-600 hover:shadow-blue-100 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={createGroup}
                   disabled={loading || creating}
                 >
                   {creating ? (
-                    <>
+                    <div className="flex items-center">
                       <Loader2
                         size={14}
-                        className="mr-2 animate-spin text-white/70"
+                        className="mr-3 animate-spin text-white/50"
                       />
-                      Initiating Group...
-                    </>
+                      <span className="animate-pulse">Initiating Group...</span>
+                    </div>
                   ) : (
-                    <>
-                      <Plus size={14} className="mr-2" />
+                    <div className="flex items-center">
+                      <Plus size={14} className="mr-2.5" />
                       Create New Group
-                    </>
+                    </div>
                   )}
+                </Button>
+
+                {/* Secondary Action: Back to Selection */}
+                <Button
+                  variant="ghost"
+                  className="h-12 w-full cursor-pointer rounded-xl border border-transparent bg-transparent text-[10px] font-bold tracking-[0.15em] text-slate-400 uppercase transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]"
+                  onClick={() => {
+                    setup.setPreferredDiningExperience(null);
+                    setup.setShouldPrompt(true);
+                  }}
+                >
+                  <div className="flex items-center">
+                    <ArrowLeft size={12} className="mr-2" />
+                    Back to Selection
+                  </div>
                 </Button>
               </div>
             </div>

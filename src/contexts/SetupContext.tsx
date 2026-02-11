@@ -44,10 +44,11 @@ export interface SetupContextState {
   >;
   smartResumeData: SmartResumeData | null;
   preferredDiningExperience: DiningExperience | null;
-  setPreferredDiningExperience: (value: DiningExperience) => void;
+  setPreferredDiningExperience: (value: DiningExperience | null) => void;
   resetDiningExperience: () => void;
   shouldPrompt: boolean;
   setShouldPrompt: (val: boolean) => void;
+  leaveGroupDining: () => void;
 }
 
 export const SetupContext = createContext<SetupContextState | undefined>({
@@ -74,6 +75,7 @@ export const SetupContext = createContext<SetupContextState | undefined>({
   resetDiningExperience: () => {},
   shouldPrompt: false,
   setShouldPrompt: () => {},
+  leaveGroupDining: () => {},
 });
 
 interface Props {
@@ -188,6 +190,10 @@ export const SetupProvider: React.FC<Props> = ({ children }) => {
     };
   }, [unpaidOrders]);
 
+  const leaveGroupDining = () => {
+    setPreferredDiningExperience("personal");
+  };
+
   const resetDiningExperience = () => {
     setPreferredDiningExperience(null);
     setShouldPrompt(false);
@@ -235,6 +241,7 @@ export const SetupProvider: React.FC<Props> = ({ children }) => {
     resetDiningExperience,
     shouldPrompt,
     setShouldPrompt,
+    leaveGroupDining,
   };
 
   return (

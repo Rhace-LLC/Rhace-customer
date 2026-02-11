@@ -47,6 +47,8 @@ import {
   getMyIndividualBillBreakdown,
 } from "../utils/helpers";
 import { LeaveGroupConfirmation } from "./components/leavegroupconfirm";
+import { leaveGroup } from "@/api-services/dininggroup.service";
+import GroupToPersonalTransition from "./components/GroupToPersonalTransition";
 
 const GroupDineOrder = () => {
   const auth = useAuth();
@@ -71,6 +73,7 @@ const GroupDineOrder = () => {
   const { setLoading, setLoadingText } = useLoading();
   const navigate = useNavigate();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const [isTransitionDialogOpen, setIsTransitionDialogOpen] = useState(false);
   const groupOrderForMe =
     groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
@@ -132,6 +135,24 @@ const GroupDineOrder = () => {
     groupOrderRefresh();
     groupBillRefresh();
   };
+  const [leaving, setLeaving] = useState(false);
+
+  const transitionProtocol = async () => {
+    if (leaving) return; // prevent double click
+
+    try {
+      setLeaving(true);
+
+      await leaveGroup(auth.token);
+      setup.leaveGroupDining();
+      toast.success("Successfully Transitioned",{description: "You can now place your order on your personal tab and enjoy your meal."})
+    } catch (error: any) {
+      const errMessage = parseError(error);
+      toast.error(errMessage || "Failed to leave group");
+    } finally {
+      setLeaving(false);
+    }
+  };
 
   const handleSubmitOrder = async () => {
     try {
@@ -162,6 +183,15 @@ const GroupDineOrder = () => {
       dispatch(clearCart());
     } catch (error) {
       const errmsg = parseError(error);
+
+      if (
+        errmsg ==
+        "'A bill has been requested for your dining group. Please complete payment before ordering."
+      ) {
+        setIsTransitionDialogOpen(true);
+        return;
+      }
+
       toast.error(errmsg || "Failed to create order");
     } finally {
       setLoading(false);
@@ -280,6 +310,7 @@ const GroupDineOrder = () => {
   if (error) {
     return <FullScreenError message={error} onRetry={fetchGroupOrder} />;
   }
+
   // Header
   // No Content UI
   // Loading Group Order
@@ -302,6 +333,14 @@ const GroupDineOrder = () => {
             onOpenChange={setIsLeaveDialogOpen}
             hasActiveOrders={true} // You can pass dynamic data here
           />
+
+          <GroupToPersonalTransition
+            open={isTransitionDialogOpen}
+            onOpenChange={setIsTransitionDialogOpen}
+            onConfirm={transitionProtocol}
+            leaving={leaving}
+          />
+
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
               <h1 className="text-foreground text-2xl font-bold tracking-tight">
@@ -362,7 +401,7 @@ const GroupDineOrder = () => {
       {hasCartItems && !hasActiveOrders && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
-          <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+          <div className="mb-6 h-px w-full from-transparent via-gray-200 to-transparent" />
 
           <div className="group rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -402,7 +441,7 @@ const GroupDineOrder = () => {
         <>
           <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
             {/* Divider */}
-            <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+            <div className="mb-6 h-px w-full from-transparent via-gray-200 to-transparent" />
 
             <div className="group rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -435,7 +474,7 @@ const GroupDineOrder = () => {
               </p>
             </div>
 
-            <div className="flex h-20 w-full items-center justify-between rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 text-emerald-700">
+            <div className="flex h-20 w-full items-center justify-between rounded-3xl border border-emerald-100 bg-emerald-50 px-8 text-emerald-700">
               <div>
                 <p className="text-[12px] font-bold tracking-[0.15em] uppercase opacity-70">
                   Transaction
@@ -460,7 +499,7 @@ const GroupDineOrder = () => {
 
               {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "paid" &&
                 MY_INDIVIDUAL_BILL.paidBy === "me" && (
-                  <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
+                  <div className="rounded-3xl border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
                     <p className="text-[13px] font-bold tracking-[0.15em] uppercase">
                       Payment Complete
                     </p>
@@ -489,7 +528,7 @@ const GroupDineOrder = () => {
               {MY_INDIVIDUAL_BILL.myBillPaymentStatus === "paid" &&
                 MY_INDIVIDUAL_BILL.paidBy !== "me" &&
                 MY_INDIVIDUAL_BILL.paidByData && (
-                  <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
+                  <div className="rounded-3xl border border-emerald-100 bg-emerald-50 px-8 py-6 text-emerald-700">
                     <p className="text-[13px] font-bold tracking-[0.15em] uppercase">
                       Payment Complete
                     </p>
@@ -517,7 +556,7 @@ const GroupDineOrder = () => {
       {hasActiveOrders && !hasCartItems && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
-          <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+          <div className="mb-6 h-px w-full bg-linear-to-r from-transparent via-gray-200 to-transparent" />
 
           <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -751,7 +790,7 @@ const GroupDineOrder = () => {
             </div>
 
             {/* Typography */}
-            <div className="max-w-[240px] space-y-2">
+            <div className="max-w-60 space-y-2">
               <h4 className="text-[16px] font-semibold tracking-[0em] text-gray-600 uppercase">
                 Group Activity
               </h4>

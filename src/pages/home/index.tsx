@@ -91,7 +91,9 @@ export function HomePage() {
   };
 
   useEffect(() => {
+    if(!restaurant){
     refetch();
+    }
   }, [restaurantId]);
 
   return (

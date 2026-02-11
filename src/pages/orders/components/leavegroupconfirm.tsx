@@ -71,7 +71,7 @@ export function LeaveGroupConfirmation({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[400px] rounded-[32px] border-none p-8 shadow-2xl">
+      <AlertDialogContent className="max-w-[400px] rounded-4xl border-none p-8 shadow-2xl">
         <AlertDialogHeader className="space-y-4">
           {/* Warning Icon Hub */}
           <div className="flex justify-center">
