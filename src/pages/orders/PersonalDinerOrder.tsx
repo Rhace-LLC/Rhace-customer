@@ -39,6 +39,7 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { useSetupContext } from "@/contexts/SetupContext";
+import { BillOrder } from "@/api-services/billsettlement.service";
 
 const PersonalDineOrder = () => {
   const navigate = useNavigate();
@@ -342,7 +343,7 @@ const PersonalDineOrder = () => {
       {unpaidOrders.length > 0 && (
         <>
           {/* Here we show you your order and prompt you to pay, you would also see your cart and if there is any stuff in your cart, you can update the order */}
-          <UnpaidOrderCard data={unpaidOrders} />
+          <UnpaidOrderCard data={unpaidOrders as BillOrder[]} />
         </>
       )}
 

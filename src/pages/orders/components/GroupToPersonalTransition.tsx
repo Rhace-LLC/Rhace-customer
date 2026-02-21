@@ -59,7 +59,7 @@ const GroupToPersonalTransition: React.FC<TransitionDialogProps> = ({
           </div>
 
           {/* Bottom Border Accent */}
-          <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-blue-100 to-transparent" />
+          <div className="absolute bottom-0 left-0 h-px w-full bg-linear-to-r from-transparent via-blue-100 to-transparent" />
         </div>
 
         {/* Content Body */}

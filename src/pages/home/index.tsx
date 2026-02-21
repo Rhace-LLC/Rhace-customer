@@ -91,8 +91,8 @@ export function HomePage() {
   };
 
   useEffect(() => {
-    if(!restaurant){
-    refetch();
+    if (!restaurant) {
+      refetch();
     }
   }, [restaurantId]);
 
@@ -141,7 +141,7 @@ export function HomePage() {
                 </p>
                 <Button
                   onClick={refetch}
-                  className="mt-8 h-14 w-full max-w-[240px] rounded-2xl bg-gray-900 text-[15px] font-bold text-white shadow-xl shadow-black/10 transition-all active:scale-95"
+                  className="mt-8 h-14 w-full max-w-60 rounded-2xl bg-gray-900 text-[15px] font-bold text-white shadow-xl shadow-black/10 transition-all active:scale-95"
                 >
                   Retry Connection
                 </Button>
@@ -158,7 +158,7 @@ export function HomePage() {
                     alt={`${restaurant.name} cover`}
                     className="h-[400px] w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                 </div>
 
                 {/* Heading & Slogan */}
@@ -181,7 +181,7 @@ export function HomePage() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <button
                     onClick={() => navigate("/menu")}
-                    className="flex h-16 items-center justify-between rounded-[1.5rem] bg-black px-8 text-[15px] font-bold tracking-tight text-white shadow-2xl shadow-black/20 transition-all hover:bg-gray-800 active:scale-[0.98]"
+                    className="flex h-16 items-center justify-between rounded-3xl bg-black px-8 text-[15px] font-bold tracking-tight text-white shadow-2xl shadow-black/20 transition-all hover:bg-gray-800 active:scale-[0.98]"
                   >
                     <span>Browse the Menu</span>
                     <ArrowRight className="h-5 w-5 opacity-50" />
@@ -189,7 +189,7 @@ export function HomePage() {
 
                   <button
                     onClick={() => toast.info("A waiter has been notified!")}
-                    className="hidden h-16 items-center justify-between rounded-[1.5rem] border border-gray-100 bg-white px-8 text-[15px] font-bold tracking-tight text-gray-900 transition-all hover:bg-gray-50 active:scale-[0.98]"
+                    className="hidden h-16 items-center justify-between rounded-3xl border border-gray-100 bg-white px-8 text-[15px] font-bold tracking-tight text-gray-900 transition-all hover:bg-gray-50 active:scale-[0.98]"
                   >
                     <span>Request Service</span>
                     <ChefHat className="h-5 w-5 text-gray-300" />
@@ -222,7 +222,7 @@ export function HomePage() {
 
             <button
               onClick={handleQRScan}
-              className="mt-12 flex h-16 w-full max-w-[280px] items-center justify-center gap-3 rounded-[2rem] bg-black text-[15px] font-bold text-white shadow-2xl shadow-black/20 transition-all active:scale-95"
+              className="mt-12 flex h-16 w-full max-w-[280px] items-center justify-center gap-3 rounded-4xl bg-black text-[15px] font-bold text-white shadow-2xl shadow-black/20 transition-all active:scale-95"
             >
               Scan Table QR
               <Camera size={18} className="opacity-50" />

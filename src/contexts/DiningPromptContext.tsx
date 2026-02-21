@@ -42,7 +42,7 @@ export function DiningPreferencePrompt() {
             <button
               onClick={() => setPreferredDiningExperience("personal")}
               className={cn(
-                "group relative flex items-center gap-5 rounded-[2rem] border p-5 text-left transition-all duration-300 active:scale-[0.98]",
+                "group relative flex items-center gap-5 rounded-4xl border p-5 text-left transition-all duration-300 active:scale-[0.98]",
                 preferredDiningExperience === "personal"
                   ? "border-black bg-black text-white shadow-xl shadow-black/10"
                   : "border-gray-100 bg-white hover:border-gray-300"
@@ -94,7 +94,7 @@ export function DiningPreferencePrompt() {
             <button
               onClick={() => setPreferredDiningExperience("group")}
               className={cn(
-                "group relative flex items-center gap-5 rounded-[2rem] border p-5 text-left transition-all duration-300 active:scale-[0.98]",
+                "group relative flex items-center gap-5 rounded-4xl border p-5 text-left transition-all duration-300 active:scale-[0.98]",
                 preferredDiningExperience === "group"
                   ? "border-black bg-black text-white shadow-xl shadow-black/10"
                   : "border-gray-100 bg-white hover:border-gray-300"

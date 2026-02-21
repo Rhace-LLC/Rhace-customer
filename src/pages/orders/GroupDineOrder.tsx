@@ -145,7 +145,10 @@ const GroupDineOrder = () => {
 
       await leaveGroup(auth.token);
       setup.leaveGroupDining();
-      toast.success("Successfully Transitioned",{description: "You can now place your order on your personal tab and enjoy your meal."})
+      toast.success("Successfully Transitioned", {
+        description:
+          "You can now place your order on your personal tab and enjoy your meal.",
+      });
     } catch (error: any) {
       const errMessage = parseError(error);
       toast.error(errMessage || "Failed to leave group");
