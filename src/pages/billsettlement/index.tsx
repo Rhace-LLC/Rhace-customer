@@ -70,12 +70,14 @@ const BillSettlement = () => {
     MY_SPLIT?.is_paid || MY_INDIVIDUAL_BILL?.myBillPaymentStatus === "paid";
 
   const [addToBillLoading, setAddToBillLoading] = useState(false);
+  const [addToBillOrder,setAddToBillOrder] = useState(0)
   //const [addToBillError, setAddToBillError] = useState<string | null>(null);
 
   const handleAddToMyBill = async (id: number) => {
     if (!groupOrder?.id || !auth.token) return;
 
     setAddToBillLoading(true);
+    setAddToBillOrder(id)
     //setAddToBillError(null);
 
     try {
@@ -90,6 +92,7 @@ const BillSettlement = () => {
       //setAddToBillError(message);
     } finally {
       setAddToBillLoading(false);
+      setAddToBillOrder(0)
     }
   };
 
@@ -489,7 +492,7 @@ const BillSettlement = () => {
                         : "bg-blue-50 text-blue-600 ring-1 ring-blue-100 hover:bg-blue-600 hover:text-white hover:ring-blue-600"
                     )}
                   >
-                    {addToBillLoading ? (
+                    {addToBillLoading && addToBillOrder == order.id ? (
                       <>
                         <Loader2 className="h-3 w-3 animate-spin" />
                         <span>Adding</span>
