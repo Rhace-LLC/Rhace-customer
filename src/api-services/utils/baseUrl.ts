@@ -2,7 +2,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 export const bookies_baseurl: string =
-  "https://bookies-backend-jdv3.onrender.com";
+  "https://back-office-api.rhace.co";
 
 export const bookiesAxiosInstance = axios.create({
   baseURL: bookies_baseurl,
