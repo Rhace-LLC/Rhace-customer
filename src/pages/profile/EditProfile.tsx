@@ -53,13 +53,22 @@ const EditProfile: React.FC<EditProfileProps> = ({ profile, onEdit }) => {
 
   return (
     <Card className="w-full rounded-2xl shadow-sm">
-      <CardContent className="space-y-6 p-6">
-        <h2 className="text-xl font-semibold text-gray-800">Edit Profile</h2>
+      <CardContent className="space-y-6 p-4 sm:p-6">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Edit Profile
+        </h2>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
-            <p className="mb-1 text-sm text-gray-600">First Name</p>
+            <label
+              htmlFor="first_name"
+              className="mb-2 block text-sm font-medium text-gray-600"
+            >
+              First Name
+            </label>
+
             <Input
+              id="first_name"
               name="first_name"
               value={form.first_name}
               onChange={handleChange}
@@ -67,30 +76,51 @@ const EditProfile: React.FC<EditProfileProps> = ({ profile, onEdit }) => {
           </div>
 
           <div>
-            <p className="mb-1 text-sm text-gray-600">Last Name</p>
+            <label
+              htmlFor="last_name"
+              className="mb-2 block text-sm font-medium text-gray-600"
+            >
+              Last Name
+            </label>
+
             <Input
+              id="last_name"
               name="last_name"
               value={form.last_name}
               onChange={handleChange}
             />
           </div>
 
-          <div>
-            <p className="mb-1 text-sm text-gray-600">Phone</p>
-            <Input name="phone" value={form.phone} onChange={handleChange} />
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="phone"
+              className="mb-2 block text-sm font-medium text-gray-600"
+            >
+              Phone
+            </label>
+
+            <Input
+              id="phone"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+            />
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <Button onClick={handleSave} disabled={loading} className="w-32">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          <Button
+            onClick={handleSave}
+            disabled={loading}
+            className="w-full sm:w-32"
+          >
             {loading ? "Saving..." : "Save"}
           </Button>
 
           <Button
-            variant="outline"
             onClick={() => onEdit(false)}
             disabled={loading}
-            className="w-32"
+            className="w-full sm:w-32"
           >
             Cancel
           </Button>
