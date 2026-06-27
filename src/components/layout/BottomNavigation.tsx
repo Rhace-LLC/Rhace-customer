@@ -1,4 +1,4 @@
-import { Home, ShoppingBag, Utensils, CalendarDays } from "lucide-react";
+import { Home, ShoppingBag, Utensils, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -20,10 +20,10 @@ export function BottomNavigation({
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
     { id: "order", label: "My Order", icon: ShoppingBag, path: "/orders" },
     {
-      id: "reservation",
-      label: "Reservations",
-      icon: CalendarDays,
-      path: "/reservations",
+      id: "profile",
+      label: "Profile",
+      icon: User,
+      path: "/profile",
     },
   ];
 
