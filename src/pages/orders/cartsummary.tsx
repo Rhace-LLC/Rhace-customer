@@ -27,6 +27,7 @@ import {
 import { clearCart } from "@/store/orderCart.slice";
 import { useNavigate } from "react-router-dom";
 import { useSetupContext } from "@/contexts/SetupContext";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
   OnCreateOrder,
@@ -181,15 +182,12 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
                 {item.dishData.name}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                ₦{parseFloat(item.dishData.price).toLocaleString()} ×{" "}
+                {formatCurrency(item.dishData.price)} ×{" "}
                 {item.quantity}
               </p>
             </div>
             <p className="font-semibold text-gray-800">
-              ₦
-              {(
-                parseFloat(item.dishData.price) * item.quantity
-              ).toLocaleString()}
+              {formatCurrency(String(parseFloat(item.dishData.price) * item.quantity))}
             </p>
           </div>
         ))}
@@ -200,7 +198,7 @@ const OrderSummary: React.FC<{ OnCreateOrder: () => void }> = ({
       <div className="mb-6 flex items-center justify-between">
         <span className="font-medium text-gray-600">Total</span>
         <span className="text-lg font-semibold text-gray-900">
-          ₦{totalPrice.toLocaleString()}
+          {formatCurrency(String(totalPrice))}
         </span>
       </div>
 

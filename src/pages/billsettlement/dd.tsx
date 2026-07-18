@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DollarSign, Users } from "lucide-react";
+import { formatCurrency } from "@/pages/utils/helpers";
 import {
   Dialog,
   DialogContent,
@@ -67,7 +68,7 @@ const BillSettlement = () => {
 
           <div className="flex justify-between text-sm font-medium">
             <span>Total</span>
-            <span>₦{MY_TOTAL.toLocaleString("en-NG")}</span>
+            <span>{formatCurrency(String(MY_TOTAL))}</span>
           </div>
         </div>
 
@@ -119,7 +120,7 @@ const BillSettlement = () => {
 
                 <div className="text-right">
                   <p className="text-sm font-medium">
-                    ₦{diner.total.toLocaleString("en-NG")}
+                    {formatCurrency(String(diner.total))}
                   </p>
                   <button
                     onClick={() => toggleDiner(diner)}
@@ -153,7 +154,7 @@ const BillSettlement = () => {
           <div className="space-y-3 text-sm">
             <div className="flex justify-between font-medium">
               <span>Your order</span>
-              <span>₦{MY_TOTAL.toLocaleString("en-NG")}</span>
+              <span>{formatCurrency(String(MY_TOTAL))}</span>
             </div>
 
             {addedDiners.map((diner) => (
@@ -162,13 +163,13 @@ const BillSettlement = () => {
                 className="text-foreground/80 flex justify-between"
               >
                 <span>{diner.name}</span>
-                <span>₦{diner.total.toLocaleString("en-NG")}</span>
+                <span>{formatCurrency(String(diner.total))}</span>
               </div>
             ))}
 
             <div className="flex justify-between border-t pt-2 font-semibold">
               <span>Total to pay</span>
-              <span>₦{totalToPay.toLocaleString("en-NG")}</span>
+              <span>{formatCurrency(String(totalToPay))}</span>
             </div>
           </div>
 

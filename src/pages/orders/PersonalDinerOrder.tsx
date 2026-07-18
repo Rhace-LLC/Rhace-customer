@@ -27,6 +27,7 @@ import FullScreenError, {
   UnpaidOrderCard,
   UserCart,
 } from "./components/utils";
+import { formatCurrency } from "@/pages/utils/helpers";
 import { formatNumberWithDecimals } from "@/utils/utils";
 import { ArrowRight, CheckCircle, Info } from "lucide-react";
 import { clearCart } from "@/store/orderCart.slice";
@@ -373,9 +374,8 @@ const PersonalDineOrder = () => {
                     Your Cart Order Totals To:
                   </p>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="font-bold text-gray-900">₦</span>
                     <span className="text-3xl font-medium tracking-tighter text-gray-900">
-                      {formatNumberWithDecimals(totalPrice)}
+                      {formatCurrency(String(totalPrice))}
                     </span>
                   </div>
                 </div>

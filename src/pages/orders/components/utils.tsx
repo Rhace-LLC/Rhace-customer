@@ -187,13 +187,13 @@ export const CartUpdate = () => {
                       <p>
                         <span className="font-medium text-gray-800">
                           <span className="font-medium">
-                            ₦{totalPrice.toLocaleString("en-NG")}
+                            {formatCurrency(String(totalPrice))}
                           </span>
                         </span>
                       </p>
                       <p>
                         <span className="text-sm font-medium text-gray-600">
-                          {dish.price} x {getDishQuantity(dish.id)}
+                          {formatCurrency(dish.price)} x {getDishQuantity(dish.id)}
                         </span>
                       </p>
                     </div>
@@ -346,7 +346,7 @@ export const UserCart = () => {
                       <p>
                         <span className="font-medium text-gray-800">
                           <span className="font-medium">
-                            ₦{totalPrice.toLocaleString("en-NG")}
+                            {formatCurrency(String(totalPrice))}
                           </span>
                         </span>
                       </p>
@@ -613,7 +613,7 @@ export const UnpaidOrderCard = ({ data }: { data: BillOrder[] }) => {
                 </p>
                 <p className="hidden">
                   <span className="text-sm font-medium text-gray-600">
-                    {item.price} x {item.quantity}
+                    {formatCurrency(item.price)} x {item.quantity}
                   </span>
                 </p>
               </div>

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
+import { formatCurrency } from "@/pages/utils/helpers";
 import { useGroupBill } from "../hook/useGroupBill";
 import { cn } from "@/lib/utils";
 
@@ -107,9 +108,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
     const sum = allocations.reduce((acc, a) => acc + a.amount_to_pay, 0);
     if (Math.round(sum * 100) / 100 !== Math.round(totalAmount * 100) / 100) {
       setError(
-        `Total allocated amount must equal ${totalAmount.toFixed(2)}. Current sum: ${sum.toFixed(
-          2
-        )}`
+        `Total allocated amount must equal ${formatCurrency(String(totalAmount))}. Current sum: ${formatCurrency(String(sum))}`
       );
       return;
     }
@@ -202,10 +201,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
                         Total Bill
                       </p>
                       <p className="text-xl font-bold tracking-tight text-gray-900">
-                        ₦
-                        {totalAmount.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })}
+                        {formatCurrency(String(totalAmount))}
                       </p>
                     </div>
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">

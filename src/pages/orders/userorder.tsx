@@ -8,6 +8,7 @@ import { ArrowRight, ShoppingBag } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 const UserOrder = () => {
   const auth = useAuth();
@@ -133,7 +134,7 @@ const UserOrder = () => {
                       <p>
                         <span className="font-medium text-gray-800">
                           <span className="font-medium">
-                            ₦{totalPrice.toLocaleString("en-NG")}
+                            {formatCurrency(String(totalPrice))}
                           </span>
                         </span>
                       </p>

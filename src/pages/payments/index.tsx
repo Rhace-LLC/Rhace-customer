@@ -10,6 +10,7 @@ import { ContentHOC } from "@/components/nocontent";
 import { TransactionDetailSheet } from "@/components/sheets/TransactionDetailSheet";
 import { usePaymentData } from "./usePaymentData";
 import { Pagination } from "@/components/pagination";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 // Re-defining Payment interface for context, assuming it's available globally or imported
 export interface Payment {
@@ -99,7 +100,7 @@ export function PaymentsPage() {
                 [],
                 { hour: "2-digit", minute: "2-digit" }
               );
-              const amountDisplay = `${txn.currency} ${txn.amount.toFixed(2)}`;
+              const amountDisplay = formatCurrency(String(txn.amount));
               const statusClass = getStatusBadgeColor(txn.status);
               const methodDisplay = txn.payment_method || txn.order_type;
 

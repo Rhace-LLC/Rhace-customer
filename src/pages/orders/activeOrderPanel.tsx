@@ -1,6 +1,7 @@
 import { Order } from "@/api-services/order.service";
 import { useActiveOrder } from "@/hooks/useActiveOrder";
 import { useEffect, useState } from "react";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 export const ActiveOrdersPanel = () => {
   const { activeOrder, fetchActiveOrderRefresh } = useActiveOrder();
@@ -56,7 +57,7 @@ export const OrderCard = ({ order }: OrderCardProps) => {
         <div>
           <p className="font-medium text-gray-800">Order #{order.id}</p>
           <p className="text-sm text-gray-500">
-            {order.items.length} item(s) • ₦{order.total_price}
+            {order.items.length} item(s) • {formatCurrency(order.total_price)}
           </p>
           <span
             className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -95,7 +96,7 @@ export const OrderCard = ({ order }: OrderCardProps) => {
                 <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
               </div>
 
-              <p className="font-medium text-gray-700">₦{item.price}</p>
+              <p className="font-medium text-gray-700">{formatCurrency(item.price)}</p>
             </div>
           ))}
         </div>

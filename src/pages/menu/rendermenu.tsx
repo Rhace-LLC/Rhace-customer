@@ -18,6 +18,7 @@ import { useMenuData } from "./useMenuData";
 import { MenuCatFilterItem } from "./MenuCatItem";
 
 import { useSetupContext } from "@/contexts/SetupContext";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 export const RenderMenuCategoryDishes = () => {
   const dispatch = useDispatch();
@@ -148,7 +149,7 @@ export const RenderMenuCategoryDishes = () => {
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-semibold tracking-tight text-white">
-                    ₦{dish.price}
+                    {formatCurrency(dish.price)}
                   </span>
                   <div className="flex items-center gap-1">
                     {dish.available ? (

@@ -13,6 +13,7 @@ import {
 } from "@/store/orderCart.slice";
 
 import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "@/pages/utils/helpers";
 import OrderSummary from "./cartsummary";
 import { getOrders, Order } from "@/api-services/order.service";
 import { useAuth } from "@/contexts/AuthContext";
@@ -104,7 +105,7 @@ export function OldOrdersPage() {
                     {/* Price & Availability */}
                     <div className="mt-3 flex items-center justify-between">
                       <span className="font-medium text-gray-800">
-                        ₦{parseFloat(dish.price).toLocaleString()}
+                        {formatCurrency(dish.price)}
                       </span>
 
                       <div className="flex items-center gap-1">

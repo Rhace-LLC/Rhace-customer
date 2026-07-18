@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
 import { ImageWithFallback } from "../imagewithfallback/ImageWithFallback";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 interface DishDetailSheetProps {
   dish: any;
@@ -100,7 +101,7 @@ export function DishDetailSheet({
                       {addon.name}
                     </label>
                   </div>
-                  <span className="text-sm font-medium">+${addon.price}</span>
+                  <span className="text-sm font-medium">+{formatCurrency(String(addon.price))}</span>
                 </div>
               ))}
             </div>
@@ -133,7 +134,7 @@ export function DishDetailSheet({
           <div className="border-t pt-4">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-lg font-medium">Total</span>
-              <span className="text-xl font-bold">${getTotalPrice()}</span>
+              <span className="text-xl font-bold">{formatCurrency(String(getTotalPrice()))}</span>
             </div>
             <Button
               onClick={handleAddToCart}

@@ -2,6 +2,7 @@ import { Mail, CreditCard, Calendar, Clock, DollarSign } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 // --- START: Updated Payment Interface (for clarity) ---
 export interface Payment {
@@ -50,8 +51,11 @@ export function TransactionDetailSheet({
   if (!transaction) return null;
 
   const { date, time } = formatDateAndTime(transaction.created_at);
-  const currencySymbol =
-    transaction.currency === "USD" ? "$" : transaction.currency;
+  const formatTxnCurrency = (value: number) =>
+  new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: transaction.currency === "USD" ? "USD" : "NGN",
+  }).format(value);
 
   const subtotal = transaction.amount - transaction.fees;
   // NOTE: Assuming the 'fees' field in the API response represents the total fees (Tax + Service)
@@ -146,23 +150,20 @@ export function TransactionDetailSheet({
             <div className="flex items-center justify-between text-sm">
               <span>Subtotal</span>
               <span>
-                {currencySymbol}
-                {subtotal.toFixed(2)}
+                {formatTxnCurrency(subtotal)}
               </span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
               <span>Service Fee</span>
               <span>
-                {currencySymbol}
-                {estimatedServiceFee.toFixed(2)}
+                {formatTxnCurrency(estimatedServiceFee)}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span>Total Fees</span>
               <span>
-                {currencySymbol}
-                {transaction.fees.toFixed(2)}
+                {formatTxnCurrency(transaction.fees)}
               </span>
             </div>
             <Separator />
@@ -172,8 +173,7 @@ export function TransactionDetailSheet({
                 **TOTAL PAID**
               </span>
               <span>
-                **{currencySymbol}
-                {transaction.amount.toFixed(2)}**
+                {formatTxnCurrency(transaction.amount)}
               </span>
             </div>
           </div>

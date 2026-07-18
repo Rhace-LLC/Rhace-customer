@@ -24,6 +24,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+import { formatCurrency } from "@/pages/utils/helpers";
 import { parseError } from "@/api-services/utils/parseError";
 import {
   initializePayment,
@@ -189,10 +190,7 @@ export function OrdersOverview({
                   </span>
 
                   <span className="text-sm font-semibold">
-                    NGN{" "}
-                    {Number(order.total_price).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                    })}
+                    {formatCurrency(order.total_price)}
                   </span>
                 </div>
               </div>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";
+import { formatCurrency } from "@/pages/utils/helpers";
 import { useGroupBill } from "../hook/useGroupBill";
 
 interface BillSplitterModalProps {
@@ -69,9 +70,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
     const sum = allocations.reduce((acc, a) => acc + a.amount, 0);
     if (sum !== totalAmount) {
       setError(
-        `Total allocated amount must equal ${totalAmount.toFixed(2)}. Current sum: ${sum.toFixed(
-          2
-        )}`
+        `Total allocated amount must equal ${formatCurrency(String(totalAmount))}. Current sum: ${formatCurrency(String(sum))}`
       );
       return;
     }
@@ -90,7 +89,7 @@ export const BillSplitterModal: React.FC<BillSplitterModalProps> = ({
           <DialogTitle>Split Bill</DialogTitle>
           <DialogDescription>
             Allocate the total bill among your group. Remaining amount:{" "}
-            <strong>{remainingAmount.toFixed(2)}</strong>
+            <strong>{formatCurrency(String(remainingAmount))}</strong>
           </DialogDescription>
         </DialogHeader>
 

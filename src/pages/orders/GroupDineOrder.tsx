@@ -416,9 +416,8 @@ const GroupDineOrder = () => {
                     Your Cart Order Totals To:
                   </p>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="font-bold text-gray-900">₦</span>
                     <span className="text-3xl font-medium tracking-tighter text-gray-900">
-                      {formatNumberWithDecimals(totalPrice)}
+                      {formatCurrency(String(totalPrice))}
                     </span>
                   </div>
                 </div>
@@ -518,7 +517,7 @@ const GroupDineOrder = () => {
                           You also covered other diners’ orders. Thank you 🙏
                         </p>
                         <p className="mt-2 text-[13px] opacity-80">
-                          Total Paid: {MY_INDIVIDUAL_BILL.myBillTotal}
+                          Total Paid: {formatCurrency(String(MY_INDIVIDUAL_BILL.myBillTotal))}
                         </p>
                       </>
                     )}
@@ -541,7 +540,7 @@ const GroupDineOrder = () => {
                     </p>
 
                     <p className="mt-1 text-[16px] font-semibold">
-                      Total : {MY_TOTAL}
+                      Total : {formatCurrency(String(MY_TOTAL))}
                     </p>
 
                     <p className="mt-2 text-[13px] opacity-80">
@@ -752,7 +751,7 @@ const GroupDineOrder = () => {
                     Total
                   </p>
                   <p className="font-semibold tracking-tighter text-gray-900">
-                    ₦{totalAmount.toLocaleString()}
+                    {formatCurrency(String(totalAmount))}
                   </p>
                 </div>
               </div>
@@ -771,7 +770,7 @@ const GroupDineOrder = () => {
                       {item.menu_item_name}
                     </span>
                     <span className="text-[16px] font-medium tracking-tighter text-gray-400 tabular-nums">
-                      ₦{Number(item.price).toLocaleString()} × {item.quantity}
+                      {formatCurrency(item.price)} × {item.quantity}
                     </span>
                   </div>
                 ))}

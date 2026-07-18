@@ -248,7 +248,7 @@ const BillSettlement = () => {
                     × {item.quantity}
                   </span>
                   <span className="block text-[13px] font-medium text-blue-800">
-                    Unit Price: {Number(item.price) / Number(item.quantity)}
+                    Unit Price: {formatCurrency(String(Number(item.price) / Number(item.quantity)))}
                   </span>
                 </span>
                 <span className="font-semibold text-gray-900">
@@ -277,7 +277,7 @@ const BillSettlement = () => {
           <div className="mt-4 flex justify-between border-t pt-4 text-[16px] font-semibold">
             <span>My Order Total</span>
             <span className="tabular-nums">
-              ₦{MY_TOTAL.toLocaleString("en-NG")}
+              {formatCurrency(String(MY_TOTAL))}
             </span>
           </div>
         )}
@@ -403,7 +403,7 @@ const BillSettlement = () => {
           {isBillSplitting ? (
             formatCurrency(MY_SPLIT?.amount_to_pay || "0")
           ) : (
-            <>₦ {MY_TOTAL.toLocaleString("en-NG")}</>
+            {formatCurrency(String(MY_TOTAL))}
           )}
         </button>
 

@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import { Order } from "@/api-services/order.service";
+import { formatCurrency } from "@/pages/utils/helpers";
 
 interface OrderDetailSheetProps {
   order: Order;
@@ -114,13 +115,13 @@ export function OrderDetailSheet({
                     <div className="text-sm">
                       <div className="font-medium">{item.menu_item_name}</div>
                       <div className="text-gray-500">
-                        Qty: {item.quantity} × NGN{" "}
-                        {Number(item.price).toFixed(2)}
+                        Qty: {item.quantity} ×{" "}
+                        {formatCurrency(item.price)}
                       </div>
                     </div>
                   </div>
                   <span className="text-sm font-medium">
-                    NGN {(Number(item.price) * item.quantity).toFixed(2)}
+                    {formatCurrency(String(Number(item.price) * item.quantity))}
                   </span>
                 </div>
               ))}
@@ -132,7 +133,7 @@ export function OrderDetailSheet({
           {/* Total */}
           <div className="flex items-center justify-between text-lg font-bold">
             <span>Total</span>
-            <span>NGN {totalPrice.toFixed(2)}</span>
+            <span>{formatCurrency(String(totalPrice))}</span>
           </div>
 
           {/* Customer Info */}
