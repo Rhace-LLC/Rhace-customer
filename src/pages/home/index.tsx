@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRestaurant } from "./useRestaurant";
 import { useSetupContext } from "@/contexts/SetupContext";
 import { useParseSelection } from "@/hooks/useParseSelection";
+import { CustomerTableLayoutView } from "./TableLayout";
 
 const fallbackGallery = [
   "https://plus.unsplash.com/premium_photo-1661883237884-263e8de8869b",
@@ -186,7 +187,7 @@ export function HomePage() {
                     <span>Browse the Menu</span>
                     <ArrowRight className="h-5 w-5 opacity-50" />
                   </button>
-
+                  <CustomerTableLayoutView />
                   <button
                     onClick={() => toast.info("A waiter has been notified!")}
                     className="hidden h-16 items-center justify-between rounded-3xl border border-gray-100 bg-white px-8 text-[15px] font-bold tracking-tight text-gray-900 transition-all hover:bg-gray-50 active:scale-[0.98]"

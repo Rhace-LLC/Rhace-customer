@@ -28,7 +28,6 @@ import FullScreenError, {
   UserCart,
 } from "./components/utils";
 import { formatCurrency } from "@/pages/utils/helpers";
-import { formatNumberWithDecimals } from "@/utils/utils";
 import { ArrowRight, CheckCircle, Info } from "lucide-react";
 import { clearCart } from "@/store/orderCart.slice";
 import { useUnpaidUncompleted } from "./hook/useUnpaidUncompleted";

@@ -1,6 +1,5 @@
 import {
   Home,
-  CalendarDays,
   ShoppingBag,
   CreditCard,
   Bell,
@@ -53,12 +52,7 @@ export function Sidebar({
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
     { id: "orders", label: "My Order", icon: ShoppingBag, path: "/orders" },
-    {
-      id: "reservations",
-      label: "Reservations",
-      icon: CalendarDays,
-      path: "/reservations",
-    },
+
     { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },
     {
       id: "notifications",

@@ -17,7 +17,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { toast } from "sonner";
 import { parseError } from "@/api-services/utils/parseError";
-import { formatNumberWithDecimals } from "@/utils/utils";
 
 import { clearCart } from "@/store/orderCart.slice";
 import { useGroupOrder } from "@/hooks/useDineGroupOrder";

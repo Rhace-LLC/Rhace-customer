@@ -403,7 +403,7 @@ const BillSettlement = () => {
           {isBillSplitting ? (
             formatCurrency(MY_SPLIT?.amount_to_pay || "0")
           ) : (
-            {formatCurrency(String(MY_TOTAL))}
+            formatCurrency(String(MY_TOTAL))
           )}
         </button>
 

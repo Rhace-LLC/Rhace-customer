@@ -2,7 +2,6 @@ import { Mail, CreditCard, Calendar, Clock, DollarSign } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
-import { formatCurrency } from "@/pages/utils/helpers";
 
 // --- START: Updated Payment Interface (for clarity) ---
 export interface Payment {

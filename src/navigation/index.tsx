@@ -43,7 +43,11 @@ import { toast } from "sonner";
 // --------------------- Scroll to top on route change ---------------------
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0); // ✅ Explicit block body, returns undefined
+  }, [pathname]);
+
   return null;
 };
 
@@ -113,7 +117,6 @@ function NavigationContent() {
     "/menu": { tab: "menu", title: "Menu" },
     "/orders": { tab: "order", title: "My Order" },
     "/order-history": { tab: "past-orders", title: "My Past Orders" },
-    "/reservations": { tab: "reservations", title: "Reservations" },
     "/payments": { tab: "payments", title: "Payments" },
     "/bill-settlement": { tab: "bills", title: "Bill Summary" },
     "/notifications": { tab: "notifications", title: "Notifications" },

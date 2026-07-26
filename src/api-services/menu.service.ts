@@ -4,6 +4,21 @@ import { getConfig } from "./utils/reqConfig";
 import { bookiesAxiosInstance } from "./utils/baseUrl";
 import { Restaurant } from "./order.service";
 
+
+export interface Table {
+  id: string;
+  access_code: string | null;
+  restaurant_name: string;
+  table_number: string;
+  qr_code_image: string;
+  max_party_size: number;
+  is_available: boolean;
+  created: string;
+  updated: string;
+  status: "free" | "occupied" | "reserved";
+  restaurant: string;
+}
+
 // ---------------- Types ----------------
 export interface CategoryData {
   id: number;
@@ -396,11 +411,13 @@ const updateBasePricing = async (
 };
 
 // ========== TABLES ==========
+
+// ========== TABLES ==========
 const getTables = async (
   restaurantId: string,
   params: any,
   token: string
-): Promise<any[]> => {
+): Promise<Table[]> => {
   const config = getConfig(
     `/menu/restaurant/${restaurantId}/tables/`,
     "GET",
@@ -410,6 +427,7 @@ const getTables = async (
   );
   return bookiesAxiosInstance(config);
 };
+
 
 const createTable = async (restaurantId: string, data: any, token: string) => {
   const config = getConfig(
