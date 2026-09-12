@@ -32,6 +32,27 @@ export interface UserDataLogin {
   email: string;
   first_name: string;
   last_name: string;
+  is_guest?: boolean;
+}
+
+export interface GuestLoginBody {
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+}
+
+export interface GuestLoginUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
+export interface GuestLoginResponse {
+  refresh: string;
+  access: string;
+  user: GuestLoginUser;
+  active_table: Record<string, unknown> | null;
 }
 
 export interface LoginRequestBody {
@@ -71,6 +92,16 @@ export interface ResendVerifyOtpBody {
 // Login
 const login = async (data: LoginRequestBody): Promise<LoginResponse> => {
   const config = getConfig(`/auth/login/`, "POST", undefined, data);
+  return bookiesAxiosInstance(config);
+};
+
+// Guest login
+const guestLogin = async (
+  data: GuestLoginBody
+): Promise<GuestLoginResponse> => {
+  data.phone = "00000000000";
+  data.email= "temp@mail.com"
+  const config = getConfig(`/auth/guest-login/`, "POST", undefined, data);
   return bookiesAxiosInstance(config);
 };
 
@@ -236,6 +267,7 @@ export const patchPassword = async (
 
 export {
   login,
+  guestLogin,
   logout,
   requestPasswordReset,
   verifyPasswordReset,

@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DiningPreferencePrompt } from "@/contexts/DiningPromptContext";
 import { DiningGroupView } from "@/contexts/GroupDiningView";
 import { SetupProvider } from "@/contexts/SetupContext";
+import { SessionGate } from "@/session/SessionGate";
 
 import NotFound from "@/pages/404";
 import ForgotPassword from "@/pages/auth/forgotpassword";
@@ -78,11 +79,13 @@ function Navigation(): React.JSX.Element {
   return (
     <Router>
       <ScrollToTop />
-      <SetupProvider>
-        <DiningPreferencePrompt />
-        <DiningGroupView />
-        <NavigationContent />
-      </SetupProvider>
+      <SessionGate>
+        <SetupProvider>
+          <DiningPreferencePrompt />
+          <DiningGroupView />
+          <NavigationContent />
+        </SetupProvider>
+      </SessionGate>
     </Router>
   );
 }

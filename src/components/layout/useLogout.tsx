@@ -17,6 +17,8 @@ export const useLogout = () => {
   const navigate = useNavigate();
 
   const logout = useCallback(() => {
+    const wasGuest = auth.isGuest;
+
     // Clear auth state from Redux
     auth.logout();
 
@@ -30,9 +32,9 @@ export const useLogout = () => {
     dispatch(clearProfile());
     localStorage.removeItem("user");
 
-    // Redirect to login page
-    navigate("/login");
-  }, [dispatch, navigate]);
+    // Guests return to the welcome gate; accounts go to the login page.
+    navigate(wasGuest ? "/" : "/login");
+  }, [auth, dispatch, navigate]);
 
   return { logout };
 };

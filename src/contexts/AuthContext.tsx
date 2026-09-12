@@ -2,18 +2,27 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { LoginResponse } from "@/api-services/auth.service";
+import {
+  GuestLoginResponse,
+  LoginResponse,
+} from "@/api-services/auth.service";
 
 interface DecodedToken {
   exp: number;
   iat?: number;
   role?: string;
+  is_guest?: boolean;
   [key: string]: any;
 }
 
+export type SessionKind = "guest" | "user" | null;
+
 interface AuthContextType {
   isAuthenticated: boolean;
+  isGuest: boolean;
+  sessionKind: SessionKind;
   login: (response: LoginResponse) => void;
+  guestLogin: (response: GuestLoginResponse) => void;
   logout: () => void;
   saveProfile: (profile: unknown) => void;
   email: string;
@@ -30,7 +39,10 @@ const noop = () => {};
 
 const defaultAuthContext: AuthContextType = {
   isAuthenticated: false,
+  isGuest: false,
+  sessionKind: null,
   login: noop,
+  guestLogin: noop,
   logout: noop,
   saveProfile: noop,
   email: "",
@@ -68,6 +80,14 @@ const tokenExpiresIn = (exp: number): TokenExpiryInfo => {
   };
 };
 
+interface PersistSessionInput {
+  access: string;
+  refresh?: string;
+  user: LoginResponse["user"];
+  role: string;
+  isGuest: boolean;
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -77,9 +97,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<LoginResponse["user"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   const isProvider = accountType === "Service Provider";
   const isClient = accountType === "Client";
+
+  // Persist a resolved session (full account or guest) to state + storage.
+  const persistSession = ({
+    access,
+    refresh,
+    user: sessionUser,
+    role,
+    isGuest: guest,
+  }: PersistSessionInput) => {
+    setToken(access);
+    setEmail(sessionUser.email ?? "");
+    setAccountType(role);
+    setUser(sessionUser);
+    setIsAuthenticated(true);
+    setIsGuest(guest);
+
+    localStorage.setItem("access_token", access);
+    if (refresh) localStorage.setItem("refresh_token", refresh);
+    localStorage.setItem("user_email", sessionUser.email ?? "");
+    localStorage.setItem("user_saved", JSON.stringify(sessionUser));
+    localStorage.setItem("is_guest", String(guest));
+  };
 
   // Restore session
   useEffect(() => {
@@ -87,21 +130,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const storedToken = localStorage.getItem("access_token");
       const storedEmail = localStorage.getItem("user_email");
       const storedUser = localStorage.getItem("user_saved");
+      const storedIsGuest = localStorage.getItem("is_guest");
 
-      if (storedToken && storedEmail) {
+      if (storedToken) {
         try {
           const decoded = jwtDecode<DecodedToken>(storedToken);
           const tokenStatus = tokenExpiresIn(decoded.exp);
 
           if (!tokenStatus.expired) {
-            setToken(storedToken);
-            setEmail(storedEmail);
-
             const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-            setUser(parsedUser);
+            const guest =
+              storedIsGuest === "true" ||
+              parsedUser?.is_guest === true ||
+              decoded.is_guest === true;
 
+            setToken(storedToken);
+            setEmail(parsedUser?.email || storedEmail || "");
+            setUser(parsedUser);
             setAccountType(parsedUser?.type || decoded.role || "");
             setIsAuthenticated(true);
+            setIsGuest(guest);
           } else {
             localStorage.clear();
           }
@@ -119,15 +167,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Login
   const login = (response: LoginResponse) => {
-    setToken(response.tokens.access);
-    setEmail(response.user.email);
-    setAccountType(response.role);
-    setUser(response.user);
-    setIsAuthenticated(true);
+    persistSession({
+      access: response.tokens.access,
+      refresh: response.tokens.refresh,
+      user: response.user,
+      role: response.role,
+      isGuest: false,
+    });
+  };
 
-    localStorage.setItem("access_token", response.tokens.access);
-    localStorage.setItem("user_email", response.user.email);
-    localStorage.setItem("user_saved", JSON.stringify(response.user));
+  // Guest login
+  const guestLogin = (response: GuestLoginResponse) => {
+    persistSession({
+      access: response.access,
+      refresh: response.refresh,
+      user: {
+        id: response.user.id,
+        first_name: response.user.first_name,
+        last_name: response.user.last_name,
+        email: "",
+        is_guest: true,
+      },
+      role: "customer",
+      isGuest: true,
+    });
   };
 
   // Save profile
@@ -143,14 +206,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setAccountType("");
     setUser(null);
     setIsAuthenticated(false);
+    setIsGuest(false);
     localStorage.clear();
   };
+
+  const sessionKind: SessionKind = isAuthenticated
+    ? isGuest
+      ? "guest"
+      : "user"
+    : null;
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        isGuest,
+        sessionKind,
         login,
+        guestLogin,
         logout,
         saveProfile,
         email,
