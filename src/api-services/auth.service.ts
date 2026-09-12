@@ -96,11 +96,29 @@ const login = async (data: LoginRequestBody): Promise<LoginResponse> => {
 };
 
 // Guest login
+
+/** Random, throwaway phone number generated per guest login. */
+const generateGuestPhone = (): string => {
+  const digits = Array.from({ length: 10 }, () =>
+    Math.floor(Math.random() * 10)
+  ).join("");
+  return `+234${digits}`;
+};
+
+/** Random, throwaway email generated per guest login. */
+const generateGuestEmail = (): string => {
+  const suffix =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return `guest_${suffix}@guest.rhace.local`;
+};
+
 const guestLogin = async (
   data: GuestLoginBody
 ): Promise<GuestLoginResponse> => {
-  data.phone = "00000000000";
-  data.email= "temp@mail.com"
+  data.phone = generateGuestPhone();
+  data.email = generateGuestEmail();
   const config = getConfig(`/auth/guest-login/`, "POST", undefined, data);
   return bookiesAxiosInstance(config);
 };

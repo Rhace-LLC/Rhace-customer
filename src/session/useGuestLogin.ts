@@ -11,14 +11,6 @@ export interface GuestNameInput {
   phone?: string;
 }
 
-const buildGuestEmail = () => {
-  const suffix =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return `guest_${suffix}@guest.rhace.local`;
-};
-
 export const useGuestLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,11 +20,12 @@ export const useGuestLogin = () => {
     setError(null);
 
     try {
+      // phone and email are generated per-call inside the request layer.
       return await guestLogin({
         first_name: name.first_name.trim(),
         last_name: name.last_name.trim(),
         phone: name.phone?.trim() ?? "",
-        email: buildGuestEmail(),
+        email: "",
       });
     } catch (err) {
       setError(parseError(err));
