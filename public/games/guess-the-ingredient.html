@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Guess the Ingredient</title>
+<style>
+  :root{
+    --cream:#FFF6E5;
+    --char:#2B2118;
+    --mustard:#F2A924;
+    --ketchup:#C0392B;
+    --lettuce:#6FA13B;
+    --bun:#D69A4E;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:var(--cream);
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    color:var(--char);
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    max-height:820px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    background:
+      repeating-linear-gradient(45deg, #FBE9C6 0 22px, #F6DDA8 22px 44px);
+    border-left:6px solid var(--char);
+    border-right:6px solid var(--char);
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 18px 10px;
+    background:var(--char);
+    color:var(--cream);
+    z-index:5;
+  }
+  .brand{
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:0.5px;
+    line-height:1;
+  }
+  .brand span{color:var(--mustard);}
+  .stats{
+    display:flex;
+    gap:16px;
+    font-size:15px;
+    font-weight:700;
+  }
+  .stats .label{
+    font-size:10px;
+    font-weight:600;
+    opacity:0.65;
+    display:block;
+    margin-bottom:1px;
+  }
+  .play-wrap{
+    position:relative;
+    flex:1;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px 20px 8px;
+  }
+  .round-label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    color:#8C6A3C;
+    margin-bottom:10px;
+  }
+  .mystery-card{
+    width:170px;
+    height:170px;
+    border-radius:24px;
+    background:var(--cream);
+    border:2px solid rgba(43,33,24,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:96px;
+    box-shadow:0 6px 0 rgba(43,33,24,0.12);
+    margin-bottom:16px;
+  }
+  .mystery-card span{
+    transition:filter 0.4s ease;
+  }
+  .clue-box{
+    background:rgba(43,33,24,0.06);
+    border-left:4px solid var(--mustard);
+    border-radius:8px;
+    padding:12px 14px;
+    width:100%;
+    max-width:340px;
+    font-size:14px;
+    line-height:1.4;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+  }
+  .clue-box .tag{
+    font-weight:800;
+    color:var(--ketchup);
+    margin-right:6px;
+  }
+  .choices{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    width:100%;
+    max-width:340px;
+    margin-top:16px;
+  }
+  .choice{
+    padding:14px 10px;
+    border-radius:12px;
+    border:2px solid rgba(43,33,24,0.15);
+    background:var(--cream);
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .choice:active{transform:scale(0.97);}
+  .choice.correct{
+    background:#EFF6E2;
+    border-color:var(--lettuce);
+    color:#3F6320;
+  }
+  .choice.wrong{
+    background:#FBE9E6;
+    border-color:var(--ketchup);
+    color:var(--ketchup);
+  }
+  .choice[disabled]{cursor:default;}
+  .feedback{
+    margin-top:14px;
+    font-size:13px;
+    font-weight:700;
+    min-height:18px;
+    color:#8C6A3C;
+  }
+  .overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:28px;
+    background:rgba(43,33,24,0.88);
+    color:var(--cream);
+    gap:14px;
+    z-index:10;
+  }
+  .overlay.hidden{display:none;}
+  .overlay h1{
+    font-size:30px;
+    margin:0;
+    font-weight:800;
+    letter-spacing:0.5px;
+  }
+  .overlay h1 em{
+    font-style:normal;
+    color:var(--mustard);
+  }
+  .overlay p{
+    margin:0;
+    max-width:280px;
+    font-size:15px;
+    line-height:1.5;
+    color:#F0E4CE;
+  }
+  .bigscore{
+    font-size:44px;
+    font-weight:800;
+    color:var(--mustard);
+    margin:0;
+  }
+  .btn{
+    margin-top:6px;
+    padding:12px 30px;
+    border:none;
+    border-radius:999px;
+    background:var(--ketchup);
+    color:var(--cream);
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #8C2015;
+    transition:transform .08s ease;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8C2015;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <div class="brand">GUESS THE <span>INGREDIENT</span></div>
+    <div class="stats">
+      <div><span class="label">ROUND</span><span id="roundLive">1/6</span></div>
+      <div><span class="label">SCORE</span><span id="scoreLive">0</span></div>
+    </div>
+  </div>
+
+  <div class="play-wrap">
+    <div class="round-label" id="roundLabel">CLUE 1 OF 3</div>
+    <div class="mystery-card"><span id="mysteryIcon">🥑</span></div>
+    <div class="clue-box"><span class="tag">CLUE</span><span id="clueText">Loading...</span></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+
+    <div class="overlay" id="startOverlay">
+      <h1>GUESS THE <em>INGREDIENT</em></h1>
+      <p>A dish's silhouette comes into focus one clue at a time. Guess fast for full points — every extra clue costs you.</p>
+      <button class="btn" id="startBtn">Start Guessing</button>
+    </div>
+
+    <div class="overlay hidden" id="endOverlay">
+      <p style="margin-bottom:-6px;">ROUND COMPLETE</p>
+      <div class="bigscore" id="finalScore">0</div>
+      <p id="endMsg">Sharp palate. Play again to beat it.</p>
+      <button class="btn" id="retryBtn">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const INGREDIENTS = [
+    { name: 'Garlic', icon: '🧄', clues: [
+      "I'm a bulb made of small cloves.",
+      "Mince me and the smell clings to your fingers.",
+      "I'm the pungent bulb in almost every savory sauce."
+    ]},
+    { name: 'Ginger', icon: '🫚', clues: [
+      "I grow underground and I'm knobbly, not round.",
+      "I bring warm, peppery heat to Asian dishes.",
+      "Grate me fresh for a spicy stir-fry or tea."
+    ]},
+    { name: 'Lemon', icon: '🍋', clues: [
+      "I'm yellow and I make you pucker.",
+      "Squeeze me over fish to brighten the flavor.",
+      "I'm the citrus fruit known for sour juice and zest."
+    ]},
+    { name: 'Avocado', icon: '🥑', clues: [
+      "I'm green inside with one giant pit.",
+      "Mash me on toast and I turn creamy.",
+      "I'm the buttery fruit behind guacamole."
+    ]},
+    { name: 'Chili Pepper', icon: '🌶️', clues: [
+      "I come in many colors and bring the heat.",
+      "My seeds and ribs are the spiciest part.",
+      "I'm the fiery pod that turns up the spice."
+    ]},
+    { name: 'Basil', icon: '🌿', clues: [
+      "I'm a fragrant green leaf, not a root.",
+      "I'm essential to pesto and pair well with tomato.",
+      "I'm the sweet herb that finishes an Italian dish."
+    ]},
+    { name: 'Coconut', icon: '🥥', clues: [
+      "I'm hairy and hard outside, tropical through and through.",
+      "My milk makes curries rich and creamy.",
+      "I'm the fruit with sweet white flesh inside a brown shell."
+    ]},
+    { name: 'Onion', icon: '🧅', clues: [
+      "I have layers and I might make you cry.",
+      "Caramelize me slowly and I turn deeply sweet.",
+      "I'm the everyday bulb that starts most savory dishes."
+    ]},
+    { name: 'Mint', icon: '🍃', clues: [
+      "I'm a leafy herb with a cool bite.",
+      "I pair with lamb, chocolate, and iced drinks.",
+      "I'm the herb that leaves your breath feeling fresh."
+    ]},
+    { name: 'Tomato', icon: '🍅', clues: [
+      "I'm red and round, though technically a fruit.",
+      "Cook me down slowly for a rich sauce.",
+      "I'm the juicy base of salsa and pasta sauce."
+    ]},
+    { name: 'Cinnamon', icon: '🪵', clues: [
+      "I come from tree bark, rolled and dried.",
+      "I'm warm and sweet, used in desserts and stews.",
+      "I'm the spice behind cinnamon rolls and chai."
+    ]},
+    { name: 'Turmeric', icon: '🟡', clues: [
+      "I'm a root that stains everything golden.",
+      "I'm earthy, slightly bitter, common in curry blends.",
+      "I'm the bright yellow spice in golden milk."
+    ]},
+    { name: 'Carrot', icon: '🥕', clues: [
+      "I'm a root vegetable, usually orange.",
+      "I get sweeter the longer I roast.",
+      "Rabbits love me and I'm crunchy raw or cooked."
+    ]},
+    { name: 'Potato', icon: '🥔', clues: [
+      "I'm a starchy tuber that grows underground.",
+      "Fry me, mash me, or bake me whole.",
+      "I'm the humble spud behind fries and chips."
+    ]},
+    { name: 'Corn', icon: '🌽', clues: [
+      "I grow in rows on a tall green stalk.",
+      "Pop me and I turn into a fluffy snack.",
+      "I'm the golden kernel on the cob."
+    ]},
+    { name: 'Broccoli', icon: '🥦', clues: [
+      "I look like a tiny green tree.",
+      "Steam or roast me for a crisp bite.",
+      "I'm the cruciferous veggie kids love to hate."
+    ]},
+    { name: 'Mushroom', icon: '🍄', clues: [
+      "I'm not a plant, and I grow in the dark.",
+      "Sauté me in butter for an earthy flavor.",
+      "I'm the fungus that adds umami to dishes."
+    ]},
+    { name: 'Eggplant', icon: '🍆', clues: [
+      "I'm deep purple with a glossy skin.",
+      "I soak up flavor like a sponge when cooked.",
+      "I'm the star of baba ganoush and parmigiana."
+    ]},
+    { name: 'Bell Pepper', icon: '🫑', clues: [
+      "I come in red, yellow, and green.",
+      "I'm sweet, crunchy, and hollow inside.",
+      "I'm the mild pepper that adds crunch to stir-fry."
+    ]},
+    { name: 'Cucumber', icon: '🥒', clues: [
+      "I'm long, green, and mostly water.",
+      "Slice me thin for a cool, crisp salad.",
+      "I'm the veggie that becomes a pickle."
+    ]},
+    { name: 'Peanut', icon: '🥜', clues: [
+      "I grow underground, but I'm technically a legume.",
+      "Crush me into a creamy spread.",
+      "I'm the nut behind peanut butter and satay sauce."
+    ]},
+    { name: 'Chestnut', icon: '🌰', clues: [
+      "I'm a nut roasted over an open fire.",
+      "My shell is glossy brown and I'm starchy inside.",
+      "I'm the classic holiday roasting nut."
+    ]},
+    { name: 'Honey', icon: '🍯', clues: [
+      "I'm golden, sticky, and made by tiny workers.",
+      "Drizzle me over yogurt or tea for sweetness.",
+      "I'm the natural sweetener made by bees."
+    ]},
+    { name: 'Egg', icon: '🥚', clues: [
+      "I'm oval, and I come from a shell.",
+      "Scramble, poach, or fry me for breakfast.",
+      "I'm the protein-packed staple of baking and brunch."
+    ]},
+    { name: 'Cheese', icon: '🧀', clues: [
+      "I'm made from milk and I come in many forms.",
+      "Melt me over anything and it gets better.",
+      "I'm the dairy product that tops pizza and burgers."
+    ]},
+    { name: 'Butter', icon: '🧈', clues: [
+      "I'm made by churning cream until it's solid.",
+      "I make pastry flaky and sauces silky.",
+      "I'm the rich dairy fat spread on toast."
+    ]},
+    { name: 'Milk', icon: '🥛', clues: [
+      "I'm white, liquid, and come from a dairy animal.",
+      "I turn into cheese, butter, and yogurt.",
+      "I'm the base of most creamy sauces."
+    ]},
+    { name: 'Rice', icon: '🍚', clues: [
+      "I'm a tiny grain grown in flooded fields.",
+      "I'm the base of sushi and pilaf alike.",
+      "I'm the world's most eaten staple grain."
+    ]},
+    { name: 'Bread', icon: '🍞', clues: [
+      "I'm baked from flour, water, and yeast.",
+      "I get toasted, sliced, and stuffed into sandwiches.",
+      "I'm the staple loaf on every table."
+    ]},
+    { name: 'Pretzel', icon: '🥨', clues: [
+      "I'm twisted into a knot before baking.",
+      "I get a quick dip before baking, which gives me a shiny crust.",
+      "I'm the salty snack shaped like a loop."
+    ]},
+    { name: 'Bacon', icon: '🥓', clues: [
+      "I'm cured, smoked, and sliced from the belly.",
+      "I sizzle in the pan and turn crispy.",
+      "I'm the smoky strip that tops burgers and breakfasts."
+    ]},
+    { name: 'Beef', icon: '🥩', clues: [
+      "I come from cattle, and I'm often grilled.",
+      "I'm cut into steaks, ground, or slow-cooked.",
+      "I'm the red meat behind burgers and steaks."
+    ]},
+    { name: 'Chicken', icon: '🍗', clues: [
+      "I'm poultry, and I come in wings, breasts, and thighs.",
+      "Fry, grill, or roast me for dinner.",
+      "I'm the most common bird on the menu."
+    ]},
+    { name: 'Shrimp', icon: '🍤', clues: [
+      "I'm a small crustacean that curls when cooked.",
+      "I turn pink and juicy on the grill.",
+      "I'm the seafood star of scampi and tempura."
+    ]},
+    { name: 'Fish', icon: '🐟', clues: [
+      "I swim, and I'm often served as a fillet.",
+      "Grill or fry me with a squeeze of lemon.",
+      "I'm the catch of the day on most menus."
+    ]},
+    { name: 'Olive', icon: '🫒', clues: [
+      "I grow on trees and come green or black.",
+      "Press me and I become a golden oil.",
+      "I'm the small fruit behind tapenade and olive oil."
+    ]},
+    { name: 'Vanilla', icon: '🌼', clues: [
+      "I come from a long, thin pod.",
+      "I'm one of the most popular dessert flavors.",
+      "I'm the fragrant flavor behind vanilla ice cream."
+    ]},
+    { name: 'Chocolate', icon: '🍫', clues: [
+      "I start as a bitter bean from a pod.",
+      "Melt me and I become a glossy dessert coating.",
+      "I'm the sweet treat made from roasted cacao."
+    ]},
+    { name: 'Pineapple', icon: '🍍', clues: [
+      "I'm spiky outside, sweet and tangy inside.",
+      "I'm topped with a crown of spiky leaves.",
+      "I'm the tropical fruit that divides pizza opinions."
+    ]},
+    { name: 'Banana', icon: '🍌', clues: [
+      "I'm yellow, curved, and easy to peel.",
+      "I get sweeter the more brown spots I have.",
+      "I'm the fruit that turns into bread when overripe."
+    ]},
+    { name: 'Mango', icon: '🥭', clues: [
+      "I'm a tropical fruit with a big flat pit.",
+      "I'm juicy, sweet, and great in salsa.",
+      "I'm the fruit behind mango lassi and chutney."
+    ]},
+    { name: 'Strawberry', icon: '🍓', clues: [
+      "I'm red with tiny seeds on the outside.",
+      "I'm a summer favorite dipped in chocolate.",
+      "I'm the heart-shaped berry in shortcake."
+    ]},
+    { name: 'Blueberry', icon: '🫐', clues: [
+      "I'm small, round, and deep blue.",
+      "I burst with juice when baked into muffins.",
+      "I'm the tiny berry known as a superfood."
+    ]},
+    { name: 'Peach', icon: '🍑', clues: [
+      "I have fuzzy skin and a hard pit inside.",
+      "I'm sweet, juicy, and great grilled.",
+      "I'm the stone fruit behind cobbler and iced tea."
+    ]},
+    { name: 'Watermelon', icon: '🍉', clues: [
+      "I'm green outside, red and juicy inside.",
+      "I'm mostly water and perfect on a hot day.",
+      "I'm the giant fruit with black seeds scattered inside."
+    ]},
+    { name: 'Grapes', icon: '🍇', clues: [
+      "I grow in bunches on a vine.",
+      "Dry me out and I become a raisin.",
+      "I'm the fruit that's fermented into wine."
+    ]},
+    { name: 'Apple', icon: '🍎', clues: [
+      "I'm round, crisp, and come in many colors.",
+      "One of me a day supposedly keeps the doctor away.",
+      "I'm the fruit that stars in pie and cider."
+    ]},
+    { name: 'Pear', icon: '🍐', clues: [
+      "I'm shaped like a teardrop and I bruise easily.",
+      "I'm sweet, soft, and great with cheese.",
+      "I'm the fruit often paired with blue cheese and honey."
+    ]},
+    { name: 'Kiwi', icon: '🥝', clues: [
+      "I'm fuzzy brown outside, bright green inside.",
+      "My tiny black seeds crunch as you eat me.",
+      "I'm the tangy fruit named after a flightless bird."
+    ]},
+    { name: 'Pumpkin', icon: '🎃', clues: [
+      "I'm a big orange squash that shows up in fall.",
+      "I'm roasted, pureed, and baked into pie.",
+      "I'm the gourd that gets carved for Halloween."
+    ]}
+  ];
+
+  const TOTAL_ROUNDS = 50;
+  const roundLive = document.getElementById('roundLive');
+  const scoreLive = document.getElementById('scoreLive');
+  const roundLabel = document.getElementById('roundLabel');
+  const mysteryIcon = document.getElementById('mysteryIcon');
+  const clueText = document.getElementById('clueText');
+  const choicesEl = document.getElementById('choices');
+  const feedback = document.getElementById('feedback');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const finalScoreEl = document.getElementById('finalScore');
+  const endMsg = document.getElementById('endMsg');
+  const startBtn = document.getElementById('startBtn');
+  const retryBtn = document.getElementById('retryBtn');
+
+  let deck = [];
+  let roundIndex = 0;
+  let clueIndex = 0;
+  let score = 0;
+  let locked = false;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildDeck(){
+    deck = shuffle(INGREDIENTS).slice(0, TOTAL_ROUNDS);
+  }
+
+  function pointsForClue(idx){
+    return idx === 0 ? 30 : idx === 1 ? 20 : 10;
+  }
+
+  function blurForClue(idx){
+    return idx === 0 ? 16 : idx === 1 ? 7 : 0;
+  }
+
+  function loadRound(){
+    clueIndex = 0;
+    locked = false;
+    feedback.textContent = '';
+    const target = deck[roundIndex];
+    roundLive.textContent = `${roundIndex + 1}/${TOTAL_ROUNDS}`;
+    mysteryIcon.textContent = target.icon;
+    mysteryIcon.style.filter = `blur(${blurForClue(0)}px)`;
+    roundLabel.textContent = `CLUE 1 OF 3`;
+    clueText.textContent = target.clues[0];
+    renderChoices(target);
+  }
+
+  function renderChoices(target){
+    const decoys = shuffle(INGREDIENTS.filter(i => i.name !== target.name)).slice(0, 3);
+    const options = shuffle([target, ...decoys]);
+    choicesEl.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'choice';
+      btn.textContent = opt.name;
+      btn.addEventListener('click', () => handleGuess(btn, opt, target));
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  function handleGuess(btn, opt, target){
+    if(locked) return;
+    if(opt.name === target.name){
+      locked = true;
+      btn.classList.add('correct');
+      const pts = pointsForClue(clueIndex);
+      score += pts;
+      scoreLive.textContent = score;
+      feedback.textContent = `Correct! +${pts} points`;
+      mysteryIcon.style.filter = 'blur(0px)';
+      [...choicesEl.children].forEach(c => c.disabled = true);
+      setTimeout(nextRound, 1100);
+    } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      if(clueIndex < target.clues.length - 1){
+        clueIndex++;
+        mysteryIcon.style.filter = `blur(${blurForClue(clueIndex)}px)`;
+        roundLabel.textContent = `CLUE ${clueIndex + 1} OF 3`;
+        clueText.textContent = target.clues[clueIndex];
+        feedback.textContent = 'Not quite — here\'s another clue.';
+      } else {
+        feedback.textContent = `That's ${target.name} — no points this round.`;
+        locked = true;
+        mysteryIcon.style.filter = 'blur(0px)';
+        [...choicesEl.children].forEach(c => {
+          c.disabled = true;
+          if(c.textContent === target.name) c.classList.add('correct');
+        });
+        setTimeout(nextRound, 1400);
+      }
+    }
+  }
+
+  function nextRound(){
+    roundIndex++;
+    if(roundIndex >= TOTAL_ROUNDS){
+      finishGame();
+    } else {
+      loadRound();
+    }
+  }
+
+  function finishGame(){
+    finalScoreEl.textContent = score;
+    const max = TOTAL_ROUNDS * 30;
+    if(score >= max * 0.8){
+      endMsg.textContent = "That's a seasoned palate right there.";
+    } else if(score >= max * 0.5){
+      endMsg.textContent = "Solid instincts. A few clues kept you honest.";
+    } else {
+      endMsg.textContent = "The kitchen keeps its secrets well. Try again?";
+    }
+    endOverlay.classList.remove('hidden');
+  }
+
+  function startGame(){
+    score = 0;
+    roundIndex = 0;
+    scoreLive.textContent = '0';
+    startOverlay.classList.add('hidden');
+    endOverlay.classList.add('hidden');
+    buildDeck();
+    loadRound();
+  }
+
+  startBtn.addEventListener('click', startGame);
+  retryBtn.addEventListener('click', startGame);
+})();
+</script>
+</body>
+</html>

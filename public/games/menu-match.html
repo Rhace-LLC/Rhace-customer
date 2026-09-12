@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Menu Match</title>
+<style>
+  :root{
+    --cream:#FFF6E5;
+    --char:#2B2118;
+    --mustard:#F2A924;
+    --ketchup:#C0392B;
+    --lettuce:#6FA13B;
+    --bun:#D69A4E;
+    --card-back:#8C2015;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:var(--cream);
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    color:var(--char);
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    max-width:460px;
+    height:100vh;
+    max-height:820px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    background:
+      repeating-linear-gradient(45deg, #FBE9C6 0 22px, #F6DDA8 22px 44px);
+    border-left:6px solid var(--char);
+    border-right:6px solid var(--char);
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 18px 10px;
+    background:var(--char);
+    color:var(--cream);
+    z-index:5;
+  }
+  .brand{
+    font-weight:800;
+    font-size:22px;
+    letter-spacing:0.5px;
+    line-height:1;
+  }
+  .brand span{color:var(--mustard);}
+  .stats{
+    display:flex;
+    gap:16px;
+    font-size:15px;
+    font-weight:700;
+  }
+  .stats .label{
+    font-size:10px;
+    font-weight:600;
+    opacity:0.65;
+    display:block;
+    margin-bottom:1px;
+  }
+  .board-wrap{
+    position:relative;
+    flex:1;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+  .board{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+    width:100%;
+    max-width:380px;
+  }
+  .card{
+    aspect-ratio:1/1;
+    perspective:600px;
+    cursor:pointer;
+  }
+  .card-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition:transform 0.45s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .card.flipped .card-inner{
+    transform:rotateY(180deg);
+  }
+  .card.matched .card-inner{
+    transform:rotateY(180deg);
+  }
+  .face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:14px;
+    backface-visibility:hidden;
+  }
+  .face-back{
+    background:var(--card-back);
+    border:2px solid #6E170F;
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,0.08);
+  }
+  .face-back::after{
+    content:"?";
+    font-size:26px;
+    font-weight:800;
+    color:rgba(255,246,229,0.55);
+  }
+  .face-front{
+    background:var(--cream);
+    border:2px solid rgba(43,33,24,0.15);
+    transform:rotateY(180deg);
+    font-size:34px;
+  }
+  .card.matched .face-front{
+    background:#EFF6E2;
+    border-color:var(--lettuce);
+  }
+  .card.wrong .face-front{
+    animation: shake 0.35s ease;
+    border-color:var(--ketchup);
+  }
+  @keyframes shake{
+    0%,100%{transform:rotateY(180deg) translateX(0);}
+    25%{transform:rotateY(180deg) translateX(-5px);}
+    75%{transform:rotateY(180deg) translateX(5px);}
+  }
+  .overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:28px;
+    background:rgba(43,33,24,0.86);
+    color:var(--cream);
+    gap:14px;
+    z-index:10;
+  }
+  .overlay.hidden{display:none;}
+  .overlay h1{
+    font-size:32px;
+    margin:0;
+    font-weight:800;
+    letter-spacing:0.5px;
+  }
+  .overlay h1 em{
+    font-style:normal;
+    color:var(--mustard);
+  }
+  .overlay p{
+    margin:0;
+    max-width:280px;
+    font-size:15px;
+    line-height:1.5;
+    color:#F0E4CE;
+  }
+  .resultrow{
+    display:flex;
+    gap:28px;
+    margin:4px 0;
+  }
+  .resultrow div{
+    text-align:center;
+  }
+  .resultrow .big{
+    font-size:30px;
+    font-weight:800;
+    color:var(--mustard);
+    line-height:1;
+  }
+  .resultrow .small{
+    font-size:11px;
+    font-weight:700;
+    opacity:0.7;
+    letter-spacing:0.4px;
+    margin-top:4px;
+  }
+  .btn{
+    margin-top:6px;
+    padding:12px 30px;
+    border:none;
+    border-radius:999px;
+    background:var(--ketchup);
+    color:var(--cream);
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    box-shadow:0 4px 0 #8C2015;
+    transition:transform .08s ease;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8C2015;}
+  .diffrow{
+    display:flex;
+    gap:8px;
+    margin-top:4px;
+  }
+  .diffbtn{
+    padding:8px 16px;
+    border-radius:999px;
+    border:1.5px solid #DCC9A6;
+    background:transparent;
+    color:var(--cream);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .diffbtn.active{
+    background:var(--mustard);
+    color:var(--char);
+    border-color:var(--mustard);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <div class="brand">MENU <span>MATCH</span></div>
+    <div class="stats">
+      <div><span class="label">TIME</span><span id="timeLive">0:00</span></div>
+      <div><span class="label">MOVES</span><span id="movesLive">0</span></div>
+    </div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+
+    <div class="overlay" id="startOverlay">
+      <h1>MENU <em>MATCH</em></h1>
+      <p>Flip two cards at a time and find every matching dish. Fewer moves, faster time, bigger bragging rights.</p>
+      <div class="diffrow" id="diffRow">
+        <button class="diffbtn" data-pairs="6">Easy · 6 pairs</button>
+        <button class="diffbtn active" data-pairs="8">Classic · 8 pairs</button>
+        <button class="diffbtn" data-pairs="10">Hard · 10 pairs</button>
+      </div>
+      <button class="btn" id="startBtn">Start Flipping</button>
+    </div>
+
+    <div class="overlay hidden" id="winOverlay">
+      <p style="margin-bottom:-6px;">TABLE CLEARED</p>
+      <h1 style="font-size:26px;">Nice <em>Work</em></h1>
+      <div class="resultrow">
+        <div><div class="big" id="finalTime">0:00</div><div class="small">TIME</div></div>
+        <div><div class="big" id="finalMoves">0</div><div class="small">MOVES</div></div>
+      </div>
+      <p id="winMsg">Every dish found. The kitchen is impressed.</p>
+      <button class="btn" id="retryBtn">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const ALL_ICONS = ['🍔','🍕','🌮','🍜','🍟','🥗','🍣','🍦','🥪','🌯','🍩','🍤'];
+
+  const board = document.getElementById('board');
+  const timeLive = document.getElementById('timeLive');
+  const movesLive = document.getElementById('movesLive');
+  const startOverlay = document.getElementById('startOverlay');
+  const winOverlay = document.getElementById('winOverlay');
+  const finalTime = document.getElementById('finalTime');
+  const finalMoves = document.getElementById('finalMoves');
+  const winMsg = document.getElementById('winMsg');
+  const startBtn = document.getElementById('startBtn');
+  const retryBtn = document.getElementById('retryBtn');
+  const diffRow = document.getElementById('diffRow');
+
+  let pairsCount = 8;
+  let cards = [];
+  let flipped = [];
+  let matchedCount = 0;
+  let moves = 0;
+  let lockBoard = false;
+  let timerInterval = null;
+  let seconds = 0;
+  let bestByPairs = {};
+
+  diffRow.addEventListener('click', (e) => {
+    const btn = e.target.closest('.diffbtn');
+    if(!btn) return;
+    [...diffRow.children].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    pairsCount = parseInt(btn.dataset.pairs, 10);
+  });
+
+  function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function formatTime(s){
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return m + ':' + String(r).padStart(2, '0');
+  }
+
+  function colsForPairs(n){
+    if(n <= 6) return 3;
+    if(n <= 10) return 4;
+    return 4;
+  }
+
+  function buildBoard(){
+    const icons = shuffle(ALL_ICONS.slice()).slice(0, pairsCount);
+    const deck = shuffle(icons.concat(icons).map((icon, idx) => ({ icon, id: idx })));
+
+    board.style.gridTemplateColumns = `repeat(${colsForPairs(pairsCount)}, 1fr)`;
+    board.innerHTML = '';
+    cards = [];
+    flipped = [];
+    matchedCount = 0;
+    moves = 0;
+    seconds = 0;
+    lockBoard = false;
+    movesLive.textContent = '0';
+    timeLive.textContent = '0:00';
+
+    deck.forEach((item) => {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'card';
+      cardEl.innerHTML = `
+        <div class="card-inner">
+          <div class="face face-back"></div>
+          <div class="face face-front">${item.icon}</div>
+        </div>`;
+      cardEl.addEventListener('click', () => handleFlip(cardEl, item.icon));
+      board.appendChild(cardEl);
+      cards.push(cardEl);
+    });
+  }
+
+  function startTimer(){
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      timeLive.textContent = formatTime(seconds);
+    }, 1000);
+  }
+
+  function handleFlip(cardEl, icon){
+    if(lockBoard) return;
+    if(cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+    if(!timerInterval) startTimer();
+
+    cardEl.classList.add('flipped');
+    flipped.push({ el: cardEl, icon });
+
+    if(flipped.length === 2){
+      moves++;
+      movesLive.textContent = moves;
+      lockBoard = true;
+      const [a, b] = flipped;
+      if(a.icon === b.icon){
+        setTimeout(() => {
+          a.el.classList.add('matched');
+          b.el.classList.add('matched');
+          flipped = [];
+          lockBoard = false;
+          matchedCount++;
+          if(matchedCount === pairsCount) finishGame();
+        }, 280);
+      } else {
+        a.el.classList.add('wrong');
+        b.el.classList.add('wrong');
+        setTimeout(() => {
+          a.el.classList.remove('flipped', 'wrong');
+          b.el.classList.remove('flipped', 'wrong');
+          flipped = [];
+          lockBoard = false;
+        }, 750);
+      }
+    }
+  }
+
+  function finishGame(){
+    clearInterval(timerInterval);
+    timerInterval = null;
+    finalTime.textContent = formatTime(seconds);
+    finalMoves.textContent = moves;
+
+    const best = bestByPairs[pairsCount];
+    const perfect = moves === pairsCount;
+    if(perfect){
+      winMsg.textContent = "Perfect run — every flip was a match.";
+    } else if(best && (seconds < best.seconds || moves < best.moves)){
+      winMsg.textContent = "New personal best on this board.";
+    } else {
+      winMsg.textContent = "Every dish found. The kitchen is impressed.";
+    }
+    bestByPairs[pairsCount] = { seconds, moves };
+
+    setTimeout(() => winOverlay.classList.remove('hidden'), 400);
+  }
+
+  function startGame(){
+    startOverlay.classList.add('hidden');
+    winOverlay.classList.add('hidden');
+    buildBoard();
+  }
+
+  startBtn.addEventListener('click', startGame);
+  retryBtn.addEventListener('click', startGame);
+})();
+</script>
+</body>
+</html>

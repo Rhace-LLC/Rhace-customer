@@ -9,6 +9,7 @@ import {
   BuildYourDishModal,
   DidYouKnowCarousel,
   FunArea,
+  GamesSection,
   HomeError,
   HomeLoading,
   QRScanPrompt,
@@ -94,6 +95,8 @@ export function HomePage() {
         />
 
         <DidYouKnowCarousel />
+
+        <GamesSection />
       </div>
     </div>
   );
