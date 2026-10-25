@@ -16,12 +16,13 @@ import OtpVerification from "@/pages/auth/verifyaccount";
 import BillSettlement from "@/pages/billsettlement";
 
 import { HomePage } from "@/pages/home";
+import { EntertainmentPage } from "@/pages/entertainment";
 import { MenuPage } from "@/pages/menu";
 import { NotificationsPage } from "@/pages/notifications";
 import { OrdersPage } from "@/pages/orders";
 import ActiveOrderPage from "@/pages/orders/ActiveOrderPage";
 import { FullScreenLoader } from "@/pages/orders/components/utils";
-import { useUnpaidUncompleted } from "@/pages/orders/hook/useUnpaidUncompleted";
+import { LiveUpdates } from "@/session/LiveUpdates";
 import { PastOrders } from "@/pages/past_orders";
 import { PaymentsPage } from "@/pages/payments";
 import { Profile } from "@/pages/profile";
@@ -83,6 +84,7 @@ function Navigation(): React.JSX.Element {
         <SetupProvider>
           <DiningPreferencePrompt />
           <DiningGroupView />
+          <LiveUpdates />
           <NavigationContent />
         </SetupProvider>
       </SessionGate>
@@ -91,20 +93,7 @@ function Navigation(): React.JSX.Element {
 }
 
 function NavigationContent() {
-  const {
-    unpaidOrders,
-    uncompletedOrders,
-    getUserUnpaidOrder,
-    getUserActiveOrder,
-  } = useUnpaidUncompleted();
-
-  useEffect(() => {
-    if (uncompletedOrders.length == 0 && unpaidOrders.length == 0) {
-      getUserActiveOrder();
-      getUserUnpaidOrder();
-    }
-  }, []);
-
+  // Open orders and the dining group are loaded once by SetupProvider.
   const auth = useAuth();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -118,6 +107,7 @@ function NavigationContent() {
   const pathToTab: Record<string, { tab: string; title: string }> = {
     "/": { tab: "home", title: "Home" },
     "/menu": { tab: "menu", title: "Menu" },
+    "/entertainment": { tab: "entertainment", title: "Entertainment" },
     "/orders": { tab: "order", title: "My Order" },
     "/order-history": { tab: "past-orders", title: "My Past Orders" },
     "/payments": { tab: "payments", title: "Payments" },
@@ -196,6 +186,14 @@ function NavigationContent() {
               element={
                 <ProtectedRoute>
                   <MenuPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/entertainment"
+              element={
+                <ProtectedRoute>
+                  <EntertainmentPage />
                 </ProtectedRoute>
               }
             />

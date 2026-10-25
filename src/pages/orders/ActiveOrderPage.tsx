@@ -10,31 +10,21 @@ import FullScreenError, {
 } from "./components/utils";
 import { useEffect } from "react";
 import NoActiveOrder from "./components/noorder";
+import { OrderProgress } from "./components/OrderProgress";
 
 const ActiveOrderPage = () => {
-  const {
-    uncompletedOrders,
-    getUserActiveOrder,
-    activeOrderLoading,
-    activeOrderError,
-    getUserActiveOrderRefresh,
-  } = useUnpaidUncompleted();
+  const { uncompletedOrders, getUserActiveOrder, activeOrderLoading, activeOrderError } =
+    useUnpaidUncompleted();
 
+  // LiveUpdates keeps these fresh in the background; only load here when
+  // the guest lands on this page before anything has been fetched.
   useEffect(() => {
     if (uncompletedOrders.length == 0) {
       getUserActiveOrder();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      getUserActiveOrderRefresh();
-    }, 20_000);
-
-    return () => clearInterval(interval);
-  }, [getUserActiveOrderRefresh]);
-
-  if (activeOrderLoading) {
+  if (activeOrderLoading && uncompletedOrders.length === 0) {
     return <FullScreenLoader />;
   }
 
@@ -59,7 +49,7 @@ const ActiveOrderPage = () => {
           Active Orders
         </h1>
         <p className="text-sm font-medium text-gray-400">
-          Track and manage your current table sessions in real-time.
+          Status updates automatically. You'll get a notice when it changes.
         </p>
       </div>
 
@@ -94,7 +84,7 @@ const ActiveOrderPage = () => {
               {/* The Status Accent Bar - visual cue that changes with the state */}
               <div className="absolute top-0 left-0 h-full w-1.5 bg-blue-500/80" />
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   {/* Live Status Indicator */}
                   <div className="relative flex h-2 w-2">
@@ -103,15 +93,15 @@ const ActiveOrderPage = () => {
                   </div>
 
                   <p className="text-[10px] font-semibold tracking-[0.25em] text-gray-400 uppercase">
-                    Order Status Update
+                    Live status
                   </p>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-[13px] leading-relaxed text-gray-500">
-                    {getOrderStatusText(order.status)}
-                  </p>
-                </div>
+                <OrderProgress order={order} />
+
+                <p className="text-[13px] leading-relaxed text-gray-500">
+                  {getOrderStatusText(order.status)}
+                </p>
               </div>
             </div>
 

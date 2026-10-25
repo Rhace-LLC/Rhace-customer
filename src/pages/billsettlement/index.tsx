@@ -1,4 +1,5 @@
 import { Check, CheckCircle, DollarSign, Loader2, Plus } from "lucide-react";
+import { usePolling } from "@/hooks/usePolling";
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -166,13 +167,8 @@ const BillSettlement = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      groupBillRefresh();
-    }, 20_000);
-
-    return () => clearInterval(interval);
-  }, [fetchGroupBill]);
+  // Other diners pay too: keep the bill fresh (paused while the tab is hidden).
+  usePolling(groupBillRefresh, { interval: 15_000 });
 
   if (groupBillLoading) {
     return (

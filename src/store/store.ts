@@ -11,8 +11,16 @@ import tableOrderReducer from "./table_order.slice";
 import unpaiduncompletedReducer from "./unpaidanduncompletedorder.slice";
 import groupOrderReducer from "./group_order.slice";
 import groupBillReducer from "./groupbill.slice";
+import { loadCart, saveCart } from "@/lib/diningSession";
+import type { CartItemData } from "./orderCart.slice";
+
+// The cart survives a refresh: guests often reload mid-order.
+const savedCart = loadCart<CartItemData[]>();
 
 export const store = configureStore({
+  preloadedState: savedCart?.length
+    ? { orderCart: { data: savedCart, activeOrder: null } }
+    : undefined,
   reducer: {
     profile: userReducer,
     orderCart: orderCartReducer,
@@ -28,6 +36,14 @@ export const store = configureStore({
     groupBill: groupBillReducer,
   },
   devTools: import.meta.env.MODE !== "production",
+});
+
+let lastCart = store.getState().orderCart.data;
+store.subscribe(() => {
+  const cart = store.getState().orderCart.data;
+  if (cart === lastCart) return;
+  lastCart = cart;
+  saveCart(cart.length ? cart : null);
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -506,6 +506,16 @@ import { Clock } from "lucide-react";
 import moment from "moment";
 import { cn } from "@/lib/utils";
 import { BillOrder } from "@/api-services/billsettlement.service";
+import { OrderProgress } from "./OrderProgress";
+
+const ORDER_TITLE: Partial<Record<OrderStatus, string>> = {
+  received: "Order Received",
+  paid: "Order Received",
+  preparing: "Being Prepared",
+  delivered: "Served",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
 
 export const UnpaidOrderCard = ({ data }: { data: BillOrder[] }) => {
   const orderCart = useSelector((state: RootState) => state.orderCart);
@@ -529,7 +539,7 @@ export const UnpaidOrderCard = ({ data }: { data: BillOrder[] }) => {
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <h3 className="text-xl font-semibold tracking-tight text-gray-900">
-              Order Received
+              {ORDER_TITLE[order.status as OrderStatus] ?? "Order Received"}
             </h3>
             {/* Meta */}
             <div className="flex items-center gap-2 text-gray-400">
@@ -565,6 +575,10 @@ export const UnpaidOrderCard = ({ data }: { data: BillOrder[] }) => {
           </div>
         </div>
       </div>
+
+      <OrderProgress
+        order={{ ...order, status: order.status as OrderStatus }}
+      />
 
       {/* Items Section */}
       <div className="mb-0 space-y-4">
@@ -642,11 +656,18 @@ export const UnpaidOrderCard = ({ data }: { data: BillOrder[] }) => {
 interface OrderSubmissionConfirmationProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Runs only on "Yes, place order"; closing the dialog any other way cancels. */
+  onConfirm: () => void;
+  itemCount?: number;
+  total?: number;
 }
 
 export const OrderSubmissionConfirmation = ({
   open,
   onOpenChange,
+  onConfirm,
+  itemCount,
+  total,
 }: OrderSubmissionConfirmationProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -656,19 +677,33 @@ export const OrderSubmissionConfirmation = ({
             <CheckCircle className="h-10 w-10 text-green-600" />
           </div>
 
-          <DialogTitle className="text-lg">Submit Order</DialogTitle>
+          <DialogTitle className="text-lg">Place your order?</DialogTitle>
 
           <DialogDescription className="text-muted-foreground text-sm">
-            Are you sure you got everything you need?
+            {itemCount
+              ? `${itemCount} item${itemCount === 1 ? "" : "s"}${
+                  total !== undefined ? ` · ${formatCurrency(String(total))}` : ""
+                }. The kitchen starts as soon as you confirm.`
+              : "Are you sure you got everything you need?"}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-2">
           <Button
             className="h-12 w-full cursor-pointer rounded-xl bg-black text-white hover:bg-gray-800"
+            onClick={() => {
+              onOpenChange(false);
+              onConfirm();
+            }}
+          >
+            Yes, place order
+          </Button>
+          <Button
+            variant="ghost"
+            className="h-12 w-full cursor-pointer rounded-xl text-gray-500 hover:text-gray-900"
             onClick={() => onOpenChange(false)}
           >
-            Yes, Proceed
+            Not yet, keep browsing
           </Button>
         </div>
       </DialogContent>

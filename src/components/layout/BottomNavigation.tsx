@@ -1,4 +1,4 @@
-import { Home, ShoppingBag, Utensils, User } from "lucide-react";
+import { Gamepad2, Home, ShoppingBag, Utensils } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -19,11 +19,12 @@ export function BottomNavigation({
     { id: "home", label: "Home", icon: Home, path: "/" },
     { id: "menu", label: "Menu", icon: Utensils, path: "/menu" },
     { id: "order", label: "My Order", icon: ShoppingBag, path: "/orders" },
+    // Profile lives in the sidebar menu.
     {
-      id: "profile",
-      label: "Profile",
-      icon: User,
-      path: "/profile",
+      id: "entertainment",
+      label: "Entertainment",
+      icon: Gamepad2,
+      path: "/entertainment",
     },
   ];
 

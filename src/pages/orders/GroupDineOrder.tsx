@@ -1,3 +1,5 @@
+import { PlayWhileYouWaitDialog } from "@/components/dialogs/PlayWhileYouWaitDialog";
+import { usePolling } from "@/hooks/usePolling";
 import { RootState } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -73,6 +75,7 @@ const GroupDineOrder = () => {
   const navigate = useNavigate();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const [isTransitionDialogOpen, setIsTransitionDialogOpen] = useState(false);
+  const [showPlayPrompt, setShowPlayPrompt] = useState(false);
   const groupOrderForMe =
     groupOrder?.orders?.filter((x) => x.customer == auth?.user?.id) || [];
 
@@ -157,6 +160,12 @@ const GroupDineOrder = () => {
   };
 
   const handleSubmitOrder = async () => {
+    if (!selectedRestaurant?.tableId) {
+      toast.error("Scan the QR code on your table to place an order.");
+      navigate("/");
+      return;
+    }
+
     try {
       setLoading(true);
       setLoadingText("Submitting Order");
@@ -183,6 +192,7 @@ const GroupDineOrder = () => {
       );
       groupOrderRefresh();
       dispatch(clearCart());
+      setShowPlayPrompt(true);
     } catch (error) {
       const errmsg = parseError(error);
 
@@ -220,10 +230,10 @@ const GroupDineOrder = () => {
       );
       groupOrderRefresh();
       dispatch(clearCart());
+      setShowPlayPrompt(true);
     } catch (error) {
       const errorMessage = parseError(error);
       toast.error(errorMessage);
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -291,13 +301,12 @@ const GroupDineOrder = () => {
     }
   }, [groupBill, groupOrder]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      groupBillRefresh();
-    }, 20_000);
-
-    return () => clearInterval(interval);
-  }, [fetchGroupBill]);
+  // Friends' orders and the bill both change while you sit at the table;
+  // keep both fresh (paused while the tab is hidden).
+  usePolling(
+    () => Promise.all([groupOrderRefresh(), groupBillRefresh()]),
+    { interval: 15_000 },
+  );
 
   useEffect(() => {
     if (myBillPaid) {
@@ -334,6 +343,11 @@ const GroupDineOrder = () => {
             open={isLeaveDialogOpen}
             onOpenChange={setIsLeaveDialogOpen}
             hasActiveOrders={true} // You can pass dynamic data here
+          />
+
+          <PlayWhileYouWaitDialog
+            isOpen={showPlayPrompt}
+            onClose={() => setShowPlayPrompt(false)}
           />
 
           <GroupToPersonalTransition

@@ -7,7 +7,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { ContentHOC } from "@/components/nocontent";
 import { Pagination } from "@/components/pagination";
-import { markAsRead, removeNotification } from "@/store/notification.slice";
+import { markAsRead, removeNotification, setUnreadCount } from "@/store/notification.slice";
+import { deleteNotification, markNotificationsRead } from "@/api-services/notification.service";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export function NotificationsPage() {
   const dispatch = useDispatch();
@@ -17,6 +20,8 @@ export function NotificationsPage() {
 
   const dataStore = useSelector((state: RootState) => state.notifications);
   const allData = dataStore.data;
+  const unreadTotal = dataStore.unreadCount;
+  const { token } = useAuth();
 
   // Hook for fetching notifications
   const {
@@ -30,12 +35,23 @@ export function NotificationsPage() {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  // Optimistic: update the list now, then tell the server so it sticks
+  // after a refresh (and the bell badge drops).
   const handleDelete = (notificationId: number) => {
+    const target = notifications.find((n) => n.id === notificationId);
     dispatch(removeNotification(notificationId));
+    if (target && !target.is_read) dispatch(setUnreadCount(unreadTotal - 1));
+    deleteNotification(notificationId, token).catch(() =>
+      toast.error("Couldn't delete that notification. It may come back on refresh.")
+    );
   };
 
   const handleMarkAsRead = (notificationId: number) => {
     dispatch(markAsRead(notificationId));
+    dispatch(setUnreadCount(unreadTotal - 1));
+    markNotificationsRead({ notification_ids: [notificationId] }, token).catch(() => {
+      /* stays unread on the server; the next poll restores the true count */
+    });
   };
 
   // Fetch data if not available for current page

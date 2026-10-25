@@ -1,6 +1,8 @@
 import { Menu, Bell } from "lucide-react";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import type { RootState } from "@/store/store";
 
 interface HeaderProps {
   title: string;
@@ -9,6 +11,8 @@ interface HeaderProps {
 
 export function Header({ title, onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
+  // Kept fresh by LiveUpdates.
+  const unread = useSelector((state: RootState) => state.notifications.unreadCount);
 
   return (
     <div className="border-border fixed top-0 z-10 flex w-full items-center justify-between border-b bg-white p-4">
@@ -26,10 +30,16 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           navigate("/notifications");
         }}
         variant="ghost"
-        className="bg-primary/10 cursor-pointer rounded-full p-3"
+        className="bg-primary/10 relative cursor-pointer rounded-full p-3"
         size="icon"
+        aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
       >
         <Bell className="h-5 w-5" />
+        {unread > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-md">
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
       </Button>
     </div>
   );

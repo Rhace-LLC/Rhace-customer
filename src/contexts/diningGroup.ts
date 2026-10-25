@@ -39,6 +39,13 @@ export const useDiningGroup = () => {
   const fetchUserCurrentGroup = async () => {
     if (!auth.token || !isGroupDining) return;
 
+    // The session already checked on load: reuse it instead of asking again.
+    if (setup.currentGroup) {
+      setUserGroup(setup.currentGroup);
+      setShowDiningGroups(false);
+      return;
+    }
+
     setUserCurrentGroupLoading(true);
     setUserCurrentGroupError(null);
 
@@ -46,6 +53,7 @@ export const useDiningGroup = () => {
       const activeGroup = await getCurrentGroup(auth.token);
       if (activeGroup) {
         setUserGroup(activeGroup); // user is already in a group
+        setup.groupJoined(activeGroup);
         setShowDiningGroups(false); // close the dialog automatically
         toast.info("Your active dining group has been rejoined. Happy dining.");
       } else {
@@ -60,7 +68,6 @@ export const useDiningGroup = () => {
       }
       setUserCurrentGroupError(message);
       toast.error(message);
-      throw err;
     } finally {
       setUserCurrentGroupLoading(false);
     }
@@ -96,6 +103,7 @@ export const useDiningGroup = () => {
         auth.token
       );
       setUserGroup(response);
+      setup.groupJoined(response);
       await fetchGroups(); // refresh list after creation
     } catch (err) {
       const message = parseError(err);
@@ -116,6 +124,7 @@ export const useDiningGroup = () => {
         auth.token
       );
       setUserGroup(group);
+      setup.groupJoined(group);
 
       toast.success(response.message || "Joined group successfully!");
       return response;
@@ -138,6 +147,9 @@ export const useDiningGroup = () => {
       return;
     }
 
+    // Wait for the session's own group check on load (no flash, no double call).
+    if (!setup.resumeReady) return;
+
     if (!userGroup) {
       // First, check if the user is already in a group
       fetchUserCurrentGroup();
@@ -150,10 +162,12 @@ export const useDiningGroup = () => {
       setShowDiningGroups(false);
       setError(null);
     }
-  }, [isGroupDining, userGroup]);
+  }, [isGroupDining, userGroup, setup.resumeReady, setup.currentGroup]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (
+      setup.resumeReady &&
+      !setup.currentGroup &&
       !shouldPrompt &&
       preferredDiningExperience &&
       preferredDiningExperience == "group"
@@ -162,7 +176,7 @@ export const useDiningGroup = () => {
     } else {
       setShowDiningGroups(false);
     }
-  }, [shouldPrompt, preferredDiningExperience]);
+  }, [shouldPrompt, preferredDiningExperience, setup.resumeReady, setup.currentGroup]);
 
   return {
     fetchUserCurrentGroup,

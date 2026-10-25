@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   addItemsToOrder,
   cancelOrder,
@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/dialog";
 import { useSetupContext } from "@/contexts/SetupContext";
 import { BillOrder } from "@/api-services/billsettlement.service";
+import { PlayWhileYouWaitDialog } from "@/components/dialogs/PlayWhileYouWaitDialog";
+import { OrderProgress } from "./components/OrderProgress";
 
 const PersonalDineOrder = () => {
   const navigate = useNavigate();
@@ -50,6 +52,7 @@ const PersonalDineOrder = () => {
 
   const [paymentDetails, setPaymentDetails] = useState<any>();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [showPlayPrompt, setShowPlayPrompt] = useState(false);
 
   const setup = useSetupContext();
   const selectedRestaurant = setup.selectedRestaurant;
@@ -64,21 +67,22 @@ const PersonalDineOrder = () => {
     return sum + price * item.quantity;
   }, 0);
 
-  const {
-    unpaidOrders,
-    uncompletedOrders,
-    unpaidOrderError,
-    activeOrderError,
-    unpaidOrderLoading,
-    activeOrderLoading,
-    getUserUnpaidOrder,
-    getUserActiveOrder,
-  } = useUnpaidUncompleted();
+  const { unpaidOrders, uncompletedOrders } = useUnpaidUncompleted();
+
+  // Background refresh: the page stays on screen (no full-screen loader).
+  const refreshOrders = () =>
+    Promise.all([setup.fetchActiveOrders(), setup.fetchUnpaidOrders()]);
 
   const handleSubmitOrder = async () => {
     if (!auth.isAuthenticated) {
       toast.info("You need to be logged in to checkout");
       navigate(`/login?next=orders`);
+      return;
+    }
+
+    if (!selectedRestaurant?.tableId) {
+      toast.error("Scan the QR code on your table to place an order.");
+      navigate("/");
       return;
     }
 
@@ -107,8 +111,8 @@ const PersonalDineOrder = () => {
         "Order Submitted Successfully, You may now proceed to settle bill"
       );
       dispatch(clearCart());
-      getUserActiveOrder();
-      getUserUnpaidOrder();
+      setShowPlayPrompt(true);
+      refreshOrders();
     } catch (error) {
       const errmsg = parseError(error);
       toast.error(errmsg || "Failed to create order");
@@ -135,13 +139,12 @@ const PersonalDineOrder = () => {
         { items: addOrderPayload },
         auth.token
       );
-      getUserActiveOrder();
-      getUserUnpaidOrder();
+      refreshOrders();
       dispatch(clearCart());
+      setShowPlayPrompt(true);
     } catch (error) {
       const errorMessage = parseError(error);
       toast.error(errorMessage);
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -219,8 +222,7 @@ const PersonalDineOrder = () => {
     if (!paymentDetails?.reference) return;
 
     const result = await verifyPayment(paymentDetails.reference, auth.token);
-    getUserUnpaidOrder();
-    getUserActiveOrder();
+    refreshOrders();
     if (result?.data?.payment_status === "success") {
       toast.success("Payment completed successfully!");
     } else {
@@ -228,12 +230,6 @@ const PersonalDineOrder = () => {
     }
   };
 
-  useEffect(() => {
-    if (uncompletedOrders.length == 0 && unpaidOrders.length == 0) {
-      getUserActiveOrder();
-      getUserUnpaidOrder();
-    }
-  }, []);
 
   /*
   + heading --- Done
@@ -248,36 +244,28 @@ const PersonalDineOrder = () => {
   + cancel order
   */
 
-  if (activeOrderLoading || unpaidOrderLoading) {
+  // Only block the page until the first load; later refreshes run quietly.
+  if (!setup.resumeReady) {
     return <FullScreenLoader />;
   }
 
-  if (activeOrderError) {
-    return (
-      <FullScreenError
-        message={activeOrderError}
-        onRetry={getUserActiveOrder}
-      />
-    );
-  }
-
-  if (unpaidOrderError) {
-    return (
-      <FullScreenError
-        message={unpaidOrderError}
-        onRetry={getUserUnpaidOrder}
-      />
-    );
+  const loadError = setup.unpaidOrdersError || setup.activeOrdersError;
+  if (loadError && unpaidOrders.length === 0 && uncompletedOrders.length === 0) {
+    return <FullScreenError message={loadError} onRetry={refreshOrders} />;
   }
 
   return (
     <>
+      <PlayWhileYouWaitDialog
+        isOpen={showPlayPrompt}
+        onClose={() => setShowPlayPrompt(false)}
+      />
       <OrderSubmissionConfirmation
         open={showConfirmation}
-        onOpenChange={(val: boolean) => {
-          handleSubmitOrder();
-          setShowConfirmation(val);
-        }}
+        onOpenChange={setShowConfirmation}
+        onConfirm={handleSubmitOrder}
+        itemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+        total={totalPrice}
       />
       <button className="hidden" onClick={() => cancelUserOrder(3)}>
         Cancel Order
@@ -298,21 +286,19 @@ const PersonalDineOrder = () => {
 
               <div className="space-y-2">
                 {uncompletedOrders.map((order) => (
-                  <p
-                    key={order.id}
-                    className="text-sm leading-relaxed font-medium tracking-tight text-blue-900/80"
-                  >
-                    Order{" "}
-                    <span className="font-semibold text-blue-600">
-                      #{order.id}
-                    </span>{" "}
-                    for{" "}
-                    <span className="text-blue-900/60">
-                      {order.items.map((i) => i.menu_item_name).join(", ")}
-                    </span>{" "}
-                    is currently{" "}
-                    <span className="lowercase italic">{order.status}</span>
-                  </p>
+                  <div key={order.id} className="space-y-2">
+                    <p className="text-sm leading-relaxed font-medium tracking-tight text-blue-900/80">
+                      Order{" "}
+                      <span className="font-semibold text-blue-600">
+                        #{order.id}
+                      </span>{" "}
+                      for{" "}
+                      <span className="text-blue-900/60">
+                        {order.items.map((i) => i.menu_item_name).join(", ")}
+                      </span>
+                    </p>
+                    <OrderProgress order={order} compact />
+                  </div>
                 ))}
               </div>
             </div>

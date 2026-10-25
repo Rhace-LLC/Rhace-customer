@@ -31,6 +31,8 @@ export interface NotificationPagination {
 interface NotificationState {
   data: Record<string, Notification[]>; // page -> notifications
   total: number;
+  /** Server unread count, kept fresh by the notification poller. */
+  unreadCount: number;
   loading: boolean;
   error: string;
 }
@@ -39,6 +41,7 @@ interface NotificationState {
 const initialState: NotificationState = {
   data: {},
   total: 0,
+  unreadCount: 0,
   loading: false,
   error: "",
 };
@@ -95,11 +98,16 @@ const notificationSlice = createSlice({
     clearNotifications: (state) => {
       state.data = {};
       state.total = 0;
+      state.unreadCount = 0;
       state.error = "";
     },
 
     setTotal: (state, action: PayloadAction<number>) => {
       state.total = action.payload;
+    },
+
+    setUnreadCount: (state, action: PayloadAction<number>) => {
+      state.unreadCount = Math.max(0, action.payload);
     },
   },
 });
@@ -113,6 +121,7 @@ export const {
   removeNotification,
   clearNotifications,
   setTotal,
+  setUnreadCount,
 } = notificationSlice.actions;
 
 export default notificationSlice.reducer;

@@ -6,10 +6,6 @@ import { useRestaurant } from "./useRestaurant";
 import { useSetupContext } from "@/contexts/SetupContext";
 import { useParseSelection } from "@/hooks/useParseSelection";
 import {
-  BuildYourDishModal,
-  DidYouKnowCarousel,
-  FunArea,
-  GamesSection,
   HomeError,
   HomeLoading,
   QRScanPrompt,
@@ -28,7 +24,6 @@ export function HomePage() {
   const shouldPromptQRScan = !selectedRestaurant?.restaurantId;
 
   const [isQRScanOpen, setIsQRScanOpen] = useState(false);
-  const [isBuildDishOpen, setIsBuildDishOpen] = useState(false);
 
   const handleQRScan = () => setIsQRScanOpen(true);
   const handleDialogClose = () => setIsQRScanOpen(false);
@@ -76,27 +71,15 @@ export function HomePage() {
             )}
 
             {restaurant && (
-              <>
-                <RestaurantProfile
-                  restaurant={restaurant}
-                  onBrowseMenu={() => navigate("/menu")}
-                />
-                <FunArea onBuildDish={() => setIsBuildDishOpen(true)} />
-              </>
+              <RestaurantProfile
+                restaurant={restaurant}
+                onBrowseMenu={() => navigate("/menu")}
+              />
             )}
           </div>
         )}
 
         {shouldPromptQRScan && <QRScanPrompt onScan={handleQRScan} />}
-        <BuildYourDishModal
-          open={isBuildDishOpen}
-          onOpenChange={setIsBuildDishOpen}
-          restaurantId={restaurantId ?? undefined}
-        />
-
-        <DidYouKnowCarousel />
-
-        <GamesSection />
       </div>
     </div>
   );

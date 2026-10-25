@@ -30,13 +30,7 @@ export function LeaveGroupConfirmation({
   const auth = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { selectedRestaurant } = useSetupContext();
-  const tableId = selectedRestaurant?.tableId;
-  const restaurantId = selectedRestaurant?.restaurantId;
-  const restaurantName = selectedRestaurant?.restaurantName;
-  const tableNo = selectedRestaurant?.tableNo;
-
-  const reloadLink = `${window.location}?tid=${tableId}&rid=${restaurantId}&r=${restaurantName}&tno=${tableNo}`;
+  const { endGroupSession } = useSetupContext();
 
   const onConfirm = async () => {
     setIsLoading(true);
@@ -50,13 +44,10 @@ export function LeaveGroupConfirmation({
         description: "Your session has been ended.",
       });
 
-      // 3. Close the dialog
+      // 3. Close the dialog and ask how they'd like to dine next. No reload:
+      //    the table session is kept, so the guest stays at their table.
       onOpenChange(false);
-
-      // 4. Redirect instead of reload
-      setTimeout(() => {
-        window.location.href = reloadLink;
-      }, 1000);
+      endGroupSession();
     } catch (error: any) {
       // 5. Error Feedback
       toast.error("Failed to leave group", {
