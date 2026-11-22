@@ -43,6 +43,7 @@ import { BillOrder } from "@/api-services/billsettlement.service";
 import { PlayWhileYouWaitDialog } from "@/components/dialogs/PlayWhileYouWaitDialog";
 import { OrderProgress } from "./components/OrderProgress";
 import { AwaitingWaiterCard } from "./components/AwaitingWaiterCard";
+import { RefreshButton } from "./components/RefreshButton";
 import { anyAwaitingWaiter, usePollWhile } from "./waiterConfirmation";
 
 const PersonalDineOrder = () => {
@@ -285,6 +286,26 @@ const PersonalDineOrder = () => {
         Cancel Order
       </button>
 
+      {(orderCart.data.length > 0 ||
+        unpaidOrders.length > 0 ||
+        uncompletedOrders.length > 0) && (
+        /* Page Header — with a manual refresh so guests can check whether the
+           waiter has confirmed their order (which unlocks Settle Bill). */
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <h1 className="text-foreground text-2xl font-bold tracking-tight">
+              Personal Dining
+            </h1>
+
+            <p className="text-foreground/60 text-sm">
+              A private dining experience, just for you.
+            </p>
+          </div>
+
+          <RefreshButton onRefresh={refreshOrders} />
+        </div>
+      )}
+
       {uncompletedOrders.length > 0 && (
         <div className="animate-in fade-in slide-in-from-top-2 flex flex-col gap-5 rounded-[1.5rem] border border-blue-100/50 bg-blue-50/40 p-5 duration-500 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col items-center gap-4">
@@ -326,20 +347,6 @@ const PersonalDineOrder = () => {
         </div>
       )}
 
-      {(orderCart.data.length > 0 || unpaidOrders.length > 0) && (
-        <>
-          {/* Page Header */}
-          <div className="space-y-1">
-            <h1 className="text-foreground text-2xl font-bold tracking-tight">
-              Personal Dining
-            </h1>
-
-            <p className="text-foreground/60 text-sm">
-              A private dining experience, just for you.
-            </p>
-          </div>
-        </>
-      )}
       {unpaidOrders.length > 0 && (
         <>
           {/* Here we show you your order and prompt you to pay, you would also see your cart and if there is any stuff in your cart, you can update the order */}

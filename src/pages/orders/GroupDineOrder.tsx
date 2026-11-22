@@ -30,6 +30,7 @@ import FullScreenError, {
 } from "./components/utils";
 import { GetBillConfirmation } from "./components/BillSettlementModal";
 import { AwaitingWaiterCard } from "./components/AwaitingWaiterCard";
+import { RefreshButton } from "./components/RefreshButton";
 import { anyAwaitingWaiter, usePollWhile } from "./waiterConfirmation";
 import {
   requestDiningGroupBill,
@@ -366,8 +367,10 @@ const GroupDineOrder = () => {
             leaving={leaving}
           />
 
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-1">
+          {/* Phones: title on its own line, actions below (three buttons
+              don't fit beside the title under ~640px). sm+: single row. */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="min-w-0 space-y-1">
               <h1 className="text-foreground text-2xl font-bold tracking-tight">
                 Group Dining
               </h1>
@@ -376,12 +379,20 @@ const GroupDineOrder = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Manual refresh: check whether the waiter has confirmed the
+                  table's orders (unlocks Get / Settle Bill). */}
+              <RefreshButton
+                onRefresh={() =>
+                  Promise.all([groupOrderRefresh(), groupBillRefresh()])
+                }
+              />
               {/* Leave Group Button - Muted/Danger style */}
               <button
                 onClick={() => setIsLeaveDialogOpen(true)} // Open the dialog
-                className="flex h-12 cursor-pointer items-center justify-center rounded-xl border border-rose-100 bg-rose-50/50 px-4 text-rose-600 transition-all hover:bg-rose-100 active:scale-95"
+                className="flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border border-rose-100 bg-rose-50/50 px-4 text-rose-600 transition-all hover:bg-rose-100 active:scale-95"
                 title="Leave Group"
+                aria-label="Leave group"
               >
                 <LogOut size={20} />
                 <span className="text-[10px] tracking-widest uppercase sm:hidden">
@@ -392,7 +403,9 @@ const GroupDineOrder = () => {
               {/* Share Invite Button - Primary style */}
               <button
                 onClick={() => setShareDialogOpen(true)}
-                className="bg-primary/10 text-primary-600 hover:bg-primary/20 flex h-12 cursor-pointer items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all active:scale-95"
+                className="bg-primary/10 text-primary-600 hover:bg-primary/20 flex h-12 shrink-0 cursor-pointer items-center gap-2 rounded-xl px-4 text-sm font-bold transition-all active:scale-95"
+                title="Share invite"
+                aria-label="Share group invite"
               >
                 <Share2 size={18} />
                 <span className="hidden sm:inline"></span>

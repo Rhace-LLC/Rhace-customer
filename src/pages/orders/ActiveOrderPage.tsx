@@ -11,6 +11,7 @@ import FullScreenError, {
 import { useEffect } from "react";
 import NoActiveOrder from "./components/noorder";
 import { OrderProgress } from "./components/OrderProgress";
+import { RefreshButton } from "./components/RefreshButton";
 
 const ActiveOrderPage = () => {
   const { uncompletedOrders, getUserActiveOrder, activeOrderLoading, activeOrderError } =
@@ -43,14 +44,19 @@ const ActiveOrderPage = () => {
 
   return (
     <div className="mx-auto max-w-3xl space-y-12 p-6 py-12">
-      {/* PAGE HEADER */}
-      <div className="space-y-2 text-center sm:text-left">
-        <h1 className="text-3xl font-semibold tracking-tighter text-gray-900">
-          Active Orders
-        </h1>
-        <p className="text-sm font-medium text-gray-400">
-          Status updates automatically. You'll get a notice when it changes.
-        </p>
+      {/* PAGE HEADER — title left, manual refresh right (icon-only on small
+          phones, see RefreshButton). */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tighter text-gray-900">
+            Active Orders
+          </h1>
+          <p className="text-sm font-medium text-gray-400">
+            Status updates automatically. You'll get a notice when it changes.
+          </p>
+        </div>
+
+        <RefreshButton onRefresh={getUserActiveOrder} />
       </div>
 
       <div className="space-y-10">
