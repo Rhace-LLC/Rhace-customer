@@ -1,3 +1,5 @@
+import { AwaitingWaiterCard } from "@/pages/orders/components/AwaitingWaiterCard";
+import { anyAwaitingWaiter } from "@/pages/orders/waiterConfirmation";
 import { Check, CheckCircle, DollarSign, Loader2, Plus } from "lucide-react";
 import { usePolling } from "@/hooks/usePolling";
 
@@ -204,6 +206,17 @@ const BillSettlement = () => {
 
   if (!groupBill) {
     return <EmptyBillState />;
+  }
+
+  // Payment waits until a waiter has confirmed every unpaid order on the bill
+  // (e.g. someone added an order after the bill was generated). The polling
+  // above re-checks, so checkout appears on its own once confirmed.
+  if (anyAwaitingWaiter(groupBill.orders) && !myBillPaid) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        <AwaitingWaiterCard isGroup onCheckNow={groupBillRefresh} />
+      </div>
+    );
   }
 
   return (

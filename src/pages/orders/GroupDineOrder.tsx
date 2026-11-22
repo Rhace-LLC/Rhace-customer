@@ -29,6 +29,8 @@ import FullScreenError, {
   UserCart,
 } from "./components/utils";
 import { GetBillConfirmation } from "./components/BillSettlementModal";
+import { AwaitingWaiterCard } from "./components/AwaitingWaiterCard";
+import { anyAwaitingWaiter, usePollWhile } from "./waiterConfirmation";
 import {
   requestDiningGroupBill,
   submitSplitAmounts,
@@ -137,6 +139,12 @@ const GroupDineOrder = () => {
     groupOrderRefresh();
     groupBillRefresh();
   };
+
+  // The group bill covers every order at the table, so getting / settling the
+  // bill waits until a waiter has confirmed all unpaid orders. Viewing an
+  // already-paid bill is never blocked. Re-check quietly while waiting.
+  const awaitingWaiter = anyAwaitingWaiter(groupOrder?.orders) && !myBillPaid;
+  usePollWhile(awaitingWaiter, groupOrderRefresh);
   const [leaving, setLeaving] = useState(false);
 
   const transitionProtocol = async () => {
@@ -187,9 +195,10 @@ const GroupDineOrder = () => {
       };
 
       await createOrder(payload, auth.token);
-      toast.info(
-        "Order Submitted Successfully, You may now proceed to settle bill"
-      );
+      toast.info("Order submitted", {
+        description:
+          "A waiter will come to confirm your order. You'll be able to settle the bill once it's confirmed.",
+      });
       groupOrderRefresh();
       dispatch(clearCart());
       setShowPlayPrompt(true);
@@ -567,8 +576,13 @@ const GroupDineOrder = () => {
             </div>
           )}
       </div>
+      {/* Waiting for the waiter to confirm: no bill yet */}
+      {hasActiveOrders && !hasCartItems && awaitingWaiter && (
+        <AwaitingWaiterCard isGroup onCheckNow={groupOrderRefresh} />
+      )}
+
       {/* Updated Function Area*/}
-      {hasActiveOrders && !hasCartItems && (
+      {hasActiveOrders && !hasCartItems && !awaitingWaiter && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
           <div className="mb-6 h-px w-full bg-linear-to-r from-transparent via-gray-200 to-transparent" />

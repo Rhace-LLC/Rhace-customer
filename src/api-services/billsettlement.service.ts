@@ -26,6 +26,8 @@ export interface BillOrder {
   status: string;
   waiter: string | null;
   waiter_name: string | null;
+  /** Set by the back office when a waiter confirms the order. */
+  waiter_confirmed?: boolean;
   customer_name: string;
   address: string;
   customer_phone: string;

@@ -104,6 +104,9 @@ export interface Order {
   status: OrderStatus;
   waiter: string | null;
   waiter_name: string | null;
+  /** Set by the back office when a waiter confirms the order. Payment is only
+   * offered once this is true (see pages/orders/waiterConfirmation.ts). */
+  waiter_confirmed?: boolean;
   customer_name: string;
   address: string;
   customer_phone: string;

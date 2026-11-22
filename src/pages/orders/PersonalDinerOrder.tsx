@@ -42,6 +42,8 @@ import { useSetupContext } from "@/contexts/SetupContext";
 import { BillOrder } from "@/api-services/billsettlement.service";
 import { PlayWhileYouWaitDialog } from "@/components/dialogs/PlayWhileYouWaitDialog";
 import { OrderProgress } from "./components/OrderProgress";
+import { AwaitingWaiterCard } from "./components/AwaitingWaiterCard";
+import { anyAwaitingWaiter, usePollWhile } from "./waiterConfirmation";
 
 const PersonalDineOrder = () => {
   const navigate = useNavigate();
@@ -68,6 +70,12 @@ const PersonalDineOrder = () => {
   }, 0);
 
   const { unpaidOrders, uncompletedOrders } = useUnpaidUncompleted();
+
+  // Payment is only offered once a waiter has confirmed the order at the
+  // table. While waiting, re-check in the background so the bill appears
+  // on its own.
+  const awaitingWaiter = anyAwaitingWaiter(unpaidOrders);
+  usePollWhile(awaitingWaiter, setup.fetchUnpaidOrders);
 
   // Background refresh: the page stays on screen (no full-screen loader).
   const refreshOrders = () =>
@@ -107,9 +115,10 @@ const PersonalDineOrder = () => {
       };
 
       await createOrder(payload, auth.token);
-      toast.info(
-        "Order Submitted Successfully, You may now proceed to settle bill"
-      );
+      toast.info("Order submitted", {
+        description:
+          "A waiter will come to confirm your order. You'll be able to pay once it's confirmed.",
+      });
       dispatch(clearCart());
       setShowPlayPrompt(true);
       refreshOrders();
@@ -168,6 +177,11 @@ const PersonalDineOrder = () => {
     if (!auth.isAuthenticated) {
       toast.info("You need to be logged in to checkout");
       navigate(`/login?next=orders`);
+      return;
+    }
+
+    if (awaitingWaiter) {
+      toast.info("Please wait for the waiter to confirm your order first.");
       return;
     }
 
@@ -383,7 +397,13 @@ const PersonalDineOrder = () => {
         </div>
       )}
 
-      {unpaidOrders.length > 0 && (
+      {/* Waiting for the waiter to confirm: no payment yet. Adding items stays
+          available (the "Update Order" block below). */}
+      {unpaidOrders.length > 0 && awaitingWaiter && orderCart.data.length === 0 && (
+        <AwaitingWaiterCard onCheckNow={setup.fetchUnpaidOrders} />
+      )}
+
+      {unpaidOrders.length > 0 && !(awaitingWaiter && orderCart.data.length === 0) && (
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-6 duration-500">
           {/* Divider */}
           <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
